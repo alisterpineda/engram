@@ -71,14 +71,14 @@ function App() {
         navbar={{
           width: 300,
           breakpoint: 'sm',
-          collapsed: { mobile: !opened },
+          collapsed: { mobile: !opened, desktop: !opened },
         }}
         padding="md"
       >
         <AppShell.Header>
           <Group h="100%" px="md" justify="space-between">
             <Group>
-              <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+              <Burger opened={opened} onClick={toggle} size="sm" />
               <Text size="lg" fw={700}>{workspaceName}</Text>
             </Group>
           </Group>
