@@ -30,9 +30,17 @@ const config: ForgeConfig = {
         config: rendererConfig,
         entryPoints: [
           {
+            html: './src/renderer/launcher/index.html',
+            js: './src/renderer/launcher/index.tsx',
+            name: 'launcher_window',
+            preload: {
+              js: './src/preload/launcher.ts',
+            },
+          },
+          {
             html: './src/renderer/index.html',
             js: './src/renderer/index.tsx',
-            name: 'main_window',
+            name: 'workspace_window',
             preload: {
               js: './src/preload/main-window.ts',
             },
