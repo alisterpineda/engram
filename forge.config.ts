@@ -38,8 +38,8 @@ const config: ForgeConfig = {
             },
           },
           {
-            html: './src/renderer/index.html',
-            js: './src/renderer/index.tsx',
+            html: './src/renderer/workspace/index.html',
+            js: './src/renderer/workspace/index.tsx',
             name: 'workspace_window',
             preload: {
               js: './src/preload/main-window.ts',
