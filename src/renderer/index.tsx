@@ -26,6 +26,7 @@
  * ```
  */
 
+import '@mantine/core/styles.css';
 import './assets/index.css';
 
 console.log(
@@ -33,6 +34,47 @@ console.log(
 );
 
 import { createRoot } from 'react-dom/client';
+import { MantineProvider, createTheme, AppShell, Burger, Group, Text, Button } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+
+const theme = createTheme({
+  /** Put your mantine theme override here */
+});
+
+function App() {
+  const [opened, { toggle }] = useDisclosure();
+
+  return (
+    <MantineProvider theme={theme}>
+      <AppShell
+        header={{ height: 60 }}
+        navbar={{
+          width: 300,
+          breakpoint: 'sm',
+          collapsed: { mobile: !opened },
+        }}
+        padding="md"
+      >
+        <AppShell.Header>
+          <Group h="100%" px="md">
+            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+            <Text size="lg" fw={700}>Engram</Text>
+          </Group>
+        </AppShell.Header>
+
+        <AppShell.Navbar p="md">
+          <Text size="sm" fw={500}>Navigation</Text>
+        </AppShell.Navbar>
+
+        <AppShell.Main>
+          <Text size="xl" fw={700} mb="md">Welcome to Engram</Text>
+          <Text mb="md">Mantine has been successfully installed!</Text>
+          <Button>Click me</Button>
+        </AppShell.Main>
+      </AppShell>
+    </MantineProvider>
+  );
+}
 
 const root = createRoot(document.body);
-root.render(<h2>Hello from React!</h2>);
+root.render(<App />);
