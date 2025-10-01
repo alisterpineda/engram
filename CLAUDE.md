@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Mantine UI v8.
+Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Mantine UI v8. Workspace-based architecture with SQLite.
 
 ## Commands
 
@@ -12,24 +12,34 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
 
 ## Architecture
 
+### Workspace Model
+- Multi-workspace app (Obsidian-like): each workspace = `.sqlite` file with settings table (key-value)
+- TypeORM with better-sqlite3 driver
+- State: `~/.../userData/state.json` stores recent workspaces, last opened
+- Multiple workspaces can be open simultaneously, each in separate window
+
 ### UI Framework
 - **Mantine UI v8** (mantine.dev) - Component library with AppShell, Button, Text, Burger, etc.
-- Theme: `createTheme()` in `src/renderer/index.tsx`
 - PostCSS: `postcss.config.cjs` with `postcss-preset-mantine` and `postcss-simple-vars`
 - Breakpoints: xs:36em, sm:48em, md:62em, lg:75em, xl:88em
-- Layout: `MantineProvider` wraps app, `AppShell` provides header + collapsible navbar
 
 ### Process Model
 - **Main** (`src/main/`): Node.js, lifecycle, windows, system ops. Entry: `src/main/index.ts`
-- **Renderer** (`src/renderer/`): Browser, UI with React 19. Entry: `src/renderer/index.tsx`, template: `src/renderer/index.html`
-- **Preload** (`src/preload/`): Bridge between main/renderer. Script: `src/preload/main-window.ts`
+  - Windows: `LauncherWindow.ts`, `WorkspaceWindow.ts`
+  - IPC: `launcherHandlers.ts`, `workspaceHandlers.ts`
+  - State: `AppState.ts` (JSON persistence), `WorkspaceManager.ts` (TypeORM connections)
+- **Renderer** (`src/renderer/`): Browser, UI with React 19
+  - Launcher: `src/renderer/launcher/index.tsx` - create/open/recent workspaces
+  - Workspace: `src/renderer/workspace/index.tsx` - main app UI, displays workspace name
+- **Preload** (`src/preload/`): Bridge between main/renderer
+  - `launcher.ts` - workspace selection APIs
+  - `main-window.ts` - workspace operations (rename, settings, etc.)
 
 ### Build
 - Electron Forge: `forge.config.ts` with Webpack plugin
-- Webpack: Separate configs for main (`webpack.main.config.ts`) and renderer (`webpack.renderer.config.ts`)
-- TypeScript: `tsconfig.json` - ES6, CommonJS, React JSX
+- Webpack: Two renderer entry points (launcher_window, workspace_window)
+- TypeScript: `tsconfig.json` - ES6, CommonJS, React JSX, decorators enabled
 - Makers: Squirrel (Windows), ZIP (macOS), DEB/RPM (Linux)
-- Window: Created in `src/main/index.ts` with preload. Magic constants: `MAIN_WINDOW_WEBPACK_ENTRY`, `MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY`
 
 ### Security
 - ASAR packaging enabled
