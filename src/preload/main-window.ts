@@ -6,7 +6,6 @@ const workspacePath = process.argv.find((arg) => arg.startsWith('--workspace-pat
 
 contextBridge.exposeInMainWorld('electronAPI', {
   getWorkspaceInfo: () => ipcRenderer.invoke('get-workspace-info'),
-  renameWorkspace: (newName: string) => ipcRenderer.invoke('rename-workspace', newName),
   openLauncher: () => ipcRenderer.invoke('open-launcher'),
   getSetting: (key: string) => ipcRenderer.invoke('get-workspace-setting', key),
   setSetting: (key: string, value: string) => ipcRenderer.invoke('set-workspace-setting', key, value),

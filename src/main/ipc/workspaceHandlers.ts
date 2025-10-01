@@ -36,38 +36,6 @@ export function registerWorkspaceHandlers(): void {
     }
   });
 
-  // Rename workspace
-  ipcMain.handle('rename-workspace', async (event, newName: string) => {
-    try {
-      const window = BrowserWindow.fromWebContents(event.sender);
-      if (!window) {
-        throw new Error('Window not found');
-      }
-
-      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
-      if (!workspacePath) {
-        throw new Error('Workspace path not found');
-      }
-
-      await workspaceManager.renameWorkspace(workspacePath, newName);
-
-      // Update window title
-      window.setTitle(`${newName} - Engram`);
-
-      // Update recent workspaces
-      appState.addRecentWorkspace({
-        name: newName,
-        path: workspacePath,
-        lastOpened: Date.now(),
-      });
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error renaming workspace:', error);
-      return { success: false, error: (error as Error).message };
-    }
-  });
-
   // Open launcher from workspace window
   ipcMain.handle('open-launcher', () => {
     LauncherWindow.create();

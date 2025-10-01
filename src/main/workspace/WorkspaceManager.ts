@@ -43,14 +43,6 @@ export class WorkspaceManager {
     // Initialize the connection (this will create the file and tables)
     await dataSource.initialize();
 
-    // Add the workspace name to settings
-    const settingsRepo = dataSource.getRepository(Setting);
-    const nameSetting = settingsRepo.create({
-      key: 'workspace_name',
-      value: name,
-    });
-    await settingsRepo.save(nameSetting);
-
     // Close the connection (it will be reopened when the workspace window is created)
     await dataSource.destroy();
 
@@ -77,20 +69,11 @@ export class WorkspaceManager {
     const dataSource = createDataSource(filePath);
     await dataSource.initialize();
 
-    // Verify it's a valid workspace by checking for settings table
-    const settingsRepo = dataSource.getRepository(Setting);
-    const nameSetting = await settingsRepo.findOne({ where: { key: 'workspace_name' } });
-
-    if (!nameSetting) {
-      await dataSource.destroy();
-      throw new Error('Invalid workspace file: missing workspace name');
-    }
-
     // Store the connection
     this.openWorkspaces.set(filePath, { dataSource, path: filePath });
 
     return {
-      name: nameSetting.value,
+      name: path.basename(filePath, '.sqlite'),
       path: filePath,
     };
   }
@@ -104,43 +87,22 @@ export class WorkspaceManager {
   }
 
   public async getWorkspaceName(dataSourceOrPath: DataSource | string): Promise<string> {
-    let dataSource: DataSource;
+    let filePath: string;
 
     if (typeof dataSourceOrPath === 'string') {
-      const workspace = this.openWorkspaces.get(dataSourceOrPath);
-      if (!workspace) {
-        throw new Error('Workspace is not open');
+      filePath = dataSourceOrPath;
+    } else {
+      // Find the file path from the data source
+      const entry = Array.from(this.openWorkspaces.entries()).find(
+        ([_, workspace]) => workspace.dataSource === dataSourceOrPath
+      );
+      if (!entry) {
+        throw new Error('Workspace not found');
       }
-      dataSource = workspace.dataSource;
-    } else {
-      dataSource = dataSourceOrPath;
+      filePath = entry[0];
     }
 
-    const settingsRepo = dataSource.getRepository(Setting);
-    const nameSetting = await settingsRepo.findOne({ where: { key: 'workspace_name' } });
-
-    if (!nameSetting) {
-      throw new Error('Workspace name not found in settings');
-    }
-
-    return nameSetting.value;
-  }
-
-  public async renameWorkspace(filePath: string, newName: string): Promise<void> {
-    const workspace = this.openWorkspaces.get(filePath);
-    if (!workspace) {
-      throw new Error('Workspace is not open');
-    }
-
-    const settingsRepo = workspace.dataSource.getRepository(Setting);
-    const nameSetting = await settingsRepo.findOne({ where: { key: 'workspace_name' } });
-
-    if (nameSetting) {
-      nameSetting.value = newName;
-      await settingsRepo.save(nameSetting);
-    } else {
-      throw new Error('Workspace name setting not found');
-    }
+    return path.basename(filePath, '.sqlite');
   }
 
   public isWorkspaceOpen(filePath: string): boolean {
