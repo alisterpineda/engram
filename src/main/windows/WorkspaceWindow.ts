@@ -38,9 +38,9 @@ export class WorkspaceWindow {
     window.loadURL(WORKSPACE_WINDOW_WEBPACK_ENTRY);
 
     // Open DevTools in development
-    if (process.env.NODE_ENV !== 'production') {
-      window.webContents.openDevTools();
-    }
+    // if (process.env.NODE_ENV !== 'production') {
+    //   window.webContents.openDevTools();
+    // }
 
     // Handle window close
     window.on('closed', async () => {

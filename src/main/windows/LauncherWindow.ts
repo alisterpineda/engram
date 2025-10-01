@@ -26,9 +26,9 @@ export class LauncherWindow {
     window.loadURL(LAUNCHER_WINDOW_WEBPACK_ENTRY);
 
     // Open DevTools in development
-    if (process.env.NODE_ENV !== 'production') {
-      window.webContents.openDevTools();
-    }
+    // if (process.env.NODE_ENV !== 'production') {
+    //   window.webContents.openDevTools();
+    // }
 
     window.on('closed', () => {
       LauncherWindow.instance = null;
