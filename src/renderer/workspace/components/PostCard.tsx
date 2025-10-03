@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, Text, Group, ActionIcon, TextInput, Textarea, Stack } from '@mantine/core';
+import { Card, Text, Group, ActionIcon, TextInput, Textarea, Stack, Box } from '@mantine/core';
 import { IconEdit, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
 import { CommentSection } from './CommentSection';
 
@@ -41,6 +41,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   const [editTitle, setEditTitle] = useState(post.title || '');
   const [editBody, setEditBody] = useState(post.body);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleUpdate = async () => {
     if (!editBody.trim()) {
@@ -94,7 +95,14 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   };
 
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
+    <Card
+      shadow="sm"
+      padding="lg"
+      radius="md"
+      withBorder
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {isEditing ? (
         <Stack gap="xs">
           <TextInput
@@ -137,7 +145,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
             <Text size="xs" c="dimmed">
               {formatRelativeTime(post.createdAt)}
             </Text>
-            <Group gap="xs">
+            <Group gap="xs" style={{ opacity: isHovered ? 1 : 0 }}>
               <ActionIcon
                 variant="subtle"
                 color="blue"
@@ -167,7 +175,12 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
             {post.body}
           </Text>
 
-          <CommentSection postId={post.id} previewMode={true} />
+          <Box
+            onMouseEnter={() => setIsHovered(false)}
+            onMouseLeave={() => setIsHovered(true)}
+          >
+            <CommentSection postId={post.id} previewMode={true} />
+          </Box>
         </>
       )}
     </Card>

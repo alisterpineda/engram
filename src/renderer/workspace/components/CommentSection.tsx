@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, Fragment } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Stack, Divider, Text, Loader, Center, Anchor, Box } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { EntryComposer } from './EntryComposer';
@@ -149,15 +149,13 @@ export function CommentSection({ postId, previewMode = false }: CommentSectionPr
             </Anchor>
           )}
 
-          {displayedComments.map((comment, index) => (
-            <Fragment key={comment.id}>
-              {index > 0 && <Divider />}
-              <CommentItem
-                comment={comment}
-                onUpdate={handleCommentUpdated}
-                onDelete={handleCommentDeleted}
-              />
-            </Fragment>
+          {displayedComments.map((comment) => (
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              onUpdate={handleCommentUpdated}
+              onDelete={handleCommentDeleted}
+            />
           ))}
 
           {!previewMode && hasMore && (

@@ -39,6 +39,7 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editBody, setEditBody] = useState(comment.body);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleUpdate = async () => {
     if (!editBody.trim()) {
@@ -91,7 +92,11 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
   };
 
   return (
-    <Stack gap="xs">
+    <Stack
+      gap="xs"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {isEditing ? (
         <>
           <Group justify="space-between" align="center">
@@ -133,7 +138,7 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
             <Text size="xs" c="dimmed">
               {formatRelativeTime(comment.createdAt)}
             </Text>
-            <Group gap="xs">
+            <Group gap="xs" style={{ opacity: isHovered ? 1 : 0 }}>
               <ActionIcon
                 variant="subtle"
                 color="blue"
