@@ -13,8 +13,9 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
 ## Architecture
 
 ### Workspace Model
-- Multi-workspace app (Obsidian-like): each workspace = `.sqlite` file with settings table (key-value)
+- Multi-workspace app (Obsidian-like): each workspace = `.sqlite` file
 - TypeORM with better-sqlite3 driver
+- Entities: `Setting` (key-value config), `Entry` (posts/comments with self-referential parent/children)
 - State: `~/.../userData/state.json` stores recent workspaces, last opened
 - Multiple workspaces can be open simultaneously, each in separate window
 
@@ -30,7 +31,9 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
   - State: `AppState.ts` (JSON persistence), `WorkspaceManager.ts` (TypeORM connections)
 - **Renderer** (`src/renderer/`): Browser, UI with React 19
   - Launcher: `src/renderer/launcher/index.tsx` - create/open/recent workspaces
-  - Workspace: `src/renderer/workspace/index.tsx` - main app UI, displays workspace name
+  - Workspace: `src/renderer/workspace/index.tsx` - AppShell with collapsible navbar, routing (react-router-dom HashRouter)
+    - Views: `FeedView` (journal feed, infinite scroll), `PostDetailView` (single post, paginated comments)
+    - Components: `EntryComposer`, `PostCard`, `CommentSection`, `CommentItem`
 - **Preload** (`src/preload/`): Bridge between main/renderer
   - `launcher.ts` - workspace selection APIs
   - `main-window.ts` - workspace operations (rename, settings, etc.)
