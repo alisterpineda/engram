@@ -167,7 +167,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
             {post.body}
           </Text>
 
-          <CommentSection postId={post.id} />
+          <CommentSection postId={post.id} previewMode={true} />
         </>
       )}
     </Card>

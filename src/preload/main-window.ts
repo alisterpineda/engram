@@ -12,10 +12,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   entry: {
     create: (body: string, title?: string | null, parentId?: number | null) =>
       ipcRenderer.invoke('entry:create', body, title, parentId),
+    getById: (id: number) =>
+      ipcRenderer.invoke('entry:get-by-id', id),
     listPosts: (offset?: number, limit?: number) =>
       ipcRenderer.invoke('entry:list-posts', offset, limit),
-    listComments: (parentId: number) =>
-      ipcRenderer.invoke('entry:list-comments', parentId),
+    listComments: (parentId: number, offset?: number, limit?: number) =>
+      ipcRenderer.invoke('entry:list-comments', parentId, offset, limit),
     update: (id: number, body: string, title?: string | null) =>
       ipcRenderer.invoke('entry:update', id, body, title),
     delete: (id: number) =>

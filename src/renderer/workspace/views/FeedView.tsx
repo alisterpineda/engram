@@ -1,0 +1,130 @@
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { Stack, Container, Loader, Center, Box, Text } from '@mantine/core';
+import { EntryComposer } from '../components/EntryComposer';
+import { PostCard } from '../components/PostCard';
+
+interface Entry {
+  id: number;
+  title: string | null;
+  body: string;
+  createdAt: Date;
+  updatedAt: Date;
+  parentId: number | null;
+}
+
+const electronAPI = (window as any).electronAPI;
+const POSTS_PER_PAGE = 20;
+
+export function FeedView() {
+  const [posts, setPosts] = useState<Entry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(0);
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Load initial posts
+    loadPosts(0);
+  }, []);
+
+  const loadPosts = async (currentOffset: number) => {
+    setIsLoading(true);
+
+    try {
+      const result = await electronAPI.entry.listPosts(currentOffset, POSTS_PER_PAGE);
+
+      if (result.success && result.data) {
+        if (currentOffset === 0) {
+          setPosts(result.data);
+        } else {
+          setPosts((prev) => [...prev, ...result.data]);
+        }
+
+        setHasMore(result.data.length === POSTS_PER_PAGE);
+        setOffset(currentOffset + result.data.length);
+      } else {
+        console.error('Failed to load posts:', result.error);
+      }
+    } catch (error) {
+      console.error('Error loading posts:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadMorePosts = useCallback(() => {
+    if (!isLoading && hasMore) {
+      loadPosts(offset);
+    }
+  }, [offset, isLoading, hasMore]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMorePosts();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [loadMorePosts]);
+
+  const handlePostCreated = (newPost: Entry) => {
+    setPosts((prev) => [newPost, ...prev]);
+  };
+
+  const handlePostUpdated = (updatedPost: Entry) => {
+    setPosts((prev) =>
+      prev.map((post) => (post.id === updatedPost.id ? updatedPost : post))
+    );
+  };
+
+  const handlePostDeleted = (id: number) => {
+    setPosts((prev) => prev.filter((post) => post.id !== id));
+  };
+
+  return (
+    <Container size="md" px={0}>
+      <Stack gap="lg">
+        <EntryComposer onSuccess={handlePostCreated} />
+
+        {posts.length === 0 && !isLoading ? (
+          <Center p="xl">
+            <Text size="sm" c="dimmed">
+              No posts yet. Create your first post above!
+            </Text>
+          </Center>
+        ) : (
+          <>
+            {posts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                onUpdate={handlePostUpdated}
+                onDelete={handlePostDeleted}
+              />
+            ))}
+
+            {hasMore && (
+              <Box ref={observerTarget}>
+                <Center p="md">
+                  <Loader size="sm" />
+                </Center>
+              </Box>
+            )}
+          </>
+        )}
+      </Stack>
+    </Container>
+  );
+}

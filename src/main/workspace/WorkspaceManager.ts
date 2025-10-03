@@ -168,8 +168,8 @@ export class WorkspaceManager {
 
   public async getTopLevelEntries(
     filePath: string,
-    offset: number = 0,
-    limit: number = 20
+    offset = 0,
+    limit = 20
   ): Promise<Entry[]> {
     const workspace = this.openWorkspaces.get(filePath);
     if (!workspace) {
@@ -185,7 +185,22 @@ export class WorkspaceManager {
     });
   }
 
-  public async getChildEntries(filePath: string, parentId: number): Promise<Entry[]> {
+  public async getEntryById(filePath: string, id: number): Promise<Entry | null> {
+    const workspace = this.openWorkspaces.get(filePath);
+    if (!workspace) {
+      throw new Error('Workspace is not open');
+    }
+
+    const entryRepo = workspace.dataSource.getRepository(Entry);
+    return await entryRepo.findOne({ where: { id } });
+  }
+
+  public async getChildEntries(
+    filePath: string,
+    parentId: number,
+    offset?: number,
+    limit?: number
+  ): Promise<Entry[]> {
     const workspace = this.openWorkspaces.get(filePath);
     if (!workspace) {
       throw new Error('Workspace is not open');
@@ -195,6 +210,8 @@ export class WorkspaceManager {
     return await entryRepo.find({
       where: { parentId },
       order: { createdAt: 'ASC' },
+      skip: offset,
+      take: limit,
     });
   }
 
