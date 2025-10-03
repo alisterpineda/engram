@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Paper, Text, Group, ActionIcon, Textarea, Stack } from '@mantine/core';
+import { Text, Group, ActionIcon, Textarea, Stack } from '@mantine/core';
 import { IconEdit, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
 
 interface Entry {
@@ -91,9 +91,14 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
   };
 
   return (
-    <Paper p="sm" withBorder>
+    <Stack gap="xs">
       {isEditing ? (
-        <Stack gap="xs">
+        <>
+          <Group justify="space-between" align="center">
+            <Text size="xs" c="dimmed">
+              {formatRelativeTime(comment.createdAt)}
+            </Text>
+          </Group>
           <Textarea
             placeholder="Comment text"
             value={editBody}
@@ -121,12 +126,9 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
               <IconCheck size={16} />
             </ActionIcon>
           </Group>
-        </Stack>
+        </>
       ) : (
         <>
-          <Text size="sm" mb="xs" style={{ whiteSpace: 'pre-wrap' }}>
-            {comment.body}
-          </Text>
           <Group justify="space-between" align="center">
             <Text size="xs" c="dimmed">
               {formatRelativeTime(comment.createdAt)}
@@ -150,8 +152,11 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
               </ActionIcon>
             </Group>
           </Group>
+          <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
+            {comment.body}
+          </Text>
         </>
       )}
-    </Paper>
+    </Stack>
   );
 }
