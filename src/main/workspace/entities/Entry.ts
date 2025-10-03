@@ -5,9 +5,6 @@ export class Entry {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true })
-  title: string | null;
-
   @Column('text')
   body: string;
 

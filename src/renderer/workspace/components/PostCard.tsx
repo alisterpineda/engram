@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Card, Text, Group, ActionIcon, TextInput, Textarea, Stack, Box } from '@mantine/core';
+import { Card, Text, Group, ActionIcon, Textarea, Stack, Box } from '@mantine/core';
 import { IconEdit, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
 import { CommentSection } from './CommentSection';
 
 interface Entry {
   id: number;
-  title: string | null;
   body: string;
   createdAt: Date;
   updatedAt: Date;
@@ -38,7 +37,6 @@ function formatRelativeTime(date: Date): string {
 
 export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(post.title || '');
   const [editBody, setEditBody] = useState(post.body);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -53,8 +51,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     try {
       const result = await electronAPI.entry.update(
         post.id,
-        editBody,
-        editTitle.trim() || null
+        editBody
       );
 
       if (result.success) {
@@ -89,7 +86,6 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   };
 
   const handleCancelEdit = () => {
-    setEditTitle(post.title || '');
     setEditBody(post.body);
     setIsEditing(false);
   };
@@ -105,12 +101,6 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     >
       {isEditing ? (
         <Stack gap="xs">
-          <TextInput
-            placeholder="Title (optional)"
-            value={editTitle}
-            onChange={(e) => setEditTitle(e.target.value)}
-            disabled={isSubmitting}
-          />
           <Textarea
             placeholder="Post text"
             value={editBody}
@@ -164,12 +154,6 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
               </ActionIcon>
             </Group>
           </Group>
-
-          {post.title && (
-            <Text size="lg" fw={700} mb="xs">
-              {post.title}
-            </Text>
-          )}
 
           <Text size="sm" mb="md" style={{ whiteSpace: 'pre-wrap' }}>
             {post.body}

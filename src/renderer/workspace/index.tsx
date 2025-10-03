@@ -44,7 +44,6 @@ const theme = createTheme({
 
 interface Entry {
   id: number;
-  title: string | null;
   body: string;
   createdAt: Date;
   updatedAt: Date;
@@ -57,11 +56,11 @@ interface WorkspaceElectronAPI {
   getSetting: (key: string) => Promise<{ success: boolean; value: string | null }>;
   setSetting: (key: string, value: string) => Promise<{ success: boolean }>;
   entry: {
-    create: (body: string, title?: string | null, parentId?: number | null) => Promise<{ success: boolean; data?: Entry; error?: string }>;
+    create: (body: string, parentId?: number | null) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     getById: (id: number) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     listPosts: (offset?: number, limit?: number) => Promise<{ success: boolean; data?: Entry[]; error?: string }>;
     listComments: (parentId: number, offset?: number, limit?: number) => Promise<{ success: boolean; data?: Entry[]; error?: string }>;
-    update: (id: number, body: string, title?: string | null) => Promise<{ success: boolean; data?: Entry; error?: string }>;
+    update: (id: number, body: string) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     delete: (id: number) => Promise<{ success: boolean; error?: string }>;
   };
 }

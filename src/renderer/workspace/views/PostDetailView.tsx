@@ -6,7 +6,6 @@ import { CommentSection } from '../components/CommentSection';
 
 interface Entry {
   id: number;
-  title: string | null;
   body: string;
   createdAt: Date;
   updatedAt: Date;
@@ -95,12 +94,6 @@ export function PostDetailView() {
             <Text size="xs" c="dimmed">
               {formatRelativeTime(post.createdAt)}
             </Text>
-
-            {post.title && (
-              <Text size="lg" fw={700} mb="xs">
-                {post.title}
-              </Text>
-            )}
 
             <Text size="sm" mb="md" style={{ whiteSpace: 'pre-wrap' }}>
               {post.body}

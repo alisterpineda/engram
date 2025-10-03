@@ -4,7 +4,6 @@ import { IconEdit, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
 
 interface Entry {
   id: number;
-  title: string | null;
   body: string;
   createdAt: Date;
   updatedAt: Date;
@@ -51,8 +50,7 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
     try {
       const result = await electronAPI.entry.update(
         comment.id,
-        editBody,
-        null
+        editBody
       );
 
       if (result.success) {

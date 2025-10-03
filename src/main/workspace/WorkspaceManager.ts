@@ -148,7 +148,6 @@ export class WorkspaceManager {
   public async createEntry(
     filePath: string,
     body: string,
-    title?: string | null,
     parentId?: number | null
   ): Promise<Entry> {
     const workspace = this.openWorkspaces.get(filePath);
@@ -158,7 +157,6 @@ export class WorkspaceManager {
 
     const entryRepo = workspace.dataSource.getRepository(Entry);
     const entry = entryRepo.create({
-      title: title || null,
       body,
       parentId: parentId || null,
     });
@@ -218,8 +216,7 @@ export class WorkspaceManager {
   public async updateEntry(
     filePath: string,
     id: number,
-    body: string,
-    title?: string | null
+    body: string
   ): Promise<Entry> {
     const workspace = this.openWorkspaces.get(filePath);
     if (!workspace) {
@@ -233,7 +230,6 @@ export class WorkspaceManager {
       throw new Error('Entry not found');
     }
 
-    entry.title = title || null;
     entry.body = body;
 
     return await entryRepo.save(entry);

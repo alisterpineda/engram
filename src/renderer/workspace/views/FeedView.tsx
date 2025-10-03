@@ -5,7 +5,6 @@ import { PostCard } from '../components/PostCard';
 
 interface Entry {
   id: number;
-  title: string | null;
   body: string;
   createdAt: Date;
   updatedAt: Date;

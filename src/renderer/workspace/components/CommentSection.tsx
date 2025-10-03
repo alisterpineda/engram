@@ -6,7 +6,6 @@ import { CommentItem } from './CommentItem';
 
 interface Entry {
   id: number;
-  title: string | null;
   body: string;
   createdAt: Date;
   updatedAt: Date;

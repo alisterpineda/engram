@@ -87,7 +87,7 @@ export function registerWorkspaceHandlers(): void {
   });
 
   // Create entry (post or comment)
-  ipcMain.handle('entry:create', async (event, body: string, title?: string | null, parentId?: number | null) => {
+  ipcMain.handle('entry:create', async (event, body: string, parentId?: number | null) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -99,7 +99,7 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Workspace path not found');
       }
 
-      const entry = await workspaceManager.createEntry(workspacePath, body, title, parentId);
+      const entry = await workspaceManager.createEntry(workspacePath, body, parentId);
 
       return { success: true, data: entry };
     } catch (error) {
@@ -179,7 +179,7 @@ export function registerWorkspaceHandlers(): void {
   });
 
   // Update entry
-  ipcMain.handle('entry:update', async (event, id: number, body: string, title?: string | null) => {
+  ipcMain.handle('entry:update', async (event, id: number, body: string) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -191,7 +191,7 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Workspace path not found');
       }
 
-      const entry = await workspaceManager.updateEntry(workspacePath, id, body, title);
+      const entry = await workspaceManager.updateEntry(workspacePath, id, body);
 
       return { success: true, data: entry };
     } catch (error) {
