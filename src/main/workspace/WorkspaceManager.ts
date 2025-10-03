@@ -1,8 +1,9 @@
-import { DataSource } from 'typeorm';
+import { DataSource, IsNull } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createDataSource } from './dataSourceFactory';
 import { Setting } from './entities/Setting';
+import { Entry } from './entities/Entry';
 import { WorkspaceData } from '../../shared/types';
 
 interface OpenWorkspace {
@@ -141,5 +142,99 @@ export class WorkspaceManager {
     }
 
     await settingsRepo.save(setting);
+  }
+
+  // Entry CRUD operations
+  public async createEntry(
+    filePath: string,
+    body: string,
+    title?: string | null,
+    parentId?: number | null
+  ): Promise<Entry> {
+    const workspace = this.openWorkspaces.get(filePath);
+    if (!workspace) {
+      throw new Error('Workspace is not open');
+    }
+
+    const entryRepo = workspace.dataSource.getRepository(Entry);
+    const entry = entryRepo.create({
+      title: title || null,
+      body,
+      parentId: parentId || null,
+    });
+
+    return await entryRepo.save(entry);
+  }
+
+  public async getTopLevelEntries(
+    filePath: string,
+    offset: number = 0,
+    limit: number = 20
+  ): Promise<Entry[]> {
+    const workspace = this.openWorkspaces.get(filePath);
+    if (!workspace) {
+      throw new Error('Workspace is not open');
+    }
+
+    const entryRepo = workspace.dataSource.getRepository(Entry);
+    return await entryRepo.find({
+      where: { parentId: IsNull() },
+      order: { createdAt: 'DESC' },
+      skip: offset,
+      take: limit,
+    });
+  }
+
+  public async getChildEntries(filePath: string, parentId: number): Promise<Entry[]> {
+    const workspace = this.openWorkspaces.get(filePath);
+    if (!workspace) {
+      throw new Error('Workspace is not open');
+    }
+
+    const entryRepo = workspace.dataSource.getRepository(Entry);
+    return await entryRepo.find({
+      where: { parentId },
+      order: { createdAt: 'ASC' },
+    });
+  }
+
+  public async updateEntry(
+    filePath: string,
+    id: number,
+    body: string,
+    title?: string | null
+  ): Promise<Entry> {
+    const workspace = this.openWorkspaces.get(filePath);
+    if (!workspace) {
+      throw new Error('Workspace is not open');
+    }
+
+    const entryRepo = workspace.dataSource.getRepository(Entry);
+    const entry = await entryRepo.findOne({ where: { id } });
+
+    if (!entry) {
+      throw new Error('Entry not found');
+    }
+
+    entry.title = title || null;
+    entry.body = body;
+
+    return await entryRepo.save(entry);
+  }
+
+  public async deleteEntry(filePath: string, id: number): Promise<void> {
+    const workspace = this.openWorkspaces.get(filePath);
+    if (!workspace) {
+      throw new Error('Workspace is not open');
+    }
+
+    const entryRepo = workspace.dataSource.getRepository(Entry);
+    const entry = await entryRepo.findOne({ where: { id } });
+
+    if (!entry) {
+      throw new Error('Entry not found');
+    }
+
+    await entryRepo.remove(entry);
   }
 }

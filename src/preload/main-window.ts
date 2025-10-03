@@ -9,6 +9,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openLauncher: () => ipcRenderer.invoke('open-launcher'),
   getSetting: (key: string) => ipcRenderer.invoke('get-workspace-setting', key),
   setSetting: (key: string, value: string) => ipcRenderer.invoke('set-workspace-setting', key, value),
+  entry: {
+    create: (body: string, title?: string | null, parentId?: number | null) =>
+      ipcRenderer.invoke('entry:create', body, title, parentId),
+    listPosts: (offset?: number, limit?: number) =>
+      ipcRenderer.invoke('entry:list-posts', offset, limit),
+    listComments: (parentId: number) =>
+      ipcRenderer.invoke('entry:list-comments', parentId),
+    update: (id: number, body: string, title?: string | null) =>
+      ipcRenderer.invoke('entry:update', id, body, title),
+    delete: (id: number) =>
+      ipcRenderer.invoke('entry:delete', id),
+  },
 });
 
 contextBridge.exposeInMainWorld('workspacePath', workspacePath);

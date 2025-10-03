@@ -85,4 +85,114 @@ export function registerWorkspaceHandlers(): void {
       return { success: false, error: (error as Error).message };
     }
   });
+
+  // Create entry (post or comment)
+  ipcMain.handle('entry:create', async (event, body: string, title?: string | null, parentId?: number | null) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
+      if (!workspacePath) {
+        throw new Error('Workspace path not found');
+      }
+
+      const entry = await workspaceManager.createEntry(workspacePath, body, title, parentId);
+
+      return { success: true, data: entry };
+    } catch (error) {
+      console.error('Error creating entry:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // List top-level entries (posts)
+  ipcMain.handle('entry:list-posts', async (event, offset: number = 0, limit: number = 20) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
+      if (!workspacePath) {
+        throw new Error('Workspace path not found');
+      }
+
+      const entries = await workspaceManager.getTopLevelEntries(workspacePath, offset, limit);
+
+      return { success: true, data: entries };
+    } catch (error) {
+      console.error('Error listing posts:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // List comments for a post
+  ipcMain.handle('entry:list-comments', async (event, parentId: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
+      if (!workspacePath) {
+        throw new Error('Workspace path not found');
+      }
+
+      const entries = await workspaceManager.getChildEntries(workspacePath, parentId);
+
+      return { success: true, data: entries };
+    } catch (error) {
+      console.error('Error listing comments:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Update entry
+  ipcMain.handle('entry:update', async (event, id: number, body: string, title?: string | null) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
+      if (!workspacePath) {
+        throw new Error('Workspace path not found');
+      }
+
+      const entry = await workspaceManager.updateEntry(workspacePath, id, body, title);
+
+      return { success: true, data: entry };
+    } catch (error) {
+      console.error('Error updating entry:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Delete entry
+  ipcMain.handle('entry:delete', async (event, id: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
+      if (!workspacePath) {
+        throw new Error('Workspace path not found');
+      }
+
+      await workspaceManager.deleteEntry(workspacePath, id);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
 }
