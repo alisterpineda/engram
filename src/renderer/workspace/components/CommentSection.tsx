@@ -26,6 +26,7 @@ export function CommentSection({ postId, previewMode = false }: CommentSectionPr
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
+  const [isComposerVisible, setIsComposerVisible] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -128,12 +129,6 @@ export function CommentSection({ postId, previewMode = false }: CommentSectionPr
     <Stack gap="md" mt="md">
       <Divider />
 
-      <EntryComposer
-        parentId={postId}
-        onSuccess={handleCommentCreated}
-        buttonText="Comment"
-      />
-
       {isLoading ? (
         <Center p="md">
           <Loader size="sm" />
@@ -171,6 +166,25 @@ export function CommentSection({ postId, previewMode = false }: CommentSectionPr
             </Box>
           )}
         </Stack>
+      )}
+
+      {!isComposerVisible && (
+        <Anchor
+          size="sm"
+          onClick={() => setIsComposerVisible(true)}
+          style={{ cursor: 'pointer' }}
+        >
+          Add Comment
+        </Anchor>
+      )}
+
+      {isComposerVisible && (
+        <EntryComposer
+          parentId={postId}
+          onSuccess={handleCommentCreated}
+          buttonText="Comment"
+          onCancel={() => setIsComposerVisible(false)}
+        />
       )}
     </Stack>
   );

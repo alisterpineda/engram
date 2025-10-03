@@ -14,11 +14,12 @@ interface EntryComposerProps {
   parentId?: number | null;
   onSuccess?: (entry: Entry) => void;
   buttonText?: string;
+  onCancel?: () => void;
 }
 
 const electronAPI = (window as any).electronAPI;
 
-export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post' }: EntryComposerProps) {
+export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post', onCancel }: EntryComposerProps) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,6 +57,14 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post' 
     }
   };
 
+  const handleCancel = () => {
+    setTitle('');
+    setBody('');
+    if (onCancel) {
+      onCancel();
+    }
+  };
+
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder>
       <Stack gap="xs">
@@ -76,6 +85,15 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post' 
           autosize
         />
         <Group justify="flex-end">
+          {onCancel && (
+            <Button
+              variant="subtle"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+          )}
           <Button
             onClick={handleSubmit}
             disabled={!body.trim() || isSubmitting}
