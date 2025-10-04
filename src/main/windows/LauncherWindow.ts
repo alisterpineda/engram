@@ -14,9 +14,9 @@ export class LauncherWindow {
     }
 
     const window = new BrowserWindow({
-      width: 600,
-      height: 500,
-      resizable: true,
+      width: 900,
+      height: 600,
+      resizable: false,
       webPreferences: {
         preload: LAUNCHER_WINDOW_PRELOAD_WEBPACK_ENTRY,
       },
