@@ -132,11 +132,7 @@ export function CommentSection({ postId, previewMode = false }: CommentSectionPr
         <Center p="md">
           <Loader size="sm" />
         </Center>
-      ) : totalComments === 0 ? (
-        <Text size="sm" c="dimmed" ta="center" p="md">
-          No comments yet
-        </Text>
-      ) : (
+      ) : totalComments > 0 && (
         <Stack gap="md">
           {showViewAllButton && (
             <Anchor
