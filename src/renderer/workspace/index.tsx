@@ -31,12 +31,13 @@ import '../assets/index.css';
 
 import { createRoot } from 'react-dom/client';
 import { MantineProvider, createTheme, AppShell, Burger, Group, Text, Button, Stack, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { IconArrowLeft, IconSun, IconMoon, IconSunMoon } from '@tabler/icons-react';
+import { IconArrowLeft, IconSun, IconMoon, IconSunMoon, IconHome } from '@tabler/icons-react';
 import { FeedView } from './views/FeedView';
 import { PostDetailView } from './views/PostDetailView';
+import classes from './navbar.module.css';
 
 const theme = createTheme({
   /** Put your mantine theme override here */
@@ -139,6 +140,7 @@ function AppContent() {
   const [workspaceName, setWorkspaceName] = useState('Workspace');
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 48em)');
 
   const isPostDetailView = location.pathname.startsWith('/post/');
 
@@ -192,7 +194,17 @@ function AppContent() {
       <AppShell.Navbar p="md">
         <Stack justify="space-between" h="100%">
           <div>
-            <Text size="sm" fw={500} mb="md">Navigation</Text>
+            <a
+              className={classes.link}
+              data-active={location.pathname === '/' || undefined}
+              onClick={() => {
+                navigate('/');
+                if (opened && isMobile) toggle();
+              }}
+            >
+              <IconHome className={classes.linkIcon} stroke={1.5} />
+              <span>Home</span>
+            </a>
           </div>
           <Button variant="light" onClick={handleOpenLauncher}>
             Open Launcher
