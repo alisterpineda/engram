@@ -11,6 +11,7 @@ export interface WorkspaceInfo {
 export interface AppStateData {
   recentWorkspaces: WorkspaceInfo[];
   lastOpenedWorkspace?: string;
+  theme?: 'light' | 'dark' | 'auto';
 }
 
 export interface CreateWorkspaceParams {

@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <title>Engram Launcher</title>
+    <script>
+      // Mantine ColorSchemeScript - prevents flash of incorrect theme
+      const colorScheme = localStorage.getItem('mantine-color-scheme-value') || 'auto';
+      if (colorScheme === 'dark' || (colorScheme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-mantine-color-scheme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-mantine-color-scheme', 'light');
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

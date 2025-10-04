@@ -6,6 +6,7 @@ import { LauncherWindow } from './windows/LauncherWindow';
 import { WorkspaceWindow } from './windows/WorkspaceWindow';
 import { registerLauncherHandlers } from './ipc/launcherHandlers';
 import { registerWorkspaceHandlers } from './ipc/workspaceHandlers';
+import { registerThemeHandlers } from './ipc/themeHandlers';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -15,6 +16,7 @@ if (require('electron-squirrel-startup')) {
 // Register IPC handlers
 registerLauncherHandlers();
 registerWorkspaceHandlers();
+registerThemeHandlers();
 
 async function initializeApp(): Promise<void> {
   const appState = AppState.getInstance();

@@ -81,4 +81,13 @@ export class AppState {
     }
     this.save();
   }
+
+  public getTheme(): 'light' | 'dark' | 'auto' {
+    return this.data.theme || 'auto';
+  }
+
+  public setTheme(theme: 'light' | 'dark' | 'auto'): void {
+    this.data.theme = theme;
+    this.save();
+  }
 }

@@ -15,7 +15,11 @@ import {
   Group,
   Divider,
   ScrollArea,
+  ActionIcon,
+  useMantineColorScheme,
+  useComputedColorScheme,
 } from '@mantine/core';
+import { IconSun, IconMoon, IconSunMoon } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';
 
 const theme = createTheme({
@@ -34,9 +38,76 @@ interface LauncherElectronAPI {
   getRecentWorkspaces: () => Promise<WorkspaceInfo[]>;
   selectWorkspacePath: (name: string) => Promise<{ success: boolean; path?: string; canceled?: boolean; error?: string }>;
   openWorkspaceByPath: (path: string) => Promise<{ success: boolean; error?: string }>;
+  theme: {
+    getAppTheme: () => Promise<{ success: boolean; theme: 'light' | 'dark' | 'auto' }>;
+    setAppTheme: (theme: 'light' | 'dark' | 'auto') => Promise<{ success: boolean }>;
+    getSystemTheme: () => Promise<{ success: boolean; theme: 'light' | 'dark' }>;
+    onThemeChange: (callback: (theme: 'light' | 'dark' | 'auto') => void) => () => void;
+    onSystemThemeChange: (callback: (theme: 'light' | 'dark') => void) => () => void;
+  };
 }
 
 const electronAPI = (window as any).electronAPI as LauncherElectronAPI;
+
+function ThemeToggle() {
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme('light');
+  const [appTheme, setAppTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+
+  useEffect(() => {
+    // Load initial theme
+    electronAPI.theme.getAppTheme().then((result) => {
+      if (result.success) {
+        setAppTheme(result.theme);
+        setColorScheme(result.theme);
+      }
+    });
+
+    // Listen for theme changes from other windows
+    const unsubscribe = electronAPI.theme.onThemeChange((theme) => {
+      setAppTheme(theme);
+      setColorScheme(theme);
+    });
+
+    // Listen for system theme changes
+    const unsubscribeSystem = electronAPI.theme.onSystemThemeChange((systemTheme) => {
+      if (appTheme === 'auto') {
+        setColorScheme(systemTheme);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeSystem();
+    };
+  }, [setColorScheme, appTheme]);
+
+  const toggleTheme = () => {
+    const nextTheme = appTheme === 'light' ? 'dark' : appTheme === 'dark' ? 'auto' : 'light';
+    setAppTheme(nextTheme);
+    setColorScheme(nextTheme);
+    electronAPI.theme.setAppTheme(nextTheme);
+  };
+
+  const getIcon = () => {
+    if (appTheme === 'auto') {
+      return <IconSunMoon size={20} />;
+    }
+    return computedColorScheme === 'dark' ? <IconMoon size={20} /> : <IconSun size={20} />;
+  };
+
+  return (
+    <ActionIcon
+      onClick={toggleTheme}
+      variant="default"
+      size="lg"
+      aria-label="Toggle theme"
+      title={`Current: ${appTheme === 'auto' ? 'Auto (System)' : appTheme}`}
+    >
+      {getIcon()}
+    </ActionIcon>
+  );
+}
 
 function LauncherApp() {
   const [workspaceName, setWorkspaceName] = useState('');
@@ -141,12 +212,15 @@ function LauncherApp() {
     <MantineProvider theme={theme}>
       <Container size="sm" py="xl">
         <Stack gap="xl">
-          <div>
-            <Title order={1} ta="center" mb="xs">Engram</Title>
-            <Text ta="center" c="dimmed" size="sm">
-              Choose a workspace to get started
-            </Text>
-          </div>
+          <Group justify="space-between" align="flex-start">
+            <div style={{ flex: 1 }}>
+              <Title order={1} ta="center" mb="xs">Engram</Title>
+              <Text ta="center" c="dimmed" size="sm">
+                Choose a workspace to get started
+              </Text>
+            </div>
+            <ThemeToggle />
+          </Group>
 
           <Card shadow="sm" padding="lg" radius="md" withBorder>
             <Stack gap="md">

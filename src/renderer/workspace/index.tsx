@@ -30,11 +30,11 @@ import '@mantine/core/styles.css';
 import '../assets/index.css';
 
 import { createRoot } from 'react-dom/client';
-import { MantineProvider, createTheme, AppShell, Burger, Group, Text, Button, Stack } from '@mantine/core';
+import { MantineProvider, createTheme, AppShell, Burger, Group, Text, Button, Stack, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { IconArrowLeft } from '@tabler/icons-react';
+import { IconArrowLeft, IconSun, IconMoon, IconSunMoon } from '@tabler/icons-react';
 import { FeedView } from './views/FeedView';
 import { PostDetailView } from './views/PostDetailView';
 
@@ -55,6 +55,13 @@ interface WorkspaceElectronAPI {
   openLauncher: () => Promise<{ success: boolean }>;
   getSetting: (key: string) => Promise<{ success: boolean; value: string | null }>;
   setSetting: (key: string, value: string) => Promise<{ success: boolean }>;
+  theme: {
+    getAppTheme: () => Promise<{ success: boolean; theme: 'light' | 'dark' | 'auto' }>;
+    setAppTheme: (theme: 'light' | 'dark' | 'auto') => Promise<{ success: boolean }>;
+    getSystemTheme: () => Promise<{ success: boolean; theme: 'light' | 'dark' }>;
+    onThemeChange: (callback: (theme: 'light' | 'dark' | 'auto') => void) => () => void;
+    onSystemThemeChange: (callback: (theme: 'light' | 'dark') => void) => () => void;
+  };
   entry: {
     create: (body: string, parentId?: number | null) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     getById: (id: number) => Promise<{ success: boolean; data?: Entry; error?: string }>;
@@ -66,6 +73,66 @@ interface WorkspaceElectronAPI {
 }
 
 const electronAPI = (window as any).electronAPI as WorkspaceElectronAPI;
+
+function ThemeToggle() {
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme('light');
+  const [appTheme, setAppTheme] = useState<'light' | 'dark' | 'auto'>('auto');
+
+  useEffect(() => {
+    // Load initial theme
+    electronAPI.theme.getAppTheme().then((result) => {
+      if (result.success) {
+        setAppTheme(result.theme);
+        setColorScheme(result.theme);
+      }
+    });
+
+    // Listen for theme changes from other windows
+    const unsubscribe = electronAPI.theme.onThemeChange((theme) => {
+      setAppTheme(theme);
+      setColorScheme(theme);
+    });
+
+    // Listen for system theme changes
+    const unsubscribeSystem = electronAPI.theme.onSystemThemeChange((systemTheme) => {
+      if (appTheme === 'auto') {
+        setColorScheme(systemTheme);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+      unsubscribeSystem();
+    };
+  }, [setColorScheme, appTheme]);
+
+  const toggleTheme = () => {
+    const nextTheme = appTheme === 'light' ? 'dark' : appTheme === 'dark' ? 'auto' : 'light';
+    setAppTheme(nextTheme);
+    setColorScheme(nextTheme);
+    electronAPI.theme.setAppTheme(nextTheme);
+  };
+
+  const getIcon = () => {
+    if (appTheme === 'auto') {
+      return <IconSunMoon size={20} />;
+    }
+    return computedColorScheme === 'dark' ? <IconMoon size={20} /> : <IconSun size={20} />;
+  };
+
+  return (
+    <ActionIcon
+      onClick={toggleTheme}
+      variant="default"
+      size="lg"
+      aria-label="Toggle theme"
+      title={`Current: ${appTheme === 'auto' ? 'Auto (System)' : appTheme}`}
+    >
+      {getIcon()}
+    </ActionIcon>
+  );
+}
 
 function AppContent() {
   const [opened, { toggle }] = useDisclosure();
@@ -118,6 +185,7 @@ function AppContent() {
               </Button>
             )}
           </Group>
+          <ThemeToggle />
         </Group>
       </AppShell.Header>
 
