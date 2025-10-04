@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Stack, Container, Loader, Center, Box, Text } from '@mantine/core';
+import { Stack, Container, Loader, Center, Box, Text, Card } from '@mantine/core';
 import { EntryComposer } from '../components/EntryComposer';
 import { PostCard } from '../components/PostCard';
 
@@ -95,7 +95,9 @@ export function FeedView() {
   return (
     <Container size="md" px={0}>
       <Stack gap="lg">
-        <EntryComposer onSuccess={handlePostCreated} />
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <EntryComposer onSuccess={handlePostCreated} />
+        </Card>
 
         {posts.length === 0 && !isLoading ? (
           <Center p="xl">

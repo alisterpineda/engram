@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Textarea, Button, Stack, Group, Card } from '@mantine/core';
+import { Textarea, Button, Stack, Group } from '@mantine/core';
 
 interface Entry {
   id: number;
@@ -61,35 +61,33 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
   };
 
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
-      <Stack gap="xs">
-        <Textarea
-          placeholder={parentId === null ? "What's on your mind?" : "Write a comment..."}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          disabled={isSubmitting}
-          minRows={3}
-          autosize
-        />
-        <Group justify="flex-end">
-          {onCancel && (
-            <Button
-              variant="subtle"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-          )}
+    <Stack gap="xs">
+      <Textarea
+        placeholder={parentId === null ? "What's on your mind?" : "Write a comment..."}
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        disabled={isSubmitting}
+        minRows={3}
+        autosize
+      />
+      <Group justify="flex-end">
+        {onCancel && (
           <Button
-            onClick={handleSubmit}
-            disabled={!body.trim() || isSubmitting}
-            loading={isSubmitting}
+            variant="subtle"
+            onClick={handleCancel}
+            disabled={isSubmitting}
           >
-            {buttonText}
+            Cancel
           </Button>
-        </Group>
-      </Stack>
-    </Card>
+        )}
+        <Button
+          onClick={handleSubmit}
+          disabled={!body.trim() || isSubmitting}
+          loading={isSubmitting}
+        >
+          {buttonText}
+        </Button>
+      </Group>
+    </Stack>
   );
 }
