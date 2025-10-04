@@ -93,7 +93,7 @@ export function FeedView() {
   };
 
   return (
-    <Container size="md" px={0}>
+    <Container size="sm" px={0}>
       <Stack gap="lg">
         <Card shadow="sm" padding="lg" radius="md" withBorder>
           <EntryComposer onSuccess={handlePostCreated} />

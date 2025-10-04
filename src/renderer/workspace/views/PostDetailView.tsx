@@ -68,7 +68,7 @@ export function PostDetailView() {
 
   if (isLoading) {
     return (
-      <Container size="md" px={0}>
+      <Container size="sm" px={0}>
         <Center p="xl">
           <Loader size="lg" />
         </Center>
@@ -78,7 +78,7 @@ export function PostDetailView() {
 
   if (error || !post) {
     return (
-      <Container size="md" px={0}>
+      <Container size="sm" px={0}>
         <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
           {error || 'Post not found'}
         </Alert>
@@ -87,7 +87,7 @@ export function PostDetailView() {
   }
 
   return (
-    <Container size="md" px={0}>
+    <Container size="sm" px={0}>
       <Stack gap="lg">
         <Card shadow="sm" padding="lg" radius="md" withBorder>
           <Stack gap="xs">
