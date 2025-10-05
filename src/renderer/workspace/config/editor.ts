@@ -4,7 +4,7 @@ import TiptapLink from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 
 export function getEditorExtensions(placeholderText?: string) {
-  const extensions = [
+  const extensions: any[] = [
     StarterKit,
     Underline,
     TiptapLink.configure({
