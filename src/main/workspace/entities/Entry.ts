@@ -6,7 +6,10 @@ export class Entry {
   id: number;
 
   @Column('text')
-  body: string;
+  contentJson: string;
+
+  @Column('text')
+  contentHtml: string;
 
   @CreateDateColumn()
   createdAt: Date;

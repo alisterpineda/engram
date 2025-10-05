@@ -1,10 +1,16 @@
 import { useState } from 'react';
-import { Text, Group, ActionIcon, Textarea, Stack } from '@mantine/core';
+import { Text, Group, ActionIcon, Stack, Typography } from '@mantine/core';
 import { IconEdit, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
+import { RichTextEditor } from '@mantine/tiptap';
+import { useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TiptapLink from '@tiptap/extension-link';
 
 interface Entry {
   id: number;
-  body: string;
+  contentJson: string;
+  contentHtml: string;
   createdAt: Date;
   updatedAt: Date;
   parentId: number | null;
@@ -36,21 +42,40 @@ function formatRelativeTime(date: Date): string {
 
 export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editBody, setEditBody] = useState(comment.body);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      TiptapLink.configure({
+        openOnClick: false,
+      }),
+    ],
+    content: '',
+    editable: true,
+    onUpdate: ({ editor }) => {
+      setIsEmpty(editor.isEmpty);
+    },
+  });
 
   const handleUpdate = async () => {
-    if (!editBody.trim()) {
+    if (!editor || editor.isEmpty) {
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      const contentJson = JSON.stringify(editor.getJSON());
+      const contentHtml = editor.getHTML();
+
       const result = await electronAPI.entry.update(
         comment.id,
-        editBody
+        contentJson,
+        contentHtml
       );
 
       if (result.success) {
@@ -84,9 +109,15 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
     }
   };
 
+  const handleStartEdit = () => {
+    setIsEditing(true);
+    editor?.commands.setContent(JSON.parse(comment.contentJson));
+    setIsEmpty(false);
+  };
+
   const handleCancelEdit = () => {
-    setEditBody(comment.body);
     setIsEditing(false);
+    editor?.commands.clearContent();
   };
 
   return (
@@ -102,14 +133,43 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
               {formatRelativeTime(comment.createdAt)}
             </Text>
           </Group>
-          <Textarea
-            placeholder="Comment text"
-            value={editBody}
-            onChange={(e) => setEditBody(e.target.value)}
-            disabled={isSubmitting}
-            minRows={2}
-            autosize
-          />
+          <RichTextEditor editor={editor}>
+            <RichTextEditor.Toolbar>
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Bold />
+                <RichTextEditor.Italic />
+                <RichTextEditor.Underline />
+                <RichTextEditor.Strikethrough />
+                <RichTextEditor.ClearFormatting />
+                <RichTextEditor.Code />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.H1 />
+                <RichTextEditor.H2 />
+                <RichTextEditor.H3 />
+                <RichTextEditor.H4 />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Blockquote />
+                <RichTextEditor.Hr />
+                <RichTextEditor.BulletList />
+                <RichTextEditor.OrderedList />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Link />
+                <RichTextEditor.Unlink />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.CodeBlock />
+              </RichTextEditor.ControlsGroup>
+            </RichTextEditor.Toolbar>
+
+            <RichTextEditor.Content />
+          </RichTextEditor>
           <Group justify="flex-end" gap="xs">
             <ActionIcon
               variant="subtle"
@@ -123,7 +183,7 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
               variant="filled"
               color="blue"
               onClick={handleUpdate}
-              disabled={!editBody.trim() || isSubmitting}
+              disabled={!editor || isEmpty || isSubmitting}
               loading={isSubmitting}
             >
               <IconCheck size={16} />
@@ -141,7 +201,7 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
                 variant="subtle"
                 color="blue"
                 size="sm"
-                onClick={() => setIsEditing(true)}
+                onClick={handleStartEdit}
               >
                 <IconEdit size={14} />
               </ActionIcon>
@@ -155,9 +215,9 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
               </ActionIcon>
             </Group>
           </Group>
-          <Text size="sm" style={{ whiteSpace: 'pre-wrap' }}>
-            {comment.body}
-          </Text>
+          <Typography>
+            <div dangerouslySetInnerHTML={{ __html: comment.contentHtml }} />
+          </Typography>
         </>
       )}
     </Stack>

@@ -1,11 +1,17 @@
 import { useState } from 'react';
-import { Card, Text, Group, ActionIcon, Textarea, Stack, Box } from '@mantine/core';
+import { Card, Text, Group, ActionIcon, Stack, Box, Typography } from '@mantine/core';
 import { IconEdit, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
+import { RichTextEditor } from '@mantine/tiptap';
+import { useEditor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TiptapLink from '@tiptap/extension-link';
 import { CommentSection } from './CommentSection';
 
 interface Entry {
   id: number;
-  body: string;
+  contentJson: string;
+  contentHtml: string;
   createdAt: Date;
   updatedAt: Date;
   parentId: number | null;
@@ -37,21 +43,40 @@ function formatRelativeTime(date: Date): string {
 
 export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editBody, setEditBody] = useState(post.body);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      TiptapLink.configure({
+        openOnClick: false,
+      }),
+    ],
+    content: '',
+    editable: true,
+    onUpdate: ({ editor }) => {
+      setIsEmpty(editor.isEmpty);
+    },
+  });
 
   const handleUpdate = async () => {
-    if (!editBody.trim()) {
+    if (!editor || editor.isEmpty) {
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      const contentJson = JSON.stringify(editor.getJSON());
+      const contentHtml = editor.getHTML();
+
       const result = await electronAPI.entry.update(
         post.id,
-        editBody
+        contentJson,
+        contentHtml
       );
 
       if (result.success) {
@@ -85,9 +110,15 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     }
   };
 
+  const handleStartEdit = () => {
+    setIsEditing(true);
+    editor?.commands.setContent(JSON.parse(post.contentJson));
+    setIsEmpty(false);
+  };
+
   const handleCancelEdit = () => {
-    setEditBody(post.body);
     setIsEditing(false);
+    editor?.commands.clearContent();
   };
 
   return (
@@ -101,14 +132,43 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     >
       {isEditing ? (
         <Stack gap="xs">
-          <Textarea
-            placeholder="Post text"
-            value={editBody}
-            onChange={(e) => setEditBody(e.target.value)}
-            disabled={isSubmitting}
-            minRows={3}
-            autosize
-          />
+          <RichTextEditor editor={editor}>
+            <RichTextEditor.Toolbar>
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Bold />
+                <RichTextEditor.Italic />
+                <RichTextEditor.Underline />
+                <RichTextEditor.Strikethrough />
+                <RichTextEditor.ClearFormatting />
+                <RichTextEditor.Code />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.H1 />
+                <RichTextEditor.H2 />
+                <RichTextEditor.H3 />
+                <RichTextEditor.H4 />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Blockquote />
+                <RichTextEditor.Hr />
+                <RichTextEditor.BulletList />
+                <RichTextEditor.OrderedList />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Link />
+                <RichTextEditor.Unlink />
+              </RichTextEditor.ControlsGroup>
+
+              <RichTextEditor.ControlsGroup>
+                <RichTextEditor.CodeBlock />
+              </RichTextEditor.ControlsGroup>
+            </RichTextEditor.Toolbar>
+
+            <RichTextEditor.Content />
+          </RichTextEditor>
           <Group justify="flex-end" gap="xs">
             <ActionIcon
               variant="subtle"
@@ -122,7 +182,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
               variant="filled"
               color="blue"
               onClick={handleUpdate}
-              disabled={!editBody.trim() || isSubmitting}
+              disabled={!editor || isEmpty || isSubmitting}
               loading={isSubmitting}
             >
               <IconCheck size={16} />
@@ -140,7 +200,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
                 variant="subtle"
                 color="blue"
                 size="sm"
-                onClick={() => setIsEditing(true)}
+                onClick={handleStartEdit}
               >
                 <IconEdit size={16} />
               </ActionIcon>
@@ -155,9 +215,9 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
             </Group>
           </Group>
 
-          <Text size="sm" mb="md" style={{ whiteSpace: 'pre-wrap' }}>
-            {post.body}
-          </Text>
+          <Typography mb="md">
+            <div dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
+          </Typography>
 
           <Box
             onMouseEnter={() => setIsHovered(false)}

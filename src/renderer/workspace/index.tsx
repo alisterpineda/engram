@@ -27,6 +27,7 @@
  */
 
 import '@mantine/core/styles.css';
+import '@mantine/tiptap/styles.css';
 import '../assets/index.css';
 
 import { createRoot } from 'react-dom/client';
@@ -45,7 +46,8 @@ const theme = createTheme({
 
 interface Entry {
   id: number;
-  body: string;
+  contentJson: string;
+  contentHtml: string;
   createdAt: Date;
   updatedAt: Date;
   parentId: number | null;
@@ -64,11 +66,11 @@ interface WorkspaceElectronAPI {
     onSystemThemeChange: (callback: (theme: 'light' | 'dark') => void) => () => void;
   };
   entry: {
-    create: (body: string, parentId?: number | null) => Promise<{ success: boolean; data?: Entry; error?: string }>;
+    create: (contentJson: string, contentHtml: string, parentId?: number | null) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     getById: (id: number) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     listPosts: (offset?: number, limit?: number) => Promise<{ success: boolean; data?: Entry[]; error?: string }>;
     listComments: (parentId: number, offset?: number, limit?: number) => Promise<{ success: boolean; data?: Entry[]; error?: string }>;
-    update: (id: number, body: string) => Promise<{ success: boolean; data?: Entry; error?: string }>;
+    update: (id: number, contentJson: string, contentHtml: string) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     delete: (id: number) => Promise<{ success: boolean; error?: string }>;
   };
 }

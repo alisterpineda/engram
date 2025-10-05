@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Stack, Card, Text, Loader, Center, Alert } from '@mantine/core';
+import { Container, Stack, Card, Text, Loader, Center, Alert, Typography } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { CommentSection } from '../components/CommentSection';
 
 interface Entry {
   id: number;
-  body: string;
+  contentJson: string;
+  contentHtml: string;
   createdAt: Date;
   updatedAt: Date;
   parentId: number | null;
@@ -95,9 +96,9 @@ export function PostDetailView() {
               {formatRelativeTime(post.createdAt)}
             </Text>
 
-            <Text size="sm" mb="md" style={{ whiteSpace: 'pre-wrap' }}>
-              {post.body}
-            </Text>
+            <Typography>
+              <div dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
+            </Typography>
           </Stack>
         </Card>
 
