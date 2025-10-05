@@ -1,6 +1,7 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useMemo } from 'react';
 import { Text, Group, ActionIcon, Stack, Typography, Menu } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
+import dayjs from 'dayjs';
 import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-react';
 import { Editor } from '@tiptap/react';
 import { EntryEditor } from './EntryEditor';
@@ -78,6 +79,14 @@ export function EditableEntry({
     }
   };
 
+  // End time presets for common meeting durations
+  const endTimePresets = useMemo(() => [
+    { label: '15 min', value: dayjs(occurredAt).add(15, 'minute').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '30 min', value: dayjs(occurredAt).add(30, 'minute').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '1 hour', value: dayjs(occurredAt).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '1.5 hours', value: dayjs(occurredAt).add(1.5, 'hour').format('YYYY-MM-DD HH:mm:ss') },
+  ], [occurredAt]);
+
   return (
     <Stack
       gap="xs"
@@ -92,7 +101,13 @@ export function EditableEntry({
                 value={occurredAt}
                 onChange={(value) => {
                   if (value) {
-                    setOccurredAt(typeof value === 'string' ? new Date(value) : value);
+                    const newOccurredAt = typeof value === 'string' ? new Date(value) : value;
+                    setOccurredAt(newOccurredAt);
+                    // Preserve duration if endedAt exists
+                    if (endedAt) {
+                      const duration = endedAt.getTime() - occurredAt.getTime();
+                      setEndedAt(new Date(newOccurredAt.getTime() + duration));
+                    }
                   }
                 }}
                 size="xs"
@@ -125,6 +140,8 @@ export function EditableEntry({
                     valueFormat="LLL"
                     placeholder="Add end time"
                     clearable
+                    minDate={occurredAt}
+                    presets={endTimePresets}
                     error={hasEndTimeError ? 'End time must be after occurred time' : undefined}
                     styles={{
                       input: {

@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Button, Stack, Group, Text } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
+import dayjs from 'dayjs';
 import { EntryEditor } from './EntryEditor';
 import { Entry } from '../types/entry';
 import { useEntryEditor } from '../hooks/useEntryEditor';
@@ -53,6 +54,14 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
     }
   }, [autoFocus, editor]);
 
+  // End time presets for common meeting durations
+  const endTimePresets = useMemo(() => [
+    { label: '15 min', value: dayjs(occurredAt).add(15, 'minute').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '30 min', value: dayjs(occurredAt).add(30, 'minute').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '1 hour', value: dayjs(occurredAt).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '1.5 hours', value: dayjs(occurredAt).add(1.5, 'hour').format('YYYY-MM-DD HH:mm:ss') },
+  ], [occurredAt]);
+
   return (
     <Stack gap="xs">
       {showDateFields && (
@@ -63,9 +72,10 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
               if (value) {
                 const newOccurredAt = typeof value === 'string' ? new Date(value) : value;
                 setOccurredAt(newOccurredAt);
-                // Reset endedAt if it's now invalid
-                if (endedAt && newOccurredAt >= endedAt) {
-                  setEndedAt(null);
+                // Preserve duration if endedAt exists
+                if (endedAt) {
+                  const duration = endedAt.getTime() - occurredAt.getTime();
+                  setEndedAt(new Date(newOccurredAt.getTime() + duration));
                 }
               }
             }}
@@ -100,6 +110,7 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
                 placeholder="Add end time"
                 clearable
                 minDate={occurredAt}
+                presets={endTimePresets}
                 error={hasEndTimeError ? 'End time must be after occurred time' : undefined}
                 styles={{
                   input: {
