@@ -91,6 +91,7 @@ export function CommentSection({ postId, previewMode = false }: CommentSectionPr
 
   const handleCommentCreated = (newComment: Entry) => {
     setComments((prev) => [...prev, newComment]);
+    setIsComposerVisible(false);
   };
 
   const handleCommentUpdated = (updatedComment: Entry) => {

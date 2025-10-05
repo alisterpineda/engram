@@ -12,6 +12,7 @@ export function FeedView() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
+  const [isComposerExpanded, setIsComposerExpanded] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export function FeedView() {
 
   const handlePostCreated = (newPost: Entry) => {
     setPosts((prev) => [newPost, ...prev]);
+    setIsComposerExpanded(false);
   };
 
   const handlePostUpdated = (updatedPost: Entry) => {
@@ -89,7 +91,27 @@ export function FeedView() {
     <Container size="sm" px={0}>
       <Stack gap="lg">
         <Card shadow="sm" padding="lg" radius="md" withBorder>
-          <EntryComposer onSuccess={handlePostCreated} composerMode="minimal" />
+          {!isComposerExpanded ? (
+            <Box
+              onClick={() => setIsComposerExpanded(true)}
+              style={{
+                cursor: 'pointer',
+                padding: 'var(--mantine-spacing-sm)',
+                borderRadius: 'var(--mantine-radius-sm)',
+                backgroundColor: 'var(--mantine-color-gray-0)',
+                border: '1px solid var(--mantine-color-gray-3)',
+              }}
+            >
+              <Text c="dimmed">What's on your mind?</Text>
+            </Box>
+          ) : (
+            <EntryComposer
+              onSuccess={handlePostCreated}
+              onCancel={() => setIsComposerExpanded(false)}
+              composerMode="minimal"
+              autoFocus={true}
+            />
+          )}
         </Card>
 
         {posts.length === 0 && !isLoading ? (
