@@ -5,12 +5,13 @@ import { EditorToolbar } from './EditorToolbar';
 interface EntryEditorProps {
   editor: Editor | null;
   variant?: 'default' | 'subtle';
+  showToolbar?: boolean;
 }
 
-export function EntryEditor({ editor, variant = 'subtle' }: EntryEditorProps) {
+export function EntryEditor({ editor, variant = 'subtle', showToolbar = true }: EntryEditorProps) {
   return (
     <RichTextEditor editor={editor} variant={variant}>
-      <EditorToolbar />
+      {showToolbar && <EditorToolbar />}
       <RichTextEditor.Content />
     </RichTextEditor>
   );

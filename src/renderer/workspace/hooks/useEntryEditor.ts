@@ -20,6 +20,7 @@ interface UseEntryEditorReturn {
   isSubmitting: boolean;
   isEmpty: boolean;
   isEditing: boolean;
+  isFocused: boolean;
   setIsEditing: (value: boolean) => void;
   handleSubmit: () => Promise<void>;
   handleStartEdit: (content: string) => void;
@@ -40,6 +41,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEmpty, setIsEmpty] = useState(mode === 'create' ? true : false);
   const [isEditing, setIsEditing] = useState(mode === 'create' ? true : false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const editor = useEditor({
     extensions: getEditorExtensions(placeholderText),
@@ -47,6 +49,12 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     editable: true,
     onUpdate: ({ editor }) => {
       setIsEmpty(editor.isEmpty);
+    },
+    onFocus: () => {
+      setIsFocused(true);
+    },
+    onBlur: () => {
+      setIsFocused(false);
     },
   });
 
@@ -121,6 +129,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     isSubmitting,
     isEmpty,
     isEditing,
+    isFocused,
     setIsEditing,
     handleSubmit,
     handleStartEdit,

@@ -12,7 +12,7 @@ interface EntryComposerProps {
 }
 
 export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post', onCancel, initialContent }: EntryComposerProps) {
-  const { editor, isSubmitting, isEmpty, handleSubmit, handleCancelEdit } = useEntryEditor({
+  const { editor, isSubmitting, isEmpty, isFocused, handleSubmit, handleCancelEdit } = useEntryEditor({
     mode: 'create',
     placeholderText: parentId === null ? "What's on your mind?" : "Write a comment...",
     parentId,
@@ -21,17 +21,20 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
     onCancel,
   });
 
+  const showToolbar = isFocused || !isEmpty;
+
   return (
     <Stack gap="xs">
-      <EntryEditor editor={editor} />
+      <EntryEditor editor={editor} showToolbar={showToolbar} />
       <Group justify="flex-end">
-        {onCancel && (
+        {!isEmpty && (
           <Button
             variant="subtle"
+            color="gray"
             onClick={handleCancelEdit}
             disabled={isSubmitting}
           >
-            Cancel
+            Discard
           </Button>
         )}
         <Button
