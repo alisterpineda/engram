@@ -61,7 +61,12 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
             value={occurredAt}
             onChange={(value) => {
               if (value) {
-                setOccurredAt(typeof value === 'string' ? new Date(value) : value);
+                const newOccurredAt = typeof value === 'string' ? new Date(value) : value;
+                setOccurredAt(newOccurredAt);
+                // Reset endedAt if it's now invalid
+                if (endedAt && newOccurredAt >= endedAt) {
+                  setEndedAt(null);
+                }
               }
             }}
             size="xs"
@@ -94,6 +99,7 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
                 valueFormat="LLL"
                 placeholder="Add end time"
                 clearable
+                minDate={occurredAt}
                 error={hasEndTimeError ? 'End time must be after occurred time' : undefined}
                 styles={{
                   input: {
@@ -101,6 +107,7 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
                     color: hasEndTimeError ? 'var(--mantine-color-red-filled)' : 'var(--mantine-color-dimmed)',
                     cursor: 'pointer',
                     padding: 0,
+                    paddingRight: '20px',
                     minHeight: 'auto',
                   }
                 }}
