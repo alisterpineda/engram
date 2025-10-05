@@ -1,6 +1,5 @@
 import { Button, Stack, Group } from '@mantine/core';
-import { RichTextEditor } from '@mantine/tiptap';
-import { EditorToolbar } from './EditorToolbar';
+import { EntryEditor } from './EntryEditor';
 import { Entry } from '../types/entry';
 import { useEntryEditor } from '../hooks/useEntryEditor';
 
@@ -24,10 +23,7 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
 
   return (
     <Stack gap="xs">
-      <RichTextEditor editor={editor}>
-        <EditorToolbar />
-        <RichTextEditor.Content />
-      </RichTextEditor>
+      <EntryEditor editor={editor} />
       <Group justify="flex-end">
         {onCancel && (
           <Button

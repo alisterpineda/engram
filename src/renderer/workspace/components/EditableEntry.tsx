@@ -1,9 +1,8 @@
 import { ReactNode, useState } from 'react';
-import { Text, Group, ActionIcon, Stack, Typography, StackProps } from '@mantine/core';
+import { Text, Group, ActionIcon, Stack, Typography } from '@mantine/core';
 import { IconEdit, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
 import { Editor } from '@tiptap/react';
-import { RichTextEditor } from '@mantine/tiptap';
-import { EditorToolbar } from './EditorToolbar';
+import { EntryEditor } from './EntryEditor';
 import { formatRelativeTime } from '../utils/date';
 
 interface EditableEntryProps {
@@ -83,10 +82,7 @@ export function EditableEntry({
               </Text>
             </Group>
           )}
-          <RichTextEditor editor={editor}>
-            <EditorToolbar />
-            <RichTextEditor.Content />
-          </RichTextEditor>
+          <EntryEditor editor={editor} />
           <Group justify="flex-end" gap="xs">
             <ActionIcon
               variant="subtle"
