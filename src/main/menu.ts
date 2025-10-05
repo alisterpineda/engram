@@ -25,7 +25,7 @@ export function setupMenu(): void {
       label: 'File',
       submenu: [
         {
-          label: 'Open Workspace...',
+          label: 'Open Space...',
           accelerator: 'CmdOrCtrl+Shift+L',
           click: () => {
             LauncherWindow.create();

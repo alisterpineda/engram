@@ -1,149 +1,147 @@
 import { ipcMain, dialog, app } from 'electron';
 import * as path from 'path';
 import * as os from 'os';
-import { WorkspaceManager } from '../workspace/WorkspaceManager';
+import { SpaceManager } from '../space/SpaceManager';
 import { AppState } from '../state/AppState';
 import { LauncherWindow } from '../windows/LauncherWindow';
-import { WorkspaceWindow } from '../windows/WorkspaceWindow';
+import { SpaceWindow } from '../windows/SpaceWindow';
 
 export function registerLauncherHandlers(): void {
-  const workspaceManager = WorkspaceManager.getInstance();
+  const spaceManager = SpaceManager.getInstance();
   const appState = AppState.getInstance();
 
-  // Create new workspace
-  ipcMain.handle('create-workspace', async (_event, name: string, filePath: string) => {
+  // Create new space
+  ipcMain.handle('create-space', async (_event, name: string, folderPath: string) => {
     try {
-      const workspaceData = await workspaceManager.createWorkspace(name, filePath);
+      const spaceData = await spaceManager.createSpace(name, folderPath);
 
-      // Add to recent workspaces
-      appState.addRecentWorkspace({
+      // Add to recent spaces
+      appState.addRecentSpace({
         name,
-        path: filePath,
+        path: folderPath,
         lastOpened: Date.now(),
       });
 
       // Set as last opened
-      appState.setLastOpened(filePath);
+      appState.setLastOpened(folderPath);
 
       // Close launcher window
       LauncherWindow.close();
 
-      // Open workspace window
-      await WorkspaceWindow.create(filePath);
+      // Open space window
+      await SpaceWindow.create(folderPath);
 
-      return { success: true, workspace: workspaceData };
+      return { success: true, space: spaceData };
     } catch (error) {
-      console.error('Error creating workspace:', error);
+      console.error('Error creating space:', error);
       return { success: false, error: (error as Error).message };
     }
   });
 
-  // Open existing workspace
-  ipcMain.handle('open-workspace', async () => {
+  // Open existing space
+  ipcMain.handle('open-space', async () => {
     try {
       const result = await dialog.showOpenDialog({
-        title: 'Open Workspace',
-        properties: ['openFile'],
-        filters: [
-          { name: 'Engram Workspace', extensions: ['sqlite'] },
-          { name: 'All Files', extensions: ['*'] },
-        ],
+        title: 'Open Space',
+        properties: ['openDirectory'],
       });
 
       if (result.canceled || result.filePaths.length === 0) {
         return { success: false, canceled: true };
       }
 
-      const filePath = result.filePaths[0];
+      const folderPath = result.filePaths[0];
 
-      // Open the workspace
-      const workspaceData = await workspaceManager.openWorkspace(filePath);
+      // Open the space
+      const spaceData = await spaceManager.openSpace(folderPath);
 
-      // Add to recent workspaces
-      appState.addRecentWorkspace({
-        name: workspaceData.name,
-        path: filePath,
+      // Add to recent spaces
+      appState.addRecentSpace({
+        name: spaceData.name,
+        path: folderPath,
         lastOpened: Date.now(),
       });
 
       // Set as last opened
-      appState.setLastOpened(filePath);
+      appState.setLastOpened(folderPath);
 
       // Close launcher window
       LauncherWindow.close();
 
-      // Open workspace window
-      await WorkspaceWindow.create(filePath);
+      // Open space window
+      await SpaceWindow.create(folderPath);
 
-      return { success: true, workspace: workspaceData };
+      return { success: true, space: spaceData };
     } catch (error) {
-      console.error('Error opening workspace:', error);
+      console.error('Error opening space:', error);
       return { success: false, error: (error as Error).message };
     }
   });
 
-  // Get recent workspaces
-  ipcMain.handle('get-recent-workspaces', () => {
-    return appState.getRecentWorkspaces();
+  // Get recent spaces
+  ipcMain.handle('get-recent-spaces', () => {
+    return appState.getRecentSpaces();
   });
 
-  // Select workspace save location
-  ipcMain.handle('select-workspace-path', async (_event, name: string) => {
+  // Select space folder location
+  ipcMain.handle('select-space-path', async (_event, name: string) => {
     try {
-      // Sanitize the workspace name for use as filename
+      // Sanitize the space name for use as folder name
       const sanitizedName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
       const defaultPath = path.join(
         os.homedir(),
         'Documents',
         'Engram',
-        `${sanitizedName}.sqlite`
+        sanitizedName
       );
 
-      const result = await dialog.showSaveDialog({
-        title: 'Create Workspace',
-        defaultPath,
-        filters: [
-          { name: 'Engram Workspace', extensions: ['sqlite'] },
-          { name: 'All Files', extensions: ['*'] },
-        ],
+      const result = await dialog.showOpenDialog({
+        title: 'Select Space Location',
+        defaultPath: path.join(os.homedir(), 'Documents', 'Engram'),
+        properties: ['openDirectory', 'createDirectory'],
+        buttonLabel: 'Select Folder',
       });
 
-      if (result.canceled || !result.filePath) {
+      if (result.canceled || result.filePaths.length === 0) {
         return { success: false, canceled: true };
       }
 
-      return { success: true, path: result.filePath };
+      // Use the selected folder path with the sanitized name
+      const selectedFolder = result.filePaths[0];
+      const finalPath = path.join(selectedFolder, sanitizedName);
+
+      return { success: true, path: finalPath };
     } catch (error) {
-      console.error('Error selecting workspace path:', error);
+      console.error('Error selecting space path:', error);
       return { success: false, error: (error as Error).message };
     }
   });
 
-  // Open workspace by path (for recent workspaces)
-  ipcMain.handle('open-workspace-by-path', async (_event, filePath: string) => {
+  // Open space by path (for recent spaces)
+  ipcMain.handle('open-space-by-path', async (_event, folderPath: string) => {
     try {
-      // Open the workspace
-      const workspaceData = await workspaceManager.openWorkspace(filePath);
+      // Open the space
+      const spaceData = await spaceManager.openSpace(folderPath);
 
-      // Add to recent workspaces
-      appState.addRecentWorkspace({
-        name: workspaceData.name,
-        path: filePath,
+      // Add to recent spaces
+      appState.addRecentSpace({
+        name: spaceData.name,
+        path: folderPath,
         lastOpened: Date.now(),
       });
 
       // Set as last opened
-      appState.setLastOpened(filePath);
+      appState.setLastOpened(folderPath);
 
       // Close launcher window
       LauncherWindow.close();
 
-      // Open workspace window
-      await WorkspaceWindow.create(filePath);
+      // Open space window
+      await SpaceWindow.create(folderPath);
 
-      return { success: true, workspace: workspaceData };
+      return { success: true, space: spaceData };
     } catch (error) {
-      console.error('Error opening workspace by path:', error);
+      console.error('Error opening space by path:', error);
       return { success: false, error: (error as Error).message };
     }
   });

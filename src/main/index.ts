@@ -3,7 +3,7 @@ import { app } from 'electron';
 import * as fs from 'fs';
 import { AppState } from './state/AppState';
 import { LauncherWindow } from './windows/LauncherWindow';
-import { WorkspaceWindow } from './windows/WorkspaceWindow';
+import { SpaceWindow } from './windows/SpaceWindow';
 import { registerLauncherHandlers } from './ipc/launcherHandlers';
 import { registerWorkspaceHandlers } from './ipc/workspaceHandlers';
 import { registerThemeHandlers } from './ipc/themeHandlers';
@@ -23,18 +23,18 @@ async function initializeApp(): Promise<void> {
   const appState = AppState.getInstance();
   const lastOpenedPath = appState.getLastOpened();
 
-  // Check if we have a last opened workspace and if it exists
+  // Check if we have a last opened space and if it exists
   if (lastOpenedPath && fs.existsSync(lastOpenedPath)) {
     try {
-      await WorkspaceWindow.create(lastOpenedPath);
+      await SpaceWindow.create(lastOpenedPath);
       return;
     } catch (error) {
-      console.error('Error opening last workspace:', error);
+      console.error('Error opening last space:', error);
       // Fall through to open launcher
     }
   }
 
-  // Open launcher window if no workspace to open
+  // Open launcher window if no space to open
   LauncherWindow.create();
 }
 

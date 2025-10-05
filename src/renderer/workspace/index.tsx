@@ -59,8 +59,8 @@ interface Entry {
   parentId: number | null;
 }
 
-interface WorkspaceElectronAPI {
-  getWorkspaceInfo: () => Promise<{ success: boolean; data?: { name: string; path: string }; error?: string }>;
+interface SpaceElectronAPI {
+  getSpaceInfo: () => Promise<{ success: boolean; data?: { name: string; path: string }; error?: string }>;
   openLauncher: () => Promise<{ success: boolean }>;
   getSetting: (key: string) => Promise<{ success: boolean; value: string | null }>;
   setSetting: (key: string, value: string) => Promise<{ success: boolean }>;
@@ -81,7 +81,7 @@ interface WorkspaceElectronAPI {
   };
 }
 
-const electronAPI = (window as any).electronAPI as WorkspaceElectronAPI;
+const electronAPI = (window as any).electronAPI as SpaceElectronAPI;
 
 function ThemeToggle() {
   const { setColorScheme } = useMantineColorScheme();
@@ -145,7 +145,7 @@ function ThemeToggle() {
 
 function AppContent() {
   const [opened, { toggle }] = useDisclosure();
-  const [workspaceName, setWorkspaceName] = useState('Workspace');
+  const [spaceName, setSpaceName] = useState('Space');
   const location = useLocation();
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 48em)');
@@ -153,10 +153,10 @@ function AppContent() {
   const isPostDetailView = location.pathname.startsWith('/post/');
 
   useEffect(() => {
-    // Load workspace info on mount
-    electronAPI.getWorkspaceInfo().then((result) => {
+    // Load space info on mount
+    electronAPI.getSpaceInfo().then((result) => {
       if (result.success && result.data) {
-        setWorkspaceName(result.data.name);
+        setSpaceName(result.data.name);
       }
     });
   }, []);
@@ -183,7 +183,7 @@ function AppContent() {
         <Group h="100%" px="md" justify="space-between">
           <Group>
             <Burger opened={opened} onClick={toggle} size="sm" />
-            <Text size="lg" fw={700}>{workspaceName}</Text>
+            <Text size="lg" fw={700}>{spaceName}</Text>
             {isPostDetailView && (
               <Button
                 variant="subtle"

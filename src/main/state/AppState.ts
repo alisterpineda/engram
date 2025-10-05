@@ -1,7 +1,7 @@
 import { app } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
-import { AppStateData, WorkspaceInfo } from '../../shared/types';
+import { AppStateData, SpaceInfo } from '../../shared/types';
 
 export class AppState {
   private static instance: AppState;
@@ -30,7 +30,7 @@ export class AppState {
       console.error('Error loading app state:', error);
     }
     return {
-      recentWorkspaces: [],
+      recentSpaces: [],
     };
   }
 
@@ -42,42 +42,42 @@ export class AppState {
     }
   }
 
-  public addRecentWorkspace(workspace: WorkspaceInfo): void {
+  public addRecentSpace(space: SpaceInfo): void {
     // Remove existing entry for the same path
-    this.data.recentWorkspaces = this.data.recentWorkspaces.filter(
-      (w) => w.path !== workspace.path
+    this.data.recentSpaces = this.data.recentSpaces.filter(
+      (s) => s.path !== space.path
     );
 
     // Add to the beginning
-    this.data.recentWorkspaces.unshift(workspace);
+    this.data.recentSpaces.unshift(space);
 
     // Keep only the last 10
-    if (this.data.recentWorkspaces.length > 10) {
-      this.data.recentWorkspaces = this.data.recentWorkspaces.slice(0, 10);
+    if (this.data.recentSpaces.length > 10) {
+      this.data.recentSpaces = this.data.recentSpaces.slice(0, 10);
     }
 
     this.save();
   }
 
-  public setLastOpened(workspacePath: string): void {
-    this.data.lastOpenedWorkspace = workspacePath;
+  public setLastOpened(spacePath: string): void {
+    this.data.lastOpenedSpace = spacePath;
     this.save();
   }
 
   public getLastOpened(): string | undefined {
-    return this.data.lastOpenedWorkspace;
+    return this.data.lastOpenedSpace;
   }
 
-  public getRecentWorkspaces(): WorkspaceInfo[] {
-    return this.data.recentWorkspaces;
+  public getRecentSpaces(): SpaceInfo[] {
+    return this.data.recentSpaces;
   }
 
-  public removeRecentWorkspace(workspacePath: string): void {
-    this.data.recentWorkspaces = this.data.recentWorkspaces.filter(
-      (w) => w.path !== workspacePath
+  public removeRecentSpace(spacePath: string): void {
+    this.data.recentSpaces = this.data.recentSpaces.filter(
+      (s) => s.path !== spacePath
     );
-    if (this.data.lastOpenedWorkspace === workspacePath) {
-      this.data.lastOpenedWorkspace = undefined;
+    if (this.data.lastOpenedSpace === spacePath) {
+      this.data.lastOpenedSpace = undefined;
     }
     this.save();
   }

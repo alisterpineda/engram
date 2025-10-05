@@ -23,18 +23,18 @@ const theme = createTheme({
   /** Put your mantine theme override here */
 });
 
-interface WorkspaceInfo {
+interface SpaceInfo {
   name: string;
   path: string;
   lastOpened: number;
 }
 
 interface LauncherElectronAPI {
-  createWorkspace: (name: string, path: string) => Promise<{ success: boolean; error?: string }>;
-  openWorkspace: () => Promise<{ success: boolean; canceled?: boolean; error?: string }>;
-  getRecentWorkspaces: () => Promise<WorkspaceInfo[]>;
-  selectWorkspacePath: (name: string) => Promise<{ success: boolean; path?: string; canceled?: boolean; error?: string }>;
-  openWorkspaceByPath: (path: string) => Promise<{ success: boolean; error?: string }>;
+  createSpace: (name: string, path: string) => Promise<{ success: boolean; error?: string }>;
+  openSpace: () => Promise<{ success: boolean; canceled?: boolean; error?: string }>;
+  getRecentSpaces: () => Promise<SpaceInfo[]>;
+  selectSpacePath: (name: string) => Promise<{ success: boolean; path?: string; canceled?: boolean; error?: string }>;
+  openSpaceByPath: (path: string) => Promise<{ success: boolean; error?: string }>;
   theme: {
     getAppTheme: () => Promise<{ success: boolean; theme: 'light' | 'dark' | 'auto' }>;
     setAppTheme: (theme: 'light' | 'dark' | 'auto') => Promise<{ success: boolean }>;
@@ -46,13 +46,13 @@ interface LauncherElectronAPI {
 
 const electronAPI = (window as any).electronAPI as LauncherElectronAPI;
 
-function RecentWorkspacesSidebar({
-  workspaces,
-  onOpenWorkspace,
+function RecentSpacesSidebar({
+  spaces,
+  onOpenSpace,
   loading
 }: {
-  workspaces: WorkspaceInfo[];
-  onOpenWorkspace: (workspace: WorkspaceInfo) => void;
+  spaces: SpaceInfo[];
+  onOpenSpace: (space: SpaceInfo) => void;
   loading: boolean;
 }) {
   const formatDate = (timestamp: number) => {
@@ -77,7 +77,7 @@ function RecentWorkspacesSidebar({
     >
       <ScrollArea h="100%">
         <Stack gap="xs">
-          {workspaces.map((workspace, index) => (
+          {spaces.map((space, index) => (
             <Box
               key={index}
               p="sm"
@@ -86,12 +86,12 @@ function RecentWorkspacesSidebar({
                 borderRadius: '4px',
                 opacity: loading ? 0.5 : 1,
               }}
-              onClick={() => !loading && onOpenWorkspace(workspace)}
-              className="workspace-item"
+              onClick={() => !loading && onOpenSpace(space)}
+              className="space-item"
             >
-              <Text fw={500} size="sm">{workspace.name}</Text>
+              <Text fw={500} size="sm">{space.name}</Text>
               <Text size="xs" c="dimmed" style={{ wordBreak: 'break-all' }}>
-                {workspace.path}
+                {space.path}
               </Text>
             </Box>
           ))}
@@ -102,24 +102,24 @@ function RecentWorkspacesSidebar({
 }
 
 function MainView({
-  recentWorkspaces,
-  onOpenWorkspace,
+  recentSpaces,
+  onOpenSpace,
   loading,
   setLoading
 }: {
-  recentWorkspaces: WorkspaceInfo[];
-  onOpenWorkspace: (workspace: WorkspaceInfo) => void;
+  recentSpaces: SpaceInfo[];
+  onOpenSpace: (space: SpaceInfo) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
 }) {
   const navigate = useNavigate();
 
-  const handleOpenWorkspace = async () => {
+  const handleOpenSpace = async () => {
     setLoading(true);
     try {
-      const result = await electronAPI.openWorkspace();
+      const result = await electronAPI.openSpace();
       if (!result.success && !result.canceled) {
-        alert(`Failed to open workspace: ${result.error}`);
+        alert(`Failed to open space: ${result.error}`);
       }
       // Window will close automatically on success
     } catch (error) {
@@ -155,9 +155,9 @@ function MainView({
           <Box>
             <Group justify="space-between" align="center">
               <Box>
-                <Text fw={600} size="lg">Create new workspace</Text>
+                <Text fw={600} size="lg">Create new space</Text>
                 <Text size="sm" c="dimmed">
-                  Start fresh with a new workspace
+                  Start fresh with a new space
                 </Text>
               </Box>
               <Button
@@ -175,13 +175,13 @@ function MainView({
           <Box>
             <Group justify="space-between" align="center">
               <Box>
-                <Text fw={600} size="lg">Open folder as workspace</Text>
+                <Text fw={600} size="lg">Open folder as space</Text>
                 <Text size="sm" c="dimmed">
-                  Browse for a workspace file
+                  Browse for a space folder
                 </Text>
               </Box>
               <Button
-                onClick={handleOpenWorkspace}
+                onClick={handleOpenSpace}
                 disabled={loading}
                 variant="default"
               >
@@ -195,7 +195,7 @@ function MainView({
   );
 }
 
-function CreateWorkspaceView({
+function CreateSpaceView({
   loading,
   setLoading
 }: {
@@ -203,24 +203,24 @@ function CreateWorkspaceView({
   setLoading: (loading: boolean) => void;
 }) {
   const navigate = useNavigate();
-  const [workspaceName, setWorkspaceName] = useState('');
+  const [spaceName, setSpaceName] = useState('');
   const [selectedPath, setSelectedPath] = useState('');
 
   const handleSelectPath = async () => {
-    if (!workspaceName.trim()) {
-      alert('Please enter a workspace name');
+    if (!spaceName.trim()) {
+      alert('Please enter a space name');
       return;
     }
 
-    const result = await electronAPI.selectWorkspacePath(workspaceName);
+    const result = await electronAPI.selectSpacePath(spaceName);
     if (result.success && result.path) {
       setSelectedPath(result.path);
     }
   };
 
-  const handleCreateWorkspace = async () => {
-    if (!workspaceName.trim()) {
-      alert('Please enter a workspace name');
+  const handleCreateSpace = async () => {
+    if (!spaceName.trim()) {
+      alert('Please enter a space name');
       return;
     }
 
@@ -230,7 +230,7 @@ function CreateWorkspaceView({
 
       // If no path selected, let the IPC handler use default
       if (!path) {
-        const pathResult = await electronAPI.selectWorkspacePath(workspaceName);
+        const pathResult = await electronAPI.selectSpacePath(spaceName);
         if (!pathResult.success || pathResult.canceled || !pathResult.path) {
           setLoading(false);
           return;
@@ -238,9 +238,9 @@ function CreateWorkspaceView({
         path = pathResult.path;
       }
 
-      const result = await electronAPI.createWorkspace(workspaceName, path);
+      const result = await electronAPI.createSpace(spaceName, path);
       if (!result.success) {
-        alert(`Failed to create workspace: ${result.error}`);
+        alert(`Failed to create space: ${result.error}`);
       }
       // Window will close automatically on success
     } catch (error) {
@@ -279,21 +279,21 @@ function CreateWorkspaceView({
           Back
         </Button>
 
-        <Title order={2}>Create new workspace</Title>
+        <Title order={2}>Create new space</Title>
 
         <Divider />
 
         <Stack gap="lg">
           <Box>
-            <Text fw={600} mb="xs">Workspace name</Text>
+            <Text fw={600} mb="xs">Space name</Text>
             <Text size="sm" c="dimmed" mb="sm">
-              Pick a name for your workspace
+              Pick a name for your space
             </Text>
             <TextInput
-              placeholder="Workspace name"
-              value={workspaceName}
-              onChange={(e) => setWorkspaceName(e.currentTarget.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCreateWorkspace()}
+              placeholder="Space name"
+              value={spaceName}
+              onChange={(e) => setSpaceName(e.currentTarget.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleCreateSpace()}
             />
           </Box>
 
@@ -302,7 +302,7 @@ function CreateWorkspaceView({
           <Box>
             <Text fw={600} mb="xs">Location</Text>
             <Text size="sm" c="dimmed" mb="sm">
-              Pick a place to put your new workspace
+              Pick a place to put your new space
             </Text>
             {selectedPath && (
               <Text size="xs" c="dimmed" mb="sm">
@@ -317,8 +317,8 @@ function CreateWorkspaceView({
 
         <Group justify="flex-end">
           <Button
-            onClick={handleCreateWorkspace}
-            disabled={loading || !workspaceName.trim()}
+            onClick={handleCreateSpace}
+            disabled={loading || !spaceName.trim()}
             variant="filled"
           >
             Create
@@ -330,24 +330,24 @@ function CreateWorkspaceView({
 }
 
 function LauncherApp() {
-  const [recentWorkspaces, setRecentWorkspaces] = useState<WorkspaceInfo[]>([]);
+  const [recentSpaces, setRecentSpaces] = useState<SpaceInfo[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadRecentWorkspaces();
+    loadRecentSpaces();
   }, []);
 
-  const loadRecentWorkspaces = async () => {
-    const workspaces = await electronAPI.getRecentWorkspaces();
-    setRecentWorkspaces(workspaces);
+  const loadRecentSpaces = async () => {
+    const spaces = await electronAPI.getRecentSpaces();
+    setRecentSpaces(spaces);
   };
 
-  const handleOpenRecent = async (workspace: WorkspaceInfo) => {
+  const handleOpenRecent = async (space: SpaceInfo) => {
     setLoading(true);
     try {
-      const result = await electronAPI.openWorkspaceByPath(workspace.path);
+      const result = await electronAPI.openSpaceByPath(space.path);
       if (!result.success) {
-        alert(`Failed to open workspace: ${result.error}`);
+        alert(`Failed to open space: ${result.error}`);
       }
       // Window will close automatically on success
     } catch (error) {
@@ -357,16 +357,16 @@ function LauncherApp() {
     }
   };
 
-  const showSidebar = recentWorkspaces.length > 0;
+  const showSidebar = recentSpaces.length > 0;
 
   return (
     <MantineProvider theme={theme}>
       <MemoryRouter>
         <Box style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
           {showSidebar && (
-            <RecentWorkspacesSidebar
-              workspaces={recentWorkspaces}
-              onOpenWorkspace={handleOpenRecent}
+            <RecentSpacesSidebar
+              spaces={recentSpaces}
+              onOpenSpace={handleOpenRecent}
               loading={loading}
             />
           )}
@@ -375,8 +375,8 @@ function LauncherApp() {
               path="/"
               element={
                 <MainView
-                  recentWorkspaces={recentWorkspaces}
-                  onOpenWorkspace={handleOpenRecent}
+                  recentSpaces={recentSpaces}
+                  onOpenSpace={handleOpenRecent}
                   loading={loading}
                   setLoading={setLoading}
                 />
@@ -385,7 +385,7 @@ function LauncherApp() {
             <Route
               path="/create"
               element={
-                <CreateWorkspaceView
+                <CreateSpaceView
                   loading={loading}
                   setLoading={setLoading}
                 />

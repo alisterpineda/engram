@@ -2,24 +2,24 @@
  * Shared types between main and renderer processes
  */
 
-export interface WorkspaceInfo {
+export interface SpaceInfo {
   name: string;
   path: string;
   lastOpened: number;
 }
 
 export interface AppStateData {
-  recentWorkspaces: WorkspaceInfo[];
-  lastOpenedWorkspace?: string;
+  recentSpaces: SpaceInfo[];
+  lastOpenedSpace?: string;
   theme?: 'light' | 'dark' | 'auto';
 }
 
-export interface CreateWorkspaceParams {
+export interface CreateSpaceParams {
   name: string;
   path: string;
 }
 
-export interface WorkspaceData {
+export interface SpaceData {
   name: string;
   path: string;
 }

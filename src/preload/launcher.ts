@@ -2,11 +2,11 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {
-  createWorkspace: (name: string, path: string) => ipcRenderer.invoke('create-workspace', name, path),
-  openWorkspace: () => ipcRenderer.invoke('open-workspace'),
-  getRecentWorkspaces: () => ipcRenderer.invoke('get-recent-workspaces'),
-  selectWorkspacePath: (name: string) => ipcRenderer.invoke('select-workspace-path', name),
-  openWorkspaceByPath: (path: string) => ipcRenderer.invoke('open-workspace-by-path', path),
+  createSpace: (name: string, path: string) => ipcRenderer.invoke('create-space', name, path),
+  openSpace: () => ipcRenderer.invoke('open-space'),
+  getRecentSpaces: () => ipcRenderer.invoke('get-recent-spaces'),
+  selectSpacePath: (name: string) => ipcRenderer.invoke('select-space-path', name),
+  openSpaceByPath: (path: string) => ipcRenderer.invoke('open-space-by-path', path),
   theme: {
     getAppTheme: () => ipcRenderer.invoke('get-app-theme'),
     setAppTheme: (theme: 'light' | 'dark' | 'auto') => ipcRenderer.invoke('set-app-theme', theme),

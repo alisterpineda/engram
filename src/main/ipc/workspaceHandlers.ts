@@ -1,87 +1,87 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { WorkspaceManager } from '../workspace/WorkspaceManager';
+import { SpaceManager } from '../space/SpaceManager';
 import { AppState } from '../state/AppState';
 import { LauncherWindow } from '../windows/LauncherWindow';
-import { WorkspaceWindow } from '../windows/WorkspaceWindow';
+import { SpaceWindow } from '../windows/SpaceWindow';
 
 export function registerWorkspaceHandlers(): void {
-  const workspaceManager = WorkspaceManager.getInstance();
+  const spaceManager = SpaceManager.getInstance();
   const appState = AppState.getInstance();
 
-  // Get workspace info for the current window
-  ipcMain.handle('get-workspace-info', async (event) => {
+  // Get space info for the current window
+  ipcMain.handle('get-space-info', async (event) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
         throw new Error('Window not found');
       }
 
-      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
-      if (!workspacePath) {
-        throw new Error('Workspace path not found');
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
       }
 
-      const name = await workspaceManager.getWorkspaceName(workspacePath);
+      const name = await spaceManager.getSpaceName(spacePath);
 
       return {
         success: true,
         data: {
           name,
-          path: workspacePath,
+          path: spacePath,
         },
       };
     } catch (error) {
-      console.error('Error getting workspace info:', error);
+      console.error('Error getting space info:', error);
       return { success: false, error: (error as Error).message };
     }
   });
 
-  // Open launcher from workspace window
+  // Open launcher from space window
   ipcMain.handle('open-launcher', () => {
     LauncherWindow.create();
     return { success: true };
   });
 
-  // Get workspace setting
-  ipcMain.handle('get-workspace-setting', async (event, key: string) => {
+  // Get space setting
+  ipcMain.handle('get-space-setting', async (event, key: string) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
         throw new Error('Window not found');
       }
 
-      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
-      if (!workspacePath) {
-        throw new Error('Workspace path not found');
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
       }
 
-      const value = await workspaceManager.getSetting(workspacePath, key);
+      const value = await spaceManager.getSetting(spacePath, key);
 
       return { success: true, value };
     } catch (error) {
-      console.error('Error getting workspace setting:', error);
+      console.error('Error getting space setting:', error);
       return { success: false, error: (error as Error).message };
     }
   });
 
-  // Set workspace setting
-  ipcMain.handle('set-workspace-setting', async (event, key: string, value: string) => {
+  // Set space setting
+  ipcMain.handle('set-space-setting', async (event, key: string, value: string) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
         throw new Error('Window not found');
       }
 
-      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
-      if (!workspacePath) {
-        throw new Error('Workspace path not found');
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
       }
 
-      await workspaceManager.setSetting(workspacePath, key, value);
+      await spaceManager.setSetting(spacePath, key, value);
 
       return { success: true };
     } catch (error) {
-      console.error('Error setting workspace setting:', error);
+      console.error('Error setting space setting:', error);
       return { success: false, error: (error as Error).message };
     }
   });
@@ -94,16 +94,16 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Window not found');
       }
 
-      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
-      if (!workspacePath) {
-        throw new Error('Workspace path not found');
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
       }
 
       // Parse date strings to Date objects
       const occurredAtDate = occurredAt ? new Date(occurredAt) : undefined;
       const endedAtDate = endedAt ? new Date(endedAt) : undefined;
 
-      const entry = await workspaceManager.createEntry(workspacePath, contentJson, contentHtml, parentId, occurredAtDate, endedAtDate);
+      const entry = await spaceManager.createEntry(spacePath, contentJson, contentHtml, parentId, occurredAtDate, endedAtDate);
 
       return { success: true, data: entry };
     } catch (error) {
@@ -120,12 +120,12 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Window not found');
       }
 
-      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
-      if (!workspacePath) {
-        throw new Error('Workspace path not found');
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
       }
 
-      const entries = await workspaceManager.getTopLevelEntries(workspacePath, offset, limit);
+      const entries = await spaceManager.getTopLevelEntries(spacePath, offset, limit);
 
       return { success: true, data: entries };
     } catch (error) {
@@ -142,12 +142,12 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Window not found');
       }
 
-      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
-      if (!workspacePath) {
-        throw new Error('Workspace path not found');
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
       }
 
-      const entry = await workspaceManager.getEntryById(workspacePath, id);
+      const entry = await spaceManager.getEntryById(spacePath, id);
 
       if (!entry) {
         return { success: false, error: 'Entry not found' };
@@ -168,12 +168,12 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Window not found');
       }
 
-      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
-      if (!workspacePath) {
-        throw new Error('Workspace path not found');
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
       }
 
-      const entries = await workspaceManager.getChildEntries(workspacePath, parentId, offset, limit);
+      const entries = await spaceManager.getChildEntries(spacePath, parentId, offset, limit);
 
       return { success: true, data: entries };
     } catch (error) {
@@ -190,16 +190,16 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Window not found');
       }
 
-      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
-      if (!workspacePath) {
-        throw new Error('Workspace path not found');
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
       }
 
       // Parse date strings to Date objects
       const occurredAtDate = occurredAt ? new Date(occurredAt) : undefined;
       const endedAtDate = endedAt !== undefined ? (endedAt ? new Date(endedAt) : null) : undefined;
 
-      const entry = await workspaceManager.updateEntry(workspacePath, id, contentJson, contentHtml, occurredAtDate, endedAtDate);
+      const entry = await spaceManager.updateEntry(spacePath, id, contentJson, contentHtml, occurredAtDate, endedAtDate);
 
       return { success: true, data: entry };
     } catch (error) {
@@ -216,12 +216,12 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Window not found');
       }
 
-      const workspacePath = WorkspaceWindow.getWorkspacePath(window);
-      if (!workspacePath) {
-        throw new Error('Workspace path not found');
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
       }
 
-      await workspaceManager.deleteEntry(workspacePath, id);
+      await spaceManager.deleteEntry(spacePath, id);
 
       return { success: true };
     } catch (error) {
