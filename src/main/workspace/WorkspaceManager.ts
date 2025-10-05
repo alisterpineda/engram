@@ -149,11 +149,26 @@ export class WorkspaceManager {
     filePath: string,
     contentJson: string,
     contentHtml: string,
-    parentId?: number | null
+    parentId?: number | null,
+    occurredAt?: Date,
+    endedAt?: Date | null
   ): Promise<Entry> {
     const workspace = this.openWorkspaces.get(filePath);
     if (!workspace) {
       throw new Error('Workspace is not open');
+    }
+
+    // Set occurredAt to current time if not provided
+    const entryOccurredAt = occurredAt || new Date();
+
+    // Validate: if parentId is not null (comment), endedAt must be null
+    if (parentId && endedAt) {
+      throw new Error('Comments cannot have an end time');
+    }
+
+    // Validate: if endedAt is provided, it must be greater than occurredAt
+    if (endedAt && endedAt <= entryOccurredAt) {
+      throw new Error('End time must be greater than occurred time');
     }
 
     const entryRepo = workspace.dataSource.getRepository(Entry);
@@ -161,6 +176,8 @@ export class WorkspaceManager {
       contentJson,
       contentHtml,
       parentId: parentId || null,
+      occurredAt: entryOccurredAt,
+      endedAt: endedAt || null,
     });
 
     return await entryRepo.save(entry);
@@ -179,7 +196,7 @@ export class WorkspaceManager {
     const entryRepo = workspace.dataSource.getRepository(Entry);
     return await entryRepo.find({
       where: { parentId: IsNull() },
-      order: { createdAt: 'DESC' },
+      order: { occurredAt: 'DESC' },
       skip: offset,
       take: limit,
     });
@@ -219,7 +236,9 @@ export class WorkspaceManager {
     filePath: string,
     id: number,
     contentJson: string,
-    contentHtml: string
+    contentHtml: string,
+    occurredAt?: Date,
+    endedAt?: Date | null
   ): Promise<Entry> {
     const workspace = this.openWorkspaces.get(filePath);
     if (!workspace) {
@@ -235,6 +254,26 @@ export class WorkspaceManager {
 
     entry.contentJson = contentJson;
     entry.contentHtml = contentHtml;
+
+    // Update occurredAt if provided
+    if (occurredAt !== undefined) {
+      entry.occurredAt = occurredAt;
+    }
+
+    // Update endedAt if provided
+    if (endedAt !== undefined) {
+      // Validate: if parentId is not null (comment), endedAt must be null
+      if (entry.parentId && endedAt) {
+        throw new Error('Comments cannot have an end time');
+      }
+
+      // Validate: if endedAt is provided, it must be greater than occurredAt
+      if (endedAt && endedAt <= entry.occurredAt) {
+        throw new Error('End time must be greater than occurred time');
+      }
+
+      entry.endedAt = endedAt;
+    }
 
     return await entryRepo.save(entry);
   }

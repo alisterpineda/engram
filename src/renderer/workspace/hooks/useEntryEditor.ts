@@ -11,6 +11,8 @@ interface UseEntryEditorOptions {
   parentId?: number | null;
   entryId?: number;
   initialContent?: string;
+  initialOccurredAt?: Date;
+  initialEndedAt?: Date | null;
   onSuccess?: (entry: Entry) => void;
   onCancel?: () => void;
 }
@@ -21,6 +23,10 @@ interface UseEntryEditorReturn {
   isEmpty: boolean;
   isEditing: boolean;
   isFocused: boolean;
+  occurredAt: Date;
+  endedAt: Date | null;
+  setOccurredAt: (date: Date) => void;
+  setEndedAt: (date: Date | null) => void;
   setIsEditing: (value: boolean) => void;
   handleSubmit: () => Promise<void>;
   handleStartEdit: (content: string) => void;
@@ -34,6 +40,8 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     parentId = null,
     entryId,
     initialContent,
+    initialOccurredAt,
+    initialEndedAt,
     onSuccess,
     onCancel,
   } = options;
@@ -42,6 +50,8 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
   const [isEmpty, setIsEmpty] = useState(mode === 'create' ? true : false);
   const [isEditing, setIsEditing] = useState(mode === 'create' ? true : false);
   const [isFocused, setIsFocused] = useState(false);
+  const [occurredAt, setOccurredAt] = useState<Date>(initialOccurredAt || new Date());
+  const [endedAt, setEndedAt] = useState<Date | null>(initialEndedAt || null);
 
   const editor = useEditor({
     extensions: getEditorExtensions(placeholderText),
@@ -73,11 +83,15 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
         const result = await electronAPI.entry.create(
           contentJson,
           contentHtml,
-          parentId
+          parentId,
+          occurredAt,
+          endedAt
         );
 
         if (result.success) {
           editor.commands.clearContent();
+          setOccurredAt(new Date());
+          setEndedAt(null);
           if (onSuccess) {
             onSuccess(result.data);
           }
@@ -88,7 +102,9 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
         const result = await electronAPI.entry.update(
           entryId,
           contentJson,
-          contentHtml
+          contentHtml,
+          occurredAt,
+          endedAt
         );
 
         if (result.success) {
@@ -130,6 +146,10 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     isEmpty,
     isEditing,
     isFocused,
+    occurredAt,
+    endedAt,
+    setOccurredAt,
+    setEndedAt,
     setIsEditing,
     handleSubmit,
     handleStartEdit,

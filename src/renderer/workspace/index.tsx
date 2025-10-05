@@ -28,6 +28,7 @@
 
 import '@mantine/core/styles.css';
 import '@mantine/tiptap/styles.css';
+import '@mantine/dates/styles.css';
 import '../assets/index.css';
 
 import { createRoot } from 'react-dom/client';

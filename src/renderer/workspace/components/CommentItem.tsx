@@ -16,12 +16,18 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
     isSubmitting,
     isEmpty,
     isEditing,
+    occurredAt,
+    endedAt,
+    setOccurredAt,
+    setEndedAt,
     handleSubmit,
     handleStartEdit,
     handleCancelEdit
   } = useEntryEditor({
     mode: 'update',
     entryId: comment.id,
+    initialOccurredAt: new Date(comment.occurredAt),
+    initialEndedAt: comment.endedAt ? new Date(comment.endedAt) : null,
     onSuccess: onUpdate,
   });
 
@@ -45,7 +51,11 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
 
   return (
     <EditableEntry
-      createdAt={comment.createdAt}
+      occurredAt={occurredAt}
+      endedAt={endedAt}
+      setOccurredAt={setOccurredAt}
+      setEndedAt={setEndedAt}
+      parentId={comment.parentId}
       contentHtml={comment.contentHtml}
       contentJson={comment.contentJson}
       editor={editor}

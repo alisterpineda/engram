@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn, Check } from 'typeorm';
 
 @Entity()
+@Check(`"endedAt" IS NULL OR "endedAt" > "occurredAt"`)
+@Check(`"parentId" IS NULL OR "endedAt" IS NULL`)
 export class Entry {
   @PrimaryGeneratedColumn()
   id: number;
@@ -16,6 +18,12 @@ export class Entry {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column()
+  occurredAt: Date;
+
+  @Column({ nullable: true })
+  endedAt: Date | null;
 
   @Column({ nullable: true })
   parentId: number | null;

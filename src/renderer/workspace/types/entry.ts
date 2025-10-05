@@ -4,5 +4,7 @@ export interface Entry {
   contentHtml: string;
   createdAt: Date;
   updatedAt: Date;
+  occurredAt: Date;
+  endedAt: Date | null;
   parentId: number | null;
 }

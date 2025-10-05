@@ -21,12 +21,18 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     isSubmitting,
     isEmpty,
     isEditing,
+    occurredAt,
+    endedAt,
+    setOccurredAt,
+    setEndedAt,
     handleSubmit,
     handleStartEdit,
     handleCancelEdit
   } = useEntryEditor({
     mode: 'update',
     entryId: post.id,
+    initialOccurredAt: new Date(post.occurredAt),
+    initialEndedAt: post.endedAt ? new Date(post.endedAt) : null,
     onSuccess: onUpdate,
   });
 
@@ -58,7 +64,11 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <EditableEntry
-        createdAt={post.createdAt}
+        occurredAt={occurredAt}
+        endedAt={endedAt}
+        setOccurredAt={setOccurredAt}
+        setEndedAt={setEndedAt}
+        parentId={post.parentId}
         contentHtml={post.contentHtml}
         contentJson={post.contentJson}
         editor={editor}
@@ -73,7 +83,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         contentMarginBottom="md"
-        hideTimestampInEditMode={true}
+        hideTimestampInEditMode={false}
       >
         <Box
           onMouseEnter={() => setIsHovered(false)}

@@ -1,12 +1,17 @@
 import { ReactNode, useState } from 'react';
 import { Text, Group, ActionIcon, Stack, Typography, Menu } from '@mantine/core';
+import { DateTimePicker } from '@mantine/dates';
 import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-react';
 import { Editor } from '@tiptap/react';
 import { EntryEditor } from './EntryEditor';
 import { formatRelativeTime } from '../utils/date';
 
 interface EditableEntryProps {
-  createdAt: Date;
+  occurredAt: Date;
+  endedAt: Date | null;
+  setOccurredAt: (date: Date) => void;
+  setEndedAt: (date: Date | null) => void;
+  parentId: number | null;
   contentHtml: string;
   contentJson: string;
   editor: Editor | null;
@@ -28,7 +33,11 @@ interface EditableEntryProps {
 }
 
 export function EditableEntry({
-  createdAt,
+  occurredAt,
+  endedAt,
+  setOccurredAt,
+  setEndedAt,
+  parentId,
   contentHtml,
   contentJson,
   editor,
@@ -50,6 +59,8 @@ export function EditableEntry({
 }: EditableEntryProps) {
   const [internalIsHovered, setInternalIsHovered] = useState(false);
   const isHovered = externalIsHovered !== undefined ? externalIsHovered : internalIsHovered;
+  const isPost = parentId === null;
+  const hasEndTimeError = endedAt && endedAt <= occurredAt;
 
   const handleMouseEnter = () => {
     if (onMouseEnter) {
@@ -76,10 +87,35 @@ export function EditableEntry({
       {isEditing ? (
         <>
           {!hideTimestampInEditMode && (
-            <Group justify="space-between" align="center">
-              <Text size="xs" c="dimmed">
-                {formatRelativeTime(createdAt)}
-              </Text>
+            <Group gap="sm" mb="xs">
+              <DateTimePicker
+                label="Occurred at"
+                value={occurredAt}
+                onChange={(value) => {
+                  if (value) {
+                    setOccurredAt(typeof value === 'string' ? new Date(value) : value);
+                  }
+                }}
+                size="xs"
+                style={{ flex: 1 }}
+              />
+              {isPost && (
+                <DateTimePicker
+                  label="Ended at"
+                  value={endedAt}
+                  onChange={(value) => {
+                    if (value === null) {
+                      setEndedAt(null);
+                    } else if (value) {
+                      setEndedAt(typeof value === 'string' ? new Date(value) : value);
+                    }
+                  }}
+                  size="xs"
+                  style={{ flex: 1 }}
+                  clearable
+                  error={hasEndTimeError ? 'End time must be after occurred time' : undefined}
+                />
+              )}
             </Group>
           )}
           <EntryEditor editor={editor} />
@@ -96,7 +132,7 @@ export function EditableEntry({
               variant="filled"
               color="blue"
               onClick={onSubmit}
-              disabled={!editor || isEmpty || isSubmitting}
+              disabled={!editor || isEmpty || isSubmitting || hasEndTimeError}
               loading={isSubmitting}
             >
               <IconCheck size={16} />
@@ -107,7 +143,9 @@ export function EditableEntry({
         <>
           <Group justify="space-between" align="center">
             <Text size="xs" c="dimmed">
-              {formatRelativeTime(createdAt)}
+              {endedAt
+                ? `${formatRelativeTime(occurredAt)} - ${formatRelativeTime(endedAt)}`
+                : formatRelativeTime(occurredAt)}
             </Text>
             <Menu shadow="sm" width={150}>
               <Menu.Target>

@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@mantine/core": "^8.3.2",
+    "@mantine/dates": "^8.3.3",
     "@mantine/hooks": "^8.3.2",
     "@mantine/tiptap": "^8.3.3",
     "@tabler/icons-react": "^3.35.0",
@@ -58,6 +59,7 @@
     "@tiptap/react": "^3.6.5",
     "@tiptap/starter-kit": "^3.6.5",
     "better-sqlite3": "^12.4.1",
+    "dayjs": "^1.11.18",
     "electron-squirrel-startup": "^1.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

@@ -25,16 +25,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
   },
   entry: {
-    create: (contentJson: string, contentHtml: string, parentId?: number | null) =>
-      ipcRenderer.invoke('entry:create', contentJson, contentHtml, parentId),
+    create: (contentJson: string, contentHtml: string, parentId?: number | null, occurredAt?: Date, endedAt?: Date | null) =>
+      ipcRenderer.invoke('entry:create', contentJson, contentHtml, parentId, occurredAt?.toISOString(), endedAt?.toISOString()),
     getById: (id: number) =>
       ipcRenderer.invoke('entry:get-by-id', id),
     listPosts: (offset?: number, limit?: number) =>
       ipcRenderer.invoke('entry:list-posts', offset, limit),
     listComments: (parentId: number, offset?: number, limit?: number) =>
       ipcRenderer.invoke('entry:list-comments', parentId, offset, limit),
-    update: (id: number, contentJson: string, contentHtml: string) =>
-      ipcRenderer.invoke('entry:update', id, contentJson, contentHtml),
+    update: (id: number, contentJson: string, contentHtml: string, occurredAt?: Date, endedAt?: Date | null) =>
+      ipcRenderer.invoke('entry:update', id, contentJson, contentHtml, occurredAt?.toISOString(), endedAt?.toISOString()),
     delete: (id: number) =>
       ipcRenderer.invoke('entry:delete', id),
   },

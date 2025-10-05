@@ -87,7 +87,7 @@ export function registerWorkspaceHandlers(): void {
   });
 
   // Create entry (post or comment)
-  ipcMain.handle('entry:create', async (event, contentJson: string, contentHtml: string, parentId?: number | null) => {
+  ipcMain.handle('entry:create', async (event, contentJson: string, contentHtml: string, parentId?: number | null, occurredAt?: string, endedAt?: string | null) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -99,7 +99,11 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Workspace path not found');
       }
 
-      const entry = await workspaceManager.createEntry(workspacePath, contentJson, contentHtml, parentId);
+      // Parse date strings to Date objects
+      const occurredAtDate = occurredAt ? new Date(occurredAt) : undefined;
+      const endedAtDate = endedAt ? new Date(endedAt) : undefined;
+
+      const entry = await workspaceManager.createEntry(workspacePath, contentJson, contentHtml, parentId, occurredAtDate, endedAtDate);
 
       return { success: true, data: entry };
     } catch (error) {
@@ -179,7 +183,7 @@ export function registerWorkspaceHandlers(): void {
   });
 
   // Update entry
-  ipcMain.handle('entry:update', async (event, id: number, contentJson: string, contentHtml: string) => {
+  ipcMain.handle('entry:update', async (event, id: number, contentJson: string, contentHtml: string, occurredAt?: string, endedAt?: string | null) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -191,7 +195,11 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Workspace path not found');
       }
 
-      const entry = await workspaceManager.updateEntry(workspacePath, id, contentJson, contentHtml);
+      // Parse date strings to Date objects
+      const occurredAtDate = occurredAt ? new Date(occurredAt) : undefined;
+      const endedAtDate = endedAt !== undefined ? (endedAt ? new Date(endedAt) : null) : undefined;
+
+      const entry = await workspaceManager.updateEntry(workspacePath, id, contentJson, contentHtml, occurredAtDate, endedAtDate);
 
       return { success: true, data: entry };
     } catch (error) {
