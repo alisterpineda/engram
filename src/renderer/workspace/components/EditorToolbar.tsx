@@ -6,7 +6,6 @@ export function EditorToolbar() {
       <RichTextEditor.ControlsGroup>
         <RichTextEditor.Bold />
         <RichTextEditor.Italic />
-        <RichTextEditor.Underline />
         <RichTextEditor.Strikethrough />
         <RichTextEditor.ClearFormatting />
         <RichTextEditor.Code />
