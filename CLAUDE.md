@@ -21,19 +21,23 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
 
 ### UI Framework
 - **Mantine UI v8** (mantine.dev) - Component library with AppShell, Button, Text, Burger, etc.
+- **Tiptap** (tiptap.dev) - Rich text editor with StarterKit, Underline, Link, Placeholder extensions
 - PostCSS: `postcss.config.cjs` with `postcss-preset-mantine` and `postcss-simple-vars`
+- CSS Modules: Supported via webpack config
 - Breakpoints: xs:36em, sm:48em, md:62em, lg:75em, xl:88em
+- Theme: Global light/dark/auto mode with system preference sync
 
 ### Process Model
 - **Main** (`src/main/`): Node.js, lifecycle, windows, system ops. Entry: `src/main/index.ts`
   - Windows: `LauncherWindow.ts`, `WorkspaceWindow.ts`
-  - IPC: `launcherHandlers.ts`, `workspaceHandlers.ts`
-  - State: `AppState.ts` (JSON persistence), `WorkspaceManager.ts` (TypeORM connections)
+  - IPC: `launcherHandlers.ts`, `workspaceHandlers.ts`, `themeHandlers.ts`
+  - State: `AppState.ts` (JSON persistence, theme), `WorkspaceManager.ts` (TypeORM connections)
 - **Renderer** (`src/renderer/`): Browser, UI with React 19
-  - Launcher: `src/renderer/launcher/index.tsx` - create/open/recent workspaces
+  - Launcher: `src/renderer/launcher/index.tsx` - two-column layout, create/open/recent workspaces
   - Workspace: `src/renderer/workspace/index.tsx` - AppShell with collapsible navbar, routing (react-router-dom HashRouter)
     - Views: `FeedView` (journal feed, infinite scroll), `PostDetailView` (single post, paginated comments)
-    - Components: `EntryComposer`, `PostCard`, `CommentSection`, `CommentItem`
+    - Components: `EntryComposer`, `EditableEntry`, `EditorToolbar`, `PostCard`, `CommentSection`, `CommentItem`
+    - Hooks: `useEntryEditor` (consolidates entry create/update logic)
 - **Preload** (`src/preload/`): Bridge between main/renderer
   - `launcher.ts` - workspace selection APIs
   - `main-window.ts` - workspace operations (rename, settings, etc.)
