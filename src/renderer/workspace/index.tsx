@@ -31,6 +31,11 @@ import '@mantine/tiptap/styles.css';
 import '@mantine/dates/styles.css';
 import '../assets/index.css';
 
+import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+
+dayjs.extend(localizedFormat);
+
 import { createRoot } from 'react-dom/client';
 import { MantineProvider, createTheme, AppShell, Burger, Group, Text, Button, Stack, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';

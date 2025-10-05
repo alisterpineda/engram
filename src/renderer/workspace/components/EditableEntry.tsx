@@ -87,9 +87,8 @@ export function EditableEntry({
       {isEditing ? (
         <>
           {!hideTimestampInEditMode && (
-            <Group gap="sm" mb="xs">
+            <Group gap="xs" mb="xs" style={{ minHeight: '24px' }}>
               <DateTimePicker
-                label="Occurred at"
                 value={occurredAt}
                 onChange={(value) => {
                   if (value) {
@@ -97,24 +96,47 @@ export function EditableEntry({
                   }
                 }}
                 size="xs"
-                style={{ flex: 1 }}
+                variant="unstyled"
+                valueFormat="LLL"
+                styles={{
+                  input: {
+                    fontSize: 'var(--mantine-font-size-xs)',
+                    color: 'var(--mantine-color-dimmed)',
+                    cursor: 'pointer',
+                    padding: 0,
+                    minHeight: 'auto',
+                  }
+                }}
               />
               {isPost && (
-                <DateTimePicker
-                  label="Ended at"
-                  value={endedAt}
-                  onChange={(value) => {
-                    if (value === null) {
-                      setEndedAt(null);
-                    } else if (value) {
-                      setEndedAt(typeof value === 'string' ? new Date(value) : value);
-                    }
-                  }}
-                  size="xs"
-                  style={{ flex: 1 }}
-                  clearable
-                  error={hasEndTimeError ? 'End time must be after occurred time' : undefined}
-                />
+                <>
+                  <Text size="xs" c="dimmed">-</Text>
+                  <DateTimePicker
+                    value={endedAt}
+                    onChange={(value) => {
+                      if (value === null) {
+                        setEndedAt(null);
+                      } else if (value) {
+                        setEndedAt(typeof value === 'string' ? new Date(value) : value);
+                      }
+                    }}
+                    size="xs"
+                    variant="unstyled"
+                    valueFormat="LLL"
+                    placeholder="Add end time"
+                    clearable
+                    error={hasEndTimeError ? 'End time must be after occurred time' : undefined}
+                    styles={{
+                      input: {
+                        fontSize: 'var(--mantine-font-size-xs)',
+                        color: hasEndTimeError ? 'var(--mantine-color-red-filled)' : 'var(--mantine-color-dimmed)',
+                        cursor: 'pointer',
+                        padding: 0,
+                        minHeight: 'auto',
+                      }
+                    }}
+                  />
+                </>
               )}
             </Group>
           )}
