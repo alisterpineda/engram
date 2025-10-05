@@ -3,15 +3,7 @@ import { Stack, Divider, Text, Loader, Center, Anchor, Box } from '@mantine/core
 import { useNavigate } from 'react-router-dom';
 import { EntryComposer } from './EntryComposer';
 import { CommentItem } from './CommentItem';
-
-interface Entry {
-  id: number;
-  contentJson: string;
-  contentHtml: string;
-  createdAt: Date;
-  updatedAt: Date;
-  parentId: number | null;
-}
+import { Entry } from '../types/entry';
 
 interface CommentSectionProps {
   postId: number;

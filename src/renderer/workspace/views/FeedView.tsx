@@ -2,15 +2,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { Stack, Container, Loader, Center, Box, Text, Card } from '@mantine/core';
 import { EntryComposer } from '../components/EntryComposer';
 import { PostCard } from '../components/PostCard';
-
-interface Entry {
-  id: number;
-  contentJson: string;
-  contentHtml: string;
-  createdAt: Date;
-  updatedAt: Date;
-  parentId: number | null;
-}
+import { Entry } from '../types/entry';
 
 const electronAPI = (window as any).electronAPI;
 const POSTS_PER_PAGE = 20;
