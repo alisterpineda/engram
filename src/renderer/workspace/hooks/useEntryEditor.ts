@@ -15,6 +15,7 @@ interface UseEntryEditorOptions {
   initialEndedAt?: Date | null;
   onSuccess?: (entry: Entry) => void;
   onCancel?: () => void;
+  composerMode?: 'minimal' | 'full';
 }
 
 interface UseEntryEditorReturn {
@@ -23,6 +24,7 @@ interface UseEntryEditorReturn {
   isEmpty: boolean;
   isEditing: boolean;
   isFocused: boolean;
+  hasFocusedOnce: boolean;
   occurredAt: Date;
   endedAt: Date | null;
   setOccurredAt: (date: Date) => void;
@@ -44,12 +46,14 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     initialEndedAt,
     onSuccess,
     onCancel,
+    composerMode = 'full',
   } = options;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEmpty, setIsEmpty] = useState(mode === 'create' ? true : false);
   const [isEditing, setIsEditing] = useState(mode === 'create' ? true : false);
   const [isFocused, setIsFocused] = useState(false);
+  const [hasFocusedOnce, setHasFocusedOnce] = useState(false);
   const [occurredAt, setOccurredAt] = useState<Date>(initialOccurredAt || new Date());
   const [endedAt, setEndedAt] = useState<Date | null>(initialEndedAt || null);
 
@@ -62,6 +66,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     },
     onFocus: () => {
       setIsFocused(true);
+      setHasFocusedOnce(true);
     },
     onBlur: () => {
       setIsFocused(false);
@@ -132,6 +137,11 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
   const handleCancelEdit = () => {
     editor?.commands.clearContent();
     setIsEmpty(true);
+    if (mode === 'create') {
+      setOccurredAt(new Date());
+      setEndedAt(null);
+      setHasFocusedOnce(false);
+    }
     if (mode === 'update') {
       setIsEditing(false);
     }
@@ -146,6 +156,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     isEmpty,
     isEditing,
     isFocused,
+    hasFocusedOnce,
     occurredAt,
     endedAt,
     setOccurredAt,

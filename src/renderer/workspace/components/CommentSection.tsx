@@ -172,6 +172,8 @@ export function CommentSection({ postId, previewMode = false }: CommentSectionPr
           onSuccess={handleCommentCreated}
           buttonText="Comment"
           onCancel={() => setIsComposerVisible(false)}
+          composerMode="full"
+          autoFocus={true}
         />
       )}
     </Stack>
