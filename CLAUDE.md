@@ -21,7 +21,7 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
 
 ### UI Framework
 - **Mantine UI v8** (mantine.dev) - Component library with AppShell, Button, Text, Burger, etc.
-- **Tiptap** (tiptap.dev) - Rich text editor with StarterKit, Underline, Link, Placeholder extensions
+- **Tiptap** (tiptap.dev) - Rich text editor with StarterKit, Link, Placeholder extensions (GFM-compatible only)
 - PostCSS: `postcss.config.cjs` with `postcss-preset-mantine` and `postcss-simple-vars`
 - CSS Modules: Supported via webpack config
 - Breakpoints: xs:36em, sm:48em, md:62em, lg:75em, xl:88em
