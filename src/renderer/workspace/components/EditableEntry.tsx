@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
-import { Text, Group, ActionIcon, Stack, Typography } from '@mantine/core';
-import { IconEdit, IconTrash, IconCheck, IconX } from '@tabler/icons-react';
+import { Text, Group, ActionIcon, Stack, Typography, Menu } from '@mantine/core';
+import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-react';
 import { Editor } from '@tiptap/react';
 import { EntryEditor } from './EntryEditor';
 import { formatRelativeTime } from '../utils/date';
@@ -109,24 +109,34 @@ export function EditableEntry({
             <Text size="xs" c="dimmed">
               {formatRelativeTime(createdAt)}
             </Text>
-            <Group gap="xs" style={{ opacity: isHovered ? 1 : 0 }}>
-              <ActionIcon
-                variant="subtle"
-                color="blue"
-                size="sm"
-                onClick={() => onStartEdit(contentJson)}
-              >
-                <IconEdit size={editIconSize} />
-              </ActionIcon>
-              <ActionIcon
-                variant="subtle"
-                color="red"
-                size="sm"
-                onClick={onDelete}
-              >
-                <IconTrash size={deleteIconSize} />
-              </ActionIcon>
-            </Group>
+            <Menu shadow="sm" width={150}>
+              <Menu.Target>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  size="sm"
+                  style={{ opacity: isHovered ? 1 : 0 }}
+                >
+                  <IconDots size={16} />
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item
+                  leftSection={<IconEdit size={editIconSize} />}
+                  color="blue"
+                  onClick={() => onStartEdit(contentJson)}
+                >
+                  Edit
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconTrash size={deleteIconSize} />}
+                  color="red"
+                  onClick={onDelete}
+                >
+                  Delete
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </Group>
           <Typography mb={contentMarginBottom}>
             <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
