@@ -7,6 +7,7 @@ import { WorkspaceWindow } from './windows/WorkspaceWindow';
 import { registerLauncherHandlers } from './ipc/launcherHandlers';
 import { registerWorkspaceHandlers } from './ipc/workspaceHandlers';
 import { registerThemeHandlers } from './ipc/themeHandlers';
+import { setupMenu } from './menu';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -38,7 +39,10 @@ async function initializeApp(): Promise<void> {
 }
 
 // This method will be called when Electron has finished initialization
-app.on('ready', initializeApp);
+app.on('ready', () => {
+  setupMenu();
+  initializeApp();
+});
 
 // Quit when all windows are closed (including on macOS)
 app.on('window-all-closed', () => {
