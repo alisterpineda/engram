@@ -1,6 +1,6 @@
 {
   "name": "engram",
-  "productName": "engram",
+  "productName": "Engram",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".webpack/main",
