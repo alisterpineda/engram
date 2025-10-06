@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { createDataSource } from './dataSourceFactory';
 import { Setting } from './entities/Setting';
-import { Entry } from './entities/Entry';
+import { Log } from './entities/Log';
 import { SpaceData } from '../../shared/types';
 
 interface OpenSpace {
@@ -226,33 +226,33 @@ export class SpaceManager {
     contentJson: string,
     contentHtml: string,
     parentId?: number | null,
-    occurredAt?: Date,
+    startedAt?: Date,
     endedAt?: Date | null
-  ): Promise<Entry> {
+  ): Promise<Log> {
     const space = this.openSpaces.get(folderPath);
     if (!space) {
       throw new Error('Space is not open');
     }
 
-    // Set occurredAt to current time if not provided
-    const entryOccurredAt = occurredAt || new Date();
+    // Set startedAt to current time if not provided
+    const entryStartedAt = startedAt || new Date();
 
     // Validate: if parentId is not null (comment), endedAt must be null
     if (parentId && endedAt) {
       throw new Error('Comments cannot have an end time');
     }
 
-    // Validate: if endedAt is provided, it must be greater than occurredAt
-    if (endedAt && endedAt <= entryOccurredAt) {
-      throw new Error('End time must be greater than occurred time');
+    // Validate: if endedAt is provided, it must be greater than startedAt
+    if (endedAt && endedAt <= entryStartedAt) {
+      throw new Error('End time must be greater than started time');
     }
 
-    const entryRepo = space.dataSource.getRepository(Entry);
+    const entryRepo = space.dataSource.getRepository(Log);
     const entry = entryRepo.create({
       contentJson,
       contentHtml,
       parentId: parentId || null,
-      occurredAt: entryOccurredAt,
+      startedAt: entryStartedAt,
       endedAt: endedAt || null,
     });
 
@@ -263,28 +263,28 @@ export class SpaceManager {
     folderPath: string,
     offset = 0,
     limit = 20
-  ): Promise<Entry[]> {
+  ): Promise<Log[]> {
     const space = this.openSpaces.get(folderPath);
     if (!space) {
       throw new Error('Space is not open');
     }
 
-    const entryRepo = space.dataSource.getRepository(Entry);
+    const entryRepo = space.dataSource.getRepository(Log);
     return await entryRepo.find({
       where: { parentId: IsNull() },
-      order: { occurredAt: 'DESC' },
+      order: { startedAt: 'DESC' },
       skip: offset,
       take: limit,
     });
   }
 
-  public async getEntryById(folderPath: string, id: number): Promise<Entry | null> {
+  public async getEntryById(folderPath: string, id: number): Promise<Log | null> {
     const space = this.openSpaces.get(folderPath);
     if (!space) {
       throw new Error('Space is not open');
     }
 
-    const entryRepo = space.dataSource.getRepository(Entry);
+    const entryRepo = space.dataSource.getRepository(Log);
     return await entryRepo.findOne({ where: { id } });
   }
 
@@ -293,13 +293,13 @@ export class SpaceManager {
     parentId: number,
     offset?: number,
     limit?: number
-  ): Promise<Entry[]> {
+  ): Promise<Log[]> {
     const space = this.openSpaces.get(folderPath);
     if (!space) {
       throw new Error('Space is not open');
     }
 
-    const entryRepo = space.dataSource.getRepository(Entry);
+    const entryRepo = space.dataSource.getRepository(Log);
     return await entryRepo.find({
       where: { parentId },
       order: { createdAt: 'ASC' },
@@ -313,15 +313,15 @@ export class SpaceManager {
     id: number,
     contentJson: string,
     contentHtml: string,
-    occurredAt?: Date,
+    startedAt?: Date,
     endedAt?: Date | null
-  ): Promise<Entry> {
+  ): Promise<Log> {
     const space = this.openSpaces.get(folderPath);
     if (!space) {
       throw new Error('Space is not open');
     }
 
-    const entryRepo = space.dataSource.getRepository(Entry);
+    const entryRepo = space.dataSource.getRepository(Log);
     const entry = await entryRepo.findOne({ where: { id } });
 
     if (!entry) {
@@ -331,9 +331,9 @@ export class SpaceManager {
     entry.contentJson = contentJson;
     entry.contentHtml = contentHtml;
 
-    // Update occurredAt if provided
-    if (occurredAt !== undefined) {
-      entry.occurredAt = occurredAt;
+    // Update startedAt if provided
+    if (startedAt !== undefined) {
+      entry.startedAt = startedAt;
     }
 
     // Update endedAt if provided
@@ -343,9 +343,9 @@ export class SpaceManager {
         throw new Error('Comments cannot have an end time');
       }
 
-      // Validate: if endedAt is provided, it must be greater than occurredAt
-      if (endedAt && endedAt <= entry.occurredAt) {
-        throw new Error('End time must be greater than occurred time');
+      // Validate: if endedAt is provided, it must be greater than startedAt
+      if (endedAt && endedAt <= entry.startedAt) {
+        throw new Error('End time must be greater than started time');
       }
 
       entry.endedAt = endedAt;
@@ -360,7 +360,7 @@ export class SpaceManager {
       throw new Error('Space is not open');
     }
 
-    const entryRepo = space.dataSource.getRepository(Entry);
+    const entryRepo = space.dataSource.getRepository(Log);
     const entry = await entryRepo.findOne({ where: { id } });
 
     if (!entry) {

@@ -1,10 +1,10 @@
-export interface Entry {
+export interface Log {
   id: number;
   contentJson: string;
   contentHtml: string;
   createdAt: Date;
   updatedAt: Date;
-  occurredAt: Date;
+  startedAt: Date;
   endedAt: Date | null;
   parentId: number | null;
 }

@@ -8,9 +8,9 @@ import { EntryEditor } from './EntryEditor';
 import { formatRelativeTime } from '../utils/date';
 
 interface EditableEntryProps {
-  occurredAt: Date;
+  startedAt: Date;
   endedAt: Date | null;
-  setOccurredAt: (date: Date) => void;
+  setStartedAt: (date: Date) => void;
   setEndedAt: (date: Date | null) => void;
   parentId: number | null;
   contentHtml: string;
@@ -34,9 +34,9 @@ interface EditableEntryProps {
 }
 
 export function EditableEntry({
-  occurredAt,
+  startedAt,
   endedAt,
-  setOccurredAt,
+  setStartedAt,
   setEndedAt,
   parentId,
   contentHtml,
@@ -61,7 +61,7 @@ export function EditableEntry({
   const [internalIsHovered, setInternalIsHovered] = useState(false);
   const isHovered = externalIsHovered !== undefined ? externalIsHovered : internalIsHovered;
   const isPost = parentId === null;
-  const hasEndTimeError = endedAt && endedAt <= occurredAt;
+  const hasEndTimeError = endedAt && endedAt <= startedAt;
 
   const handleMouseEnter = () => {
     if (onMouseEnter) {
@@ -81,11 +81,11 @@ export function EditableEntry({
 
   // End time presets for common meeting durations
   const endTimePresets = useMemo(() => [
-    { label: '15 min', value: dayjs(occurredAt).add(15, 'minute').format('YYYY-MM-DD HH:mm:ss') },
-    { label: '30 min', value: dayjs(occurredAt).add(30, 'minute').format('YYYY-MM-DD HH:mm:ss') },
-    { label: '1 hour', value: dayjs(occurredAt).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss') },
-    { label: '1.5 hours', value: dayjs(occurredAt).add(1.5, 'hour').format('YYYY-MM-DD HH:mm:ss') },
-  ], [occurredAt]);
+    { label: '15 min', value: dayjs(startedAt).add(15, 'minute').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '30 min', value: dayjs(startedAt).add(30, 'minute').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '1 hour', value: dayjs(startedAt).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '1.5 hours', value: dayjs(startedAt).add(1.5, 'hour').format('YYYY-MM-DD HH:mm:ss') },
+  ], [startedAt]);
 
   return (
     <Stack
@@ -98,15 +98,15 @@ export function EditableEntry({
           {!hideTimestampInEditMode && (
             <Group gap="xs" mb="xs" style={{ minHeight: '24px' }}>
               <DateTimePicker
-                value={occurredAt}
+                value={startedAt}
                 onChange={(value) => {
                   if (value) {
-                    const newOccurredAt = typeof value === 'string' ? new Date(value) : value;
-                    setOccurredAt(newOccurredAt);
+                    const newStartedAt = typeof value === 'string' ? new Date(value) : value;
+                    setStartedAt(newStartedAt);
                     // Preserve duration if endedAt exists
                     if (endedAt) {
-                      const duration = endedAt.getTime() - occurredAt.getTime();
-                      setEndedAt(new Date(newOccurredAt.getTime() + duration));
+                      const duration = endedAt.getTime() - startedAt.getTime();
+                      setEndedAt(new Date(newStartedAt.getTime() + duration));
                     }
                   }
                 }}
@@ -140,9 +140,9 @@ export function EditableEntry({
                     valueFormat="LLL"
                     placeholder="Add end time"
                     clearable
-                    minDate={occurredAt}
+                    minDate={startedAt}
                     presets={endTimePresets}
-                    error={hasEndTimeError ? 'End time must be after occurred time' : undefined}
+                    error={hasEndTimeError ? 'End time must be after started time' : undefined}
                     styles={{
                       input: {
                         fontSize: 'var(--mantine-font-size-xs)',
@@ -183,8 +183,8 @@ export function EditableEntry({
           <Group justify="space-between" align="center">
             <Text size="xs" c="dimmed">
               {endedAt
-                ? `${formatRelativeTime(occurredAt)} - ${formatRelativeTime(endedAt)}`
-                : formatRelativeTime(occurredAt)}
+                ? `${formatRelativeTime(startedAt)} - ${formatRelativeTime(endedAt)}`
+                : formatRelativeTime(startedAt)}
             </Text>
             <Menu shadow="sm" width={150}>
               <Menu.Target>

@@ -2,13 +2,13 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { Stack, Container, Loader, Center, Box, Text, Card } from '@mantine/core';
 import { EntryComposer } from '../components/EntryComposer';
 import { PostCard } from '../components/PostCard';
-import { Entry } from '../types/entry';
+import { Log } from '../types/log';
 
 const electronAPI = (window as any).electronAPI;
 const POSTS_PER_PAGE = 20;
 
 export function FeedView() {
-  const [posts, setPosts] = useState<Entry[]>([]);
+  const [posts, setPosts] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
@@ -72,12 +72,12 @@ export function FeedView() {
     };
   }, [loadMorePosts]);
 
-  const handlePostCreated = (newPost: Entry) => {
+  const handlePostCreated = (newPost: Log) => {
     setPosts((prev) => [newPost, ...prev]);
     setIsComposerExpanded(false);
   };
 
-  const handlePostUpdated = (updatedPost: Entry) => {
+  const handlePostUpdated = (updatedPost: Log) => {
     setPosts((prev) =>
       prev.map((post) => (post.id === updatedPost.id ? updatedPost : post))
     );

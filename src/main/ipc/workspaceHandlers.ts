@@ -87,7 +87,7 @@ export function registerWorkspaceHandlers(): void {
   });
 
   // Create entry (post or comment)
-  ipcMain.handle('entry:create', async (event, contentJson: string, contentHtml: string, parentId?: number | null, occurredAt?: string, endedAt?: string | null) => {
+  ipcMain.handle('entry:create', async (event, contentJson: string, contentHtml: string, parentId?: number | null, startedAt?: string, endedAt?: string | null) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -100,10 +100,10 @@ export function registerWorkspaceHandlers(): void {
       }
 
       // Parse date strings to Date objects
-      const occurredAtDate = occurredAt ? new Date(occurredAt) : undefined;
+      const startedAtDate = startedAt ? new Date(startedAt) : undefined;
       const endedAtDate = endedAt ? new Date(endedAt) : undefined;
 
-      const entry = await spaceManager.createEntry(spacePath, contentJson, contentHtml, parentId, occurredAtDate, endedAtDate);
+      const entry = await spaceManager.createEntry(spacePath, contentJson, contentHtml, parentId, startedAtDate, endedAtDate);
 
       return { success: true, data: entry };
     } catch (error) {
@@ -183,7 +183,7 @@ export function registerWorkspaceHandlers(): void {
   });
 
   // Update entry
-  ipcMain.handle('entry:update', async (event, id: number, contentJson: string, contentHtml: string, occurredAt?: string, endedAt?: string | null) => {
+  ipcMain.handle('entry:update', async (event, id: number, contentJson: string, contentHtml: string, startedAt?: string, endedAt?: string | null) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -196,10 +196,10 @@ export function registerWorkspaceHandlers(): void {
       }
 
       // Parse date strings to Date objects
-      const occurredAtDate = occurredAt ? new Date(occurredAt) : undefined;
+      const startedAtDate = startedAt ? new Date(startedAt) : undefined;
       const endedAtDate = endedAt !== undefined ? (endedAt ? new Date(endedAt) : null) : undefined;
 
-      const entry = await spaceManager.updateEntry(spacePath, id, contentJson, contentHtml, occurredAtDate, endedAtDate);
+      const entry = await spaceManager.updateEntry(spacePath, id, contentJson, contentHtml, startedAtDate, endedAtDate);
 
       return { success: true, data: entry };
     } catch (error) {

@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Setting } from './entities/Setting';
-import { Entry } from './entities/Entry';
+import { Note } from './entities/Note';
+import { Log } from './entities/Log';
 import { allMigrations } from './migrations';
 import * as path from 'path';
 
@@ -9,7 +10,7 @@ import * as path from 'path';
 export default new DataSource({
   type: 'better-sqlite3',
   database: path.join(__dirname, '../../../.dev/dev-space.sqlite'),
-  entities: [Setting, Entry],
+  entities: [Setting, Note, Log],
   migrations: allMigrations,
   synchronize: false,
   logging: true,

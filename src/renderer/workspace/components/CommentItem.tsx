@@ -1,10 +1,10 @@
-import { Entry } from '../types/entry';
+import { Log } from '../types/log';
 import { useEntryEditor } from '../hooks/useEntryEditor';
 import { EditableEntry } from './EditableEntry';
 
 interface CommentItemProps {
-  comment: Entry;
-  onUpdate: (updatedComment: Entry) => void;
+  comment: Log;
+  onUpdate: (updatedComment: Log) => void;
   onDelete: (id: number) => void;
 }
 
@@ -16,9 +16,9 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
     isSubmitting,
     isEmpty,
     isEditing,
-    occurredAt,
+    startedAt,
     endedAt,
-    setOccurredAt,
+    setStartedAt,
     setEndedAt,
     handleSubmit,
     handleStartEdit,
@@ -26,7 +26,7 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
   } = useEntryEditor({
     mode: 'update',
     entryId: comment.id,
-    initialOccurredAt: new Date(comment.occurredAt),
+    initialStartedAt: new Date(comment.startedAt),
     initialEndedAt: comment.endedAt ? new Date(comment.endedAt) : null,
     onSuccess: onUpdate,
   });
@@ -51,9 +51,9 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
 
   return (
     <EditableEntry
-      occurredAt={occurredAt}
+      startedAt={startedAt}
       endedAt={endedAt}
-      setOccurredAt={setOccurredAt}
+      setStartedAt={setStartedAt}
       setEndedAt={setEndedAt}
       parentId={comment.parentId}
       contentHtml={comment.contentHtml}

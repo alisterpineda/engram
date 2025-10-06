@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Card, Box } from '@mantine/core';
 import { CommentSection } from './CommentSection';
 import { EditableEntry } from './EditableEntry';
-import { Entry } from '../types/entry';
+import { Log } from '../types/log';
 import { useEntryEditor } from '../hooks/useEntryEditor';
 
 interface PostCardProps {
-  post: Entry;
-  onUpdate: (updatedPost: Entry) => void;
+  post: Log;
+  onUpdate: (updatedPost: Log) => void;
   onDelete: (id: number) => void;
 }
 
@@ -21,9 +21,9 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     isSubmitting,
     isEmpty,
     isEditing,
-    occurredAt,
+    startedAt,
     endedAt,
-    setOccurredAt,
+    setStartedAt,
     setEndedAt,
     handleSubmit,
     handleStartEdit,
@@ -31,7 +31,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   } = useEntryEditor({
     mode: 'update',
     entryId: post.id,
-    initialOccurredAt: new Date(post.occurredAt),
+    initialStartedAt: new Date(post.startedAt),
     initialEndedAt: post.endedAt ? new Date(post.endedAt) : null,
     onSuccess: onUpdate,
   });
@@ -64,9 +64,9 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <EditableEntry
-        occurredAt={occurredAt}
+        startedAt={startedAt}
         endedAt={endedAt}
-        setOccurredAt={setOccurredAt}
+        setStartedAt={setStartedAt}
         setEndedAt={setEndedAt}
         parentId={post.parentId}
         contentHtml={post.contentHtml}

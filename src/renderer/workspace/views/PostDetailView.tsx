@@ -3,14 +3,14 @@ import { useParams } from 'react-router-dom';
 import { Container, Stack, Card, Text, Loader, Center, Alert, Typography } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { CommentSection } from '../components/CommentSection';
-import { Entry } from '../types/entry';
+import { Log } from '../types/log';
 import { formatRelativeTime } from '../utils/date';
 
 const electronAPI = (window as any).electronAPI;
 
 export function PostDetailView() {
   const { postId } = useParams<{ postId: string }>();
-  const [post, setPost] = useState<Entry | null>(null);
+  const [post, setPost] = useState<Log | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

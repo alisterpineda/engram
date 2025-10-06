@@ -3,7 +3,7 @@ import { Stack, Divider, Text, Loader, Center, Anchor, Box } from '@mantine/core
 import { useNavigate } from 'react-router-dom';
 import { EntryComposer } from './EntryComposer';
 import { CommentItem } from './CommentItem';
-import { Entry } from '../types/entry';
+import { Log } from '../types/log';
 
 interface CommentSectionProps {
   postId: number;
@@ -14,7 +14,7 @@ const electronAPI = (window as any).electronAPI;
 const COMMENTS_PER_PAGE = 20;
 
 export function CommentSection({ postId, previewMode = false }: CommentSectionProps) {
-  const [comments, setComments] = useState<Entry[]>([]);
+  const [comments, setComments] = useState<Log[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
@@ -89,12 +89,12 @@ export function CommentSection({ postId, previewMode = false }: CommentSectionPr
     };
   }, [loadMoreComments, previewMode]);
 
-  const handleCommentCreated = (newComment: Entry) => {
+  const handleCommentCreated = (newComment: Log) => {
     setComments((prev) => [...prev, newComment]);
     setIsComposerVisible(false);
   };
 
-  const handleCommentUpdated = (updatedComment: Entry) => {
+  const handleCommentUpdated = (updatedComment: Log) => {
     setComments((prev) =>
       prev.map((comment) =>
         comment.id === updatedComment.id ? updatedComment : comment

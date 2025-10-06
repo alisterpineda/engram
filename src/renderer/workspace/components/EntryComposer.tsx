@@ -3,12 +3,12 @@ import { Button, Stack, Group, Text } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { EntryEditor } from './EntryEditor';
-import { Entry } from '../types/entry';
+import { Log } from '../types/log';
 import { useEntryEditor } from '../hooks/useEntryEditor';
 
 interface EntryComposerProps {
   parentId?: number | null;
-  onSuccess?: (entry: Entry) => void;
+  onSuccess?: (entry: Log) => void;
   buttonText?: string;
   onCancel?: () => void;
   initialContent?: string;
@@ -23,9 +23,9 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
     isEmpty,
     isFocused,
     hasFocusedOnce,
-    occurredAt,
+    startedAt,
     endedAt,
-    setOccurredAt,
+    setStartedAt,
     setEndedAt,
     handleSubmit,
     handleCancelEdit
@@ -40,7 +40,7 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
   });
 
   const isPost = parentId === null;
-  const hasEndTimeError = endedAt && endedAt <= occurredAt;
+  const hasEndTimeError = endedAt && endedAt <= startedAt;
 
   // Visibility logic based on composer mode
   const showDateFields = composerMode === 'minimal' ? hasFocusedOnce : true;
@@ -56,26 +56,26 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
 
   // End time presets for common meeting durations
   const endTimePresets = useMemo(() => [
-    { label: '15 min', value: dayjs(occurredAt).add(15, 'minute').format('YYYY-MM-DD HH:mm:ss') },
-    { label: '30 min', value: dayjs(occurredAt).add(30, 'minute').format('YYYY-MM-DD HH:mm:ss') },
-    { label: '1 hour', value: dayjs(occurredAt).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss') },
-    { label: '1.5 hours', value: dayjs(occurredAt).add(1.5, 'hour').format('YYYY-MM-DD HH:mm:ss') },
-  ], [occurredAt]);
+    { label: '15 min', value: dayjs(startedAt).add(15, 'minute').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '30 min', value: dayjs(startedAt).add(30, 'minute').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '1 hour', value: dayjs(startedAt).add(1, 'hour').format('YYYY-MM-DD HH:mm:ss') },
+    { label: '1.5 hours', value: dayjs(startedAt).add(1.5, 'hour').format('YYYY-MM-DD HH:mm:ss') },
+  ], [startedAt]);
 
   return (
     <Stack gap="xs">
       {showDateFields && (
         <Group gap="xs" style={{ minHeight: '24px' }}>
           <DateTimePicker
-            value={occurredAt}
+            value={startedAt}
             onChange={(value) => {
               if (value) {
-                const newOccurredAt = typeof value === 'string' ? new Date(value) : value;
-                setOccurredAt(newOccurredAt);
+                const newStartedAt = typeof value === 'string' ? new Date(value) : value;
+                setStartedAt(newStartedAt);
                 // Preserve duration if endedAt exists
                 if (endedAt) {
-                  const duration = endedAt.getTime() - occurredAt.getTime();
-                  setEndedAt(new Date(newOccurredAt.getTime() + duration));
+                  const duration = endedAt.getTime() - startedAt.getTime();
+                  setEndedAt(new Date(newStartedAt.getTime() + duration));
                 }
               }
             }}
@@ -109,9 +109,9 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
                 valueFormat="LLL"
                 placeholder="Add end time"
                 clearable
-                minDate={occurredAt}
+                minDate={startedAt}
                 presets={endTimePresets}
-                error={hasEndTimeError ? 'End time must be after occurred time' : undefined}
+                error={hasEndTimeError ? 'End time must be after started time' : undefined}
                 styles={{
                   input: {
                     fontSize: 'var(--mantine-font-size-xs)',

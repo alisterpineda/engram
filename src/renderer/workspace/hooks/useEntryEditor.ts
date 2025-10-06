@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useEditor, Editor } from '@tiptap/react';
 import { getEditorExtensions } from '../config/editor';
-import { Entry } from '../types/entry';
+import { Log } from '../types/log';
 
 const electronAPI = (window as any).electronAPI;
 
@@ -11,9 +11,9 @@ interface UseEntryEditorOptions {
   parentId?: number | null;
   entryId?: number;
   initialContent?: string;
-  initialOccurredAt?: Date;
+  initialStartedAt?: Date;
   initialEndedAt?: Date | null;
-  onSuccess?: (entry: Entry) => void;
+  onSuccess?: (entry: Log) => void;
   onCancel?: () => void;
   composerMode?: 'minimal' | 'full';
 }
@@ -25,9 +25,9 @@ interface UseEntryEditorReturn {
   isEditing: boolean;
   isFocused: boolean;
   hasFocusedOnce: boolean;
-  occurredAt: Date;
+  startedAt: Date;
   endedAt: Date | null;
-  setOccurredAt: (date: Date) => void;
+  setStartedAt: (date: Date) => void;
   setEndedAt: (date: Date | null) => void;
   setIsEditing: (value: boolean) => void;
   handleSubmit: () => Promise<void>;
@@ -42,7 +42,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     parentId = null,
     entryId,
     initialContent,
-    initialOccurredAt,
+    initialStartedAt,
     initialEndedAt,
     onSuccess,
     onCancel,
@@ -54,7 +54,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
   const [isEditing, setIsEditing] = useState(mode === 'create' ? true : false);
   const [isFocused, setIsFocused] = useState(false);
   const [hasFocusedOnce, setHasFocusedOnce] = useState(false);
-  const [occurredAt, setOccurredAt] = useState<Date>(initialOccurredAt || new Date());
+  const [startedAt, setStartedAt] = useState<Date>(initialStartedAt || new Date());
   const [endedAt, setEndedAt] = useState<Date | null>(initialEndedAt || null);
 
   const editor = useEditor({
@@ -89,13 +89,13 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
           contentJson,
           contentHtml,
           parentId,
-          occurredAt,
+          startedAt,
           endedAt
         );
 
         if (result.success) {
           editor.commands.clearContent();
-          setOccurredAt(new Date());
+          setStartedAt(new Date());
           setEndedAt(null);
           if (onSuccess) {
             onSuccess(result.data);
@@ -108,7 +108,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
           entryId,
           contentJson,
           contentHtml,
-          occurredAt,
+          startedAt,
           endedAt
         );
 
@@ -138,7 +138,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     editor?.commands.clearContent();
     setIsEmpty(true);
     if (mode === 'create') {
-      setOccurredAt(new Date());
+      setStartedAt(new Date());
       setEndedAt(null);
       setHasFocusedOnce(false);
     }
@@ -157,9 +157,9 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     isEditing,
     isFocused,
     hasFocusedOnce,
-    occurredAt,
+    startedAt,
     endedAt,
-    setOccurredAt,
+    setStartedAt,
     setEndedAt,
     setIsEditing,
     handleSubmit,
