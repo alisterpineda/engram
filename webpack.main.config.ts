@@ -17,4 +17,7 @@ export const mainConfig: Configuration = {
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
   },
+  optimization: {
+    minimize: false, // required for TypeORM; see https://github.com/typeorm/typeorm/blob/master/docs/docs/help/1-faq.md
+  },
 };
