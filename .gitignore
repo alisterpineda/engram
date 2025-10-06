@@ -90,3 +90,6 @@ typings/
 
 # Electron-Forge
 out/
+
+# Dev database for migrations
+.dev/

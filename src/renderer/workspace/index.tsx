@@ -44,6 +44,7 @@ import { HashRouter, Routes, Route, useLocation, useNavigate } from 'react-route
 import { IconArrowLeft, IconSun, IconMoon, IconSunMoon, IconHome } from '@tabler/icons-react';
 import { FeedView } from './views/FeedView';
 import { PostDetailView } from './views/PostDetailView';
+import { MigrationModal } from './components/MigrationModal';
 import classes from './navbar.module.css';
 
 const theme = createTheme({
@@ -78,6 +79,12 @@ interface SpaceElectronAPI {
     listComments: (parentId: number, offset?: number, limit?: number) => Promise<{ success: boolean; data?: Entry[]; error?: string }>;
     update: (id: number, contentJson: string, contentHtml: string) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     delete: (id: number) => Promise<{ success: boolean; error?: string }>;
+  };
+  migration: {
+    onStart: (callback: () => void) => () => void;
+    onProgress: (callback: (data: { current: number; total: number }) => void) => () => void;
+    onComplete: (callback: () => void) => () => void;
+    onError: (callback: (data: { message: string }) => void) => () => void;
   };
 }
 
@@ -231,10 +238,67 @@ function AppContent() {
 }
 
 function App() {
+  const [migrationState, setMigrationState] = useState<{
+    open: boolean;
+    current: number;
+    total: number;
+    error: string | null;
+  }>({
+    open: false,
+    current: 0,
+    total: 0,
+    error: null,
+  });
+
+  useEffect(() => {
+    // Listen for migration events
+    const unsubscribeStart = electronAPI.migration.onStart(() => {
+      setMigrationState({ open: true, current: 0, total: 0, error: null });
+    });
+
+    const unsubscribeProgress = electronAPI.migration.onProgress((data) => {
+      setMigrationState((prev) => ({
+        ...prev,
+        current: data.current,
+        total: data.total,
+      }));
+    });
+
+    const unsubscribeComplete = electronAPI.migration.onComplete(() => {
+      setMigrationState({ open: false, current: 0, total: 0, error: null });
+    });
+
+    const unsubscribeError = electronAPI.migration.onError((data) => {
+      setMigrationState((prev) => ({
+        ...prev,
+        error: data.message,
+      }));
+    });
+
+    return () => {
+      unsubscribeStart();
+      unsubscribeProgress();
+      unsubscribeComplete();
+      unsubscribeError();
+    };
+  }, []);
+
+  const handleCloseMigrationModal = () => {
+    // Close the window when user clicks close on error
+    window.close();
+  };
+
   return (
     <MantineProvider theme={theme}>
       <HashRouter>
         <AppContent />
+        <MigrationModal
+          opened={migrationState.open}
+          current={migrationState.current}
+          total={migrationState.total}
+          error={migrationState.error}
+          onClose={handleCloseMigrationModal}
+        />
       </HashRouter>
     </MantineProvider>
   );

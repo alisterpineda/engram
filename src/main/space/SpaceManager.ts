@@ -30,6 +30,46 @@ export class SpaceManager {
     return path.join(folderPath, 'space.sqlite');
   }
 
+  private async runMigrations(
+    dataSource: DataSource,
+    onProgress?: (current: number, total: number) => void
+  ): Promise<void> {
+    try {
+      const pendingMigrations = await dataSource.showMigrations();
+      const totalPending = pendingMigrations ? await dataSource.showMigrations() : false;
+      const total = totalPending ? (await dataSource.driver.createSchemaBuilder().log()).upQueries.length : 0;
+
+      if (total > 0 && process.env.NODE_ENV !== 'production') {
+        console.log(`Running ${total} pending migration(s)...`);
+      }
+
+      // Get migrations before running
+      const migrations = await dataSource.runMigrations({
+        transaction: 'each',
+        // Custom fake executor to track progress
+      });
+
+      // Report progress for each migration
+      if (onProgress && migrations.length > 0) {
+        migrations.forEach((migration, index) => {
+          if (process.env.NODE_ENV !== 'production') {
+            console.log(`Executed migration: ${migration.name}`);
+          }
+          onProgress(index + 1, migrations.length);
+        });
+      }
+
+      if (migrations.length > 0 && process.env.NODE_ENV !== 'production') {
+        console.log(`Successfully executed ${migrations.length} migration(s)`);
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Migration failed:', error);
+      }
+      throw error;
+    }
+  }
+
   public async createSpace(name: string, folderPath: string): Promise<SpaceData> {
     // Check if folder already exists
     if (fs.existsSync(folderPath)) {
@@ -44,11 +84,22 @@ export class SpaceManager {
     // Create the DataSource
     const dataSource = createDataSource(dbPath);
 
-    // Initialize the connection (this will create the file and tables)
-    await dataSource.initialize();
+    try {
+      // Initialize the connection
+      await dataSource.initialize();
 
-    // Close the connection (it will be reopened when the space window is created)
-    await dataSource.destroy();
+      // Run migrations to set up the database schema
+      await this.runMigrations(dataSource);
+
+      // Close the connection (it will be reopened when the space window is created)
+      await dataSource.destroy();
+    } catch (error) {
+      // Clean up on error
+      if (dataSource.isInitialized) {
+        await dataSource.destroy();
+      }
+      throw error;
+    }
 
     return {
       name,
@@ -56,7 +107,10 @@ export class SpaceManager {
     };
   }
 
-  public async openSpace(folderPath: string): Promise<SpaceData> {
+  public async openSpace(
+    folderPath: string,
+    onMigrationProgress?: (current: number, total: number) => void
+  ): Promise<SpaceData> {
     // Check if folder exists
     if (!fs.existsSync(folderPath)) {
       throw new Error('Space folder does not exist');
@@ -78,10 +132,22 @@ export class SpaceManager {
 
     // Create and initialize DataSource
     const dataSource = createDataSource(dbPath);
-    await dataSource.initialize();
 
-    // Store the connection
-    this.openSpaces.set(folderPath, { dataSource, path: folderPath });
+    try {
+      await dataSource.initialize();
+
+      // Run any pending migrations
+      await this.runMigrations(dataSource, onMigrationProgress);
+
+      // Store the connection
+      this.openSpaces.set(folderPath, { dataSource, path: folderPath });
+    } catch (error) {
+      // Clean up on error
+      if (dataSource.isInitialized) {
+        await dataSource.destroy();
+      }
+      throw error;
+    }
 
     return {
       name: path.basename(folderPath),

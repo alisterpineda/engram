@@ -1,0 +1,16 @@
+import { DataSource } from 'typeorm';
+import { Setting } from './entities/Setting';
+import { Entry } from './entities/Entry';
+import { allMigrations } from './migrations';
+import * as path from 'path';
+
+// This DataSource is used by the TypeORM CLI for generating migrations
+// It points to a dev database so we can generate migrations from entity changes
+export default new DataSource({
+  type: 'better-sqlite3',
+  database: path.join(__dirname, '../../../.dev/dev-space.sqlite'),
+  entities: [Setting, Entry],
+  migrations: allMigrations,
+  synchronize: false,
+  logging: true,
+});

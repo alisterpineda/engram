@@ -21,10 +21,9 @@ export class SpaceWindow {
       return existing.window;
     }
 
-    // Open the space
     const spaceManager = SpaceManager.getInstance();
-    const spaceData = await spaceManager.openSpace(spacePath);
 
+    // Create the window first
     const window = new BrowserWindow({
       width: 1200,
       height: 800,
@@ -32,9 +31,10 @@ export class SpaceWindow {
         preload: WORKSPACE_WINDOW_PRELOAD_WEBPACK_ENTRY,
         additionalArguments: [`--space-path=${spacePath}`],
       },
-      title: `${spaceData.name} - Engram`,
+      title: 'Loading Space... - Engram',
     });
 
+    // Start loading the page
     window.loadURL(WORKSPACE_WINDOW_WEBPACK_ENTRY);
 
     // Open DevTools in development
@@ -42,14 +42,53 @@ export class SpaceWindow {
     //   window.webContents.openDevTools();
     // }
 
-    // Handle window close
-    window.on('closed', async () => {
-      await spaceManager.closeSpace(spacePath);
-      SpaceWindow.windows.delete(spacePath);
-    });
+    try {
+      // Wait for the page to be ready before sending migration events
+      await new Promise<void>((resolve) => {
+        if (window.webContents.isLoading()) {
+          window.webContents.once('did-finish-load', () => resolve());
+        } else {
+          resolve();
+        }
+      });
 
-    SpaceWindow.windows.set(spacePath, { window, path: spacePath });
-    return window;
+      // Send migration start event
+      window.webContents.send('migration:start');
+
+      // Open the space with migration progress callback
+      const spaceData = await spaceManager.openSpace(spacePath, (current, total) => {
+        window.webContents.send('migration:progress', { current, total });
+      });
+
+      // Send migration complete event
+      window.webContents.send('migration:complete');
+
+      // Update window title with space name
+      window.setTitle(`${spaceData.name} - Engram`);
+
+      // Handle window close
+      window.on('closed', async () => {
+        await spaceManager.closeSpace(spacePath);
+        SpaceWindow.windows.delete(spacePath);
+      });
+
+      SpaceWindow.windows.set(spacePath, { window, path: spacePath });
+      return window;
+    } catch (error) {
+      // Send error event to window
+      window.webContents.send('migration:error', {
+        message: (error as Error).message,
+      });
+
+      // Close window after a short delay to allow error to be displayed
+      setTimeout(() => {
+        if (!window.isDestroyed()) {
+          window.close();
+        }
+      }, 100);
+
+      throw error;
+    }
   }
 
   public static getWindow(spacePath: string): BrowserWindow | undefined {

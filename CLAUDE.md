@@ -20,6 +20,19 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
 - Multiple spaces can be open simultaneously, each in separate window
 - Future-ready: space folders can contain attachments, files, and other resources
 
+### Migrations
+TypeORM migrations in `src/main/space/migrations/` auto-run on space open with progress modal.
+
+**Modifying entities:**
+1. Edit in `src/main/space/entities/`, run `npm run migration:generate src/main/space/migrations/Name`
+2. Review, rename class to `M[timestamp]_Name`, import in `migrations/index.ts`, test, commit
+
+**Naming:** File: `[timestamp]-Name.ts`, Class: `M[timestamp]_Name`, keep `name` property as generated.
+
+**Commands:** `migration:generate|create|run|revert` (prefix: `npm run`, path: `src/main/space/migrations/Name`)
+
+**Behavior:** Transaction per migration (auto-rollback on error). Modal: "Running migration X of Y". Error: show message, close window. Dev: verbose logs; Prod: silent.
+
 ### UI Framework
 - **Mantine UI v8** (mantine.dev) - Component library with AppShell, Button, Text, Burger, etc.
 - **Tiptap** (tiptap.dev) - Rich text editor with StarterKit, Link, Placeholder extensions (GFM-compatible only)
