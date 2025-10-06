@@ -1,0 +1,88 @@
+name: Build Distributables
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows distributable
+        run: npm run make
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-distributables
+          path: out/make/squirrel.windows/**/*
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS distributable
+        run: npm run make
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-distributables
+          path: out/make/**/*.dmg
+
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Linux distributables
+        run: npm run make
+
+      - name: Upload Linux DEB artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-deb-distributables
+          path: out/make/deb/**/*.deb
+
+      - name: Upload Linux RPM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-rpm-distributables
+          path: out/make/rpm/**/*.rpm
