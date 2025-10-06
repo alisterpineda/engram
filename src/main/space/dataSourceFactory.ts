@@ -10,6 +10,7 @@ export function createDataSource(dbPath: string): DataSource {
     entities: [Setting, Entry],
     migrations: allMigrations,
     migrationsRun: false,
+    synchronize: false, // explicitly set to false to avoid accidental schema sync
     logging: process.env.NODE_ENV !== 'production',
   });
 }
