@@ -1,10 +1,11 @@
 import { ReactNode, useState, useMemo } from 'react';
-import { Text, Group, ActionIcon, Stack, Typography, Menu } from '@mantine/core';
+import { Text, Group, ActionIcon, Stack, Menu } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-react';
 import { Editor } from '@tiptap/react';
 import { EntryEditor } from './EntryEditor';
+import { ReadOnlyEditor } from './ReadOnlyEditor';
 import { formatRelativeTime } from '../utils/date';
 
 interface EditableEntryProps {
@@ -39,7 +40,7 @@ export function EditableEntry({
   setStartedAt,
   setEndedAt,
   parentId,
-  contentHtml,
+  contentHtml: _contentHtml, // kept for backward compatibility
   contentJson,
   editor,
   isEditing,
@@ -215,9 +216,9 @@ export function EditableEntry({
               </Menu.Dropdown>
             </Menu>
           </Group>
-          <Typography mb={contentMarginBottom}>
-            <div dangerouslySetInnerHTML={{ __html: contentHtml }} />
-          </Typography>
+          <div style={{ marginBottom: contentMarginBottom ? `var(--mantine-spacing-${contentMarginBottom})` : undefined }}>
+            <ReadOnlyEditor contentJson={contentJson} />
+          </div>
           {children}
         </>
       )}
