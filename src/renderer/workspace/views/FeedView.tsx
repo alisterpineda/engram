@@ -94,12 +94,12 @@ export function FeedView() {
           {!isComposerExpanded ? (
             <Box
               onClick={() => setIsComposerExpanded(true)}
+              bg="var(--mantine-color-default-hover)"
+              bd="1px solid var(--mantine-color-default-border)"
               style={{
                 cursor: 'pointer',
                 padding: 'var(--mantine-spacing-sm)',
                 borderRadius: 'var(--mantine-radius-sm)',
-                backgroundColor: 'var(--mantine-color-gray-0)',
-                border: '1px solid var(--mantine-color-gray-3)',
               }}
             >
               <Text c="dimmed">What's on your mind?</Text>
