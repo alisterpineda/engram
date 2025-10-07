@@ -1,0 +1,19 @@
+.root {
+  border: none;
+}
+
+.content {
+  padding: 0;
+  background-color: transparent;
+}
+
+.content :global(.ProseMirror) {
+  padding: 0;
+  outline: none;
+  border: none;
+}
+
+.content :global(.ProseMirror:focus) {
+  outline: none;
+  border: none;
+}
