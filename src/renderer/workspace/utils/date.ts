@@ -13,3 +13,21 @@ export function formatRelativeTime(date: Date): string {
 
   return new Date(date).toLocaleDateString();
 }
+
+export function formatDuration(startedAt: Date, endedAt: Date): string {
+  const durationMs = new Date(endedAt).getTime() - new Date(startedAt).getTime();
+  const durationMins = Math.floor(durationMs / 1000 / 60);
+
+  if (durationMins < 60) {
+    return `${durationMins} min`;
+  }
+
+  const hours = Math.floor(durationMins / 60);
+  const mins = durationMins % 60;
+
+  if (mins === 0) {
+    return hours === 1 ? '1 hour' : `${hours} hours`;
+  }
+
+  return `${hours}h ${mins}m`;
+}

@@ -6,7 +6,7 @@ import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-r
 import { Editor } from '@tiptap/react';
 import { EntryEditor } from './EntryEditor';
 import { ReadOnlyEditor } from './ReadOnlyEditor';
-import { formatRelativeTime } from '../utils/date';
+import { formatRelativeTime, formatDuration } from '../utils/date';
 
 interface EditableEntryProps {
   startedAt: Date;
@@ -195,7 +195,7 @@ export function EditableEntry({
           <Group justify="space-between" align="center">
             <Text size="xs" c="dimmed">
               {endedAt
-                ? `${formatRelativeTime(startedAt)} - ${formatRelativeTime(endedAt)}`
+                ? `${formatRelativeTime(startedAt)} (${formatDuration(startedAt, endedAt)})`
                 : formatRelativeTime(startedAt)}
             </Text>
             <Group gap="xs">

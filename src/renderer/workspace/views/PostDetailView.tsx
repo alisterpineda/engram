@@ -5,7 +5,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { CommentSection } from '../components/CommentSection';
 import { ReadOnlyEditor } from '../components/ReadOnlyEditor';
 import { Log } from '../types/log';
-import { formatRelativeTime } from '../utils/date';
+import { formatRelativeTime, formatDuration } from '../utils/date';
 
 const electronAPI = (window as any).electronAPI;
 
@@ -71,7 +71,9 @@ export function PostDetailView() {
         <Card shadow="sm" padding="lg" radius="md" withBorder>
           <Stack gap="xs">
             <Text size="xs" c="dimmed">
-              {formatRelativeTime(post.createdAt)}
+              {post.endedAt
+                ? `${formatRelativeTime(post.startedAt)} (${formatDuration(post.startedAt, post.endedAt)})`
+                : formatRelativeTime(post.startedAt)}
             </Text>
 
             {post.title && (
