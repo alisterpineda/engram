@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Button, Stack, Group, Text } from '@mantine/core';
+import { Button, Stack, Group, Text, TextInput } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { EntryEditor } from './EntryEditor';
@@ -25,8 +25,10 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
     hasFocusedOnce,
     startedAt,
     endedAt,
+    title,
     setStartedAt,
     setEndedAt,
+    setTitle,
     handleSubmit,
     handleCancelEdit
   } = useEntryEditor({
@@ -126,6 +128,15 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
             </>
           )}
         </Group>
+      )}
+      {showDateFields && isPost && (
+        <TextInput
+          placeholder="Title (optional)"
+          value={title}
+          onChange={(e) => setTitle(e.currentTarget.value)}
+          maxLength={255}
+          size="md"
+        />
       )}
       <EntryEditor editor={editor} showToolbar={showToolbar} />
       <Group justify="flex-end">

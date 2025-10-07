@@ -6,6 +6,9 @@ export abstract class Note {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  title: string | null;
+
   @Column('text')
   contentJson: string;
 

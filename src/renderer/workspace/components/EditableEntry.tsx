@@ -1,5 +1,5 @@
 import { ReactNode, useState, useMemo } from 'react';
-import { Text, Group, ActionIcon, Stack, Menu } from '@mantine/core';
+import { Text, Group, ActionIcon, Stack, Menu, TextInput, Title } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-react';
@@ -14,6 +14,8 @@ interface EditableEntryProps {
   setStartedAt: (date: Date) => void;
   setEndedAt: (date: Date | null) => void;
   parentId: number | null;
+  title: string;
+  setTitle: (value: string) => void;
   contentJson: string;
   editor: Editor | null;
   isEditing: boolean;
@@ -39,6 +41,8 @@ export function EditableEntry({
   setStartedAt,
   setEndedAt,
   parentId,
+  title,
+  setTitle,
   contentJson,
   editor,
   isEditing,
@@ -156,6 +160,15 @@ export function EditableEntry({
               )}
             </Group>
           )}
+          {!hideTimestampInEditMode && isPost && (
+            <TextInput
+              placeholder="Title (optional)"
+              value={title}
+              onChange={(e) => setTitle(e.currentTarget.value)}
+              maxLength={255}
+              size="md"
+            />
+          )}
           <EntryEditor editor={editor} />
           <Group justify="flex-end" gap="xs">
             <ActionIcon
@@ -214,6 +227,9 @@ export function EditableEntry({
               </Menu.Dropdown>
             </Menu>
           </Group>
+          {isPost && title && (
+            <Title order={1} mb="sm">{title}</Title>
+          )}
           <div style={{ marginBottom: contentMarginBottom ? `var(--mantine-spacing-${contentMarginBottom})` : undefined }}>
             <ReadOnlyEditor contentJson={contentJson} />
           </div>

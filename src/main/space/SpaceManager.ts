@@ -226,7 +226,8 @@ export class SpaceManager {
     contentJson: string,
     parentId?: number | null,
     startedAt?: Date,
-    endedAt?: Date | null
+    endedAt?: Date | null,
+    title?: string | null
   ): Promise<Log> {
     const space = this.openSpaces.get(folderPath);
     if (!space) {
@@ -246,8 +247,17 @@ export class SpaceManager {
       throw new Error('End time must be greater than started time');
     }
 
+    // Validate: title length if provided
+    if (title && title.length > 255) {
+      throw new Error('Title must be 255 characters or less');
+    }
+
+    // Normalize empty/whitespace-only titles to null
+    const normalizedTitle = title && title.trim() ? title.trim() : null;
+
     const entryRepo = space.dataSource.getRepository(Log);
     const entry = entryRepo.create({
+      title: normalizedTitle,
       contentJson,
       parentId: parentId || null,
       startedAt: entryStartedAt,
@@ -311,7 +321,8 @@ export class SpaceManager {
     id: number,
     contentJson: string,
     startedAt?: Date,
-    endedAt?: Date | null
+    endedAt?: Date | null,
+    title?: string | null
   ): Promise<Log> {
     const space = this.openSpaces.get(folderPath);
     if (!space) {
@@ -326,6 +337,17 @@ export class SpaceManager {
     }
 
     entry.contentJson = contentJson;
+
+    // Update title if provided
+    if (title !== undefined) {
+      // Validate: title length if provided
+      if (title && title.length > 255) {
+        throw new Error('Title must be 255 characters or less');
+      }
+
+      // Normalize empty/whitespace-only titles to null
+      entry.title = title && title.trim() ? title.trim() : null;
+    }
 
     // Update startedAt if provided
     if (startedAt !== undefined) {

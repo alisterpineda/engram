@@ -87,7 +87,7 @@ export function registerWorkspaceHandlers(): void {
   });
 
   // Create entry (post or comment)
-  ipcMain.handle('entry:create', async (event, contentJson: string, parentId?: number | null, startedAt?: string, endedAt?: string | null) => {
+  ipcMain.handle('entry:create', async (event, contentJson: string, parentId?: number | null, startedAt?: string, endedAt?: string | null, title?: string | null) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -103,7 +103,7 @@ export function registerWorkspaceHandlers(): void {
       const startedAtDate = startedAt ? new Date(startedAt) : undefined;
       const endedAtDate = endedAt ? new Date(endedAt) : undefined;
 
-      const entry = await spaceManager.createEntry(spacePath, contentJson, parentId, startedAtDate, endedAtDate);
+      const entry = await spaceManager.createEntry(spacePath, contentJson, parentId, startedAtDate, endedAtDate, title);
 
       return { success: true, data: entry };
     } catch (error) {
@@ -183,7 +183,7 @@ export function registerWorkspaceHandlers(): void {
   });
 
   // Update entry
-  ipcMain.handle('entry:update', async (event, id: number, contentJson: string, startedAt?: string, endedAt?: string | null) => {
+  ipcMain.handle('entry:update', async (event, id: number, contentJson: string, startedAt?: string, endedAt?: string | null, title?: string | null) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -199,7 +199,7 @@ export function registerWorkspaceHandlers(): void {
       const startedAtDate = startedAt ? new Date(startedAt) : undefined;
       const endedAtDate = endedAt !== undefined ? (endedAt ? new Date(endedAt) : null) : undefined;
 
-      const entry = await spaceManager.updateEntry(spacePath, id, contentJson, startedAtDate, endedAtDate);
+      const entry = await spaceManager.updateEntry(spacePath, id, contentJson, startedAtDate, endedAtDate, title);
 
       return { success: true, data: entry };
     } catch (error) {

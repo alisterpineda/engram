@@ -13,6 +13,7 @@ interface UseEntryEditorOptions {
   initialContent?: string;
   initialStartedAt?: Date;
   initialEndedAt?: Date | null;
+  initialTitle?: string | null;
   onSuccess?: (entry: Log) => void;
   onCancel?: () => void;
   composerMode?: 'minimal' | 'full';
@@ -27,8 +28,10 @@ interface UseEntryEditorReturn {
   hasFocusedOnce: boolean;
   startedAt: Date;
   endedAt: Date | null;
+  title: string;
   setStartedAt: (date: Date) => void;
   setEndedAt: (date: Date | null) => void;
+  setTitle: (value: string) => void;
   setIsEditing: (value: boolean) => void;
   handleSubmit: () => Promise<void>;
   handleStartEdit: (content: string) => void;
@@ -44,6 +47,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     initialContent,
     initialStartedAt,
     initialEndedAt,
+    initialTitle,
     onSuccess,
     onCancel,
     composerMode = 'full',
@@ -56,6 +60,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
   const [hasFocusedOnce, setHasFocusedOnce] = useState(false);
   const [startedAt, setStartedAt] = useState<Date>(initialStartedAt || new Date());
   const [endedAt, setEndedAt] = useState<Date | null>(initialEndedAt || null);
+  const [title, setTitle] = useState<string>(initialTitle || '');
 
   const editor = useEditor({
     extensions: getEditorExtensions(placeholderText),
@@ -82,19 +87,22 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
 
     try {
       const contentJson = JSON.stringify(editor.getJSON());
+      const titleToSend = title.trim() || null;
 
       if (mode === 'create') {
         const result = await electronAPI.entry.create(
           contentJson,
           parentId,
           startedAt,
-          endedAt
+          endedAt,
+          titleToSend
         );
 
         if (result.success) {
           editor.commands.clearContent();
           setStartedAt(new Date());
           setEndedAt(null);
+          setTitle('');
           if (onSuccess) {
             onSuccess(result.data);
           }
@@ -106,7 +114,8 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
           entryId,
           contentJson,
           startedAt,
-          endedAt
+          endedAt,
+          titleToSend
         );
 
         if (result.success) {
@@ -137,6 +146,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     if (mode === 'create') {
       setStartedAt(new Date());
       setEndedAt(null);
+      setTitle('');
       setHasFocusedOnce(false);
     }
     if (mode === 'update') {
@@ -156,8 +166,10 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
     hasFocusedOnce,
     startedAt,
     endedAt,
+    title,
     setStartedAt,
     setEndedAt,
+    setTitle,
     setIsEditing,
     handleSubmit,
     handleStartEdit,

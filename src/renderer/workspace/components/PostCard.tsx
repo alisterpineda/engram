@@ -23,8 +23,10 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     isEditing,
     startedAt,
     endedAt,
+    title,
     setStartedAt,
     setEndedAt,
+    setTitle,
     handleSubmit,
     handleStartEdit,
     handleCancelEdit
@@ -33,6 +35,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     entryId: post.id,
     initialStartedAt: new Date(post.startedAt),
     initialEndedAt: post.endedAt ? new Date(post.endedAt) : null,
+    initialTitle: post.title,
     onSuccess: onUpdate,
   });
 
@@ -69,6 +72,8 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         setStartedAt={setStartedAt}
         setEndedAt={setEndedAt}
         parentId={post.parentId}
+        title={title}
+        setTitle={setTitle}
         contentJson={post.contentJson}
         editor={editor}
         isEditing={isEditing}

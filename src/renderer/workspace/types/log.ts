@@ -1,5 +1,6 @@
 export interface Log {
   id: number;
+  title: string | null;
   contentJson: string;
   createdAt: Date;
   updatedAt: Date;

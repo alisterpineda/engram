@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Stack, Card, Text, Loader, Center, Alert } from '@mantine/core';
+import { Container, Stack, Card, Text, Loader, Center, Alert, Title } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { CommentSection } from '../components/CommentSection';
 import { ReadOnlyEditor } from '../components/ReadOnlyEditor';
@@ -73,6 +73,10 @@ export function PostDetailView() {
             <Text size="xs" c="dimmed">
               {formatRelativeTime(post.createdAt)}
             </Text>
+
+            {post.title && (
+              <Title order={1} mb="sm">{post.title}</Title>
+            )}
 
             <ReadOnlyEditor contentJson={post.contentJson} />
           </Stack>

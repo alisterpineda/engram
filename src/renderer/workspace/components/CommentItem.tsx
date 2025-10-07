@@ -18,8 +18,10 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
     isEditing,
     startedAt,
     endedAt,
+    title,
     setStartedAt,
     setEndedAt,
+    setTitle,
     handleSubmit,
     handleStartEdit,
     handleCancelEdit
@@ -28,6 +30,7 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
     entryId: comment.id,
     initialStartedAt: new Date(comment.startedAt),
     initialEndedAt: comment.endedAt ? new Date(comment.endedAt) : null,
+    initialTitle: comment.title,
     onSuccess: onUpdate,
   });
 
@@ -56,6 +59,8 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
       setStartedAt={setStartedAt}
       setEndedAt={setEndedAt}
       parentId={comment.parentId}
+      title={title}
+      setTitle={setTitle}
       contentJson={comment.contentJson}
       editor={editor}
       isEditing={isEditing}
