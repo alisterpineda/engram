@@ -10,7 +10,9 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
+    "migration:prepare": "node scripts/prepare-dev-db.js",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/main/space/typeorm-cli.config.ts",
+    "migration:generate-safe": "node scripts/generate-migration-safe.js",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/main/space/typeorm-cli.config.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/main/space/typeorm-cli.config.ts"

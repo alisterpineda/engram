@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class M1759795211061_DropContentHtmlColumn implements MigrationInterface {
-    name = 'DropContentHtmlColumn1759795211061'
+export class M1759802989576_BaselineSchema implements MigrationInterface {
+    name = 'BaselineSchema1759802989576'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "setting" ("key" varchar PRIMARY KEY NOT NULL, "value" varchar NOT NULL)`);

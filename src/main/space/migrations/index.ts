@@ -1,9 +1,5 @@
-import { M1759704127872_BaselineSchema } from './1759704127872-BaselineSchema';
-import { M1759783390648_RenameEntryToNoteAndAddInheritance } from './1759783390648-RenameEntryToNoteAndAddInheritance';
-import { M1759795211061_DropContentHtmlColumn } from './1759795211061-DropContentHtmlColumn';
+import { M1759802989576_BaselineSchema } from './1759802989576-BaselineSchema';
 
 export const allMigrations = [
-  M1759704127872_BaselineSchema,
-  M1759783390648_RenameEntryToNoteAndAddInheritance,
-  M1759795211061_DropContentHtmlColumn,
+  M1759802989576_BaselineSchema,
 ];
