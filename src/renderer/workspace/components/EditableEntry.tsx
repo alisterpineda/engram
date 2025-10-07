@@ -1,5 +1,5 @@
 import { ReactNode, useState, useMemo } from 'react';
-import { Text, Group, ActionIcon, Stack, Menu, TextInput, Title } from '@mantine/core';
+import { Text, Group, ActionIcon, Stack, Menu, TextInput, Title, Spoiler } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-react';
@@ -235,7 +235,9 @@ export function EditableEntry({
             <Title order={1} mb="sm">{title}</Title>
           )}
           <div style={{ marginBottom: contentMarginBottom ? `var(--mantine-spacing-${contentMarginBottom})` : undefined }}>
-            <ReadOnlyEditor contentJson={contentJson} />
+            <Spoiler maxHeight={300} showLabel="Show more" hideLabel="Show less">
+              <ReadOnlyEditor contentJson={contentJson} />
+            </Spoiler>
           </div>
           {children}
         </>
