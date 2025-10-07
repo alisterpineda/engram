@@ -198,34 +198,38 @@ export function EditableEntry({
                 ? `${formatRelativeTime(startedAt)} - ${formatRelativeTime(endedAt)}`
                 : formatRelativeTime(startedAt)}
             </Text>
-            <Menu shadow="sm" width={150}>
-              <Menu.Target>
-                <ActionIcon
-                  variant="subtle"
-                  color="gray"
-                  size="sm"
-                  style={{ opacity: isHovered ? 1 : 0 }}
-                >
-                  <IconDots size={16} />
-                </ActionIcon>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item
-                  leftSection={<IconEdit size={editIconSize} />}
-                  color="blue"
-                  onClick={() => onStartEdit(contentJson)}
-                >
-                  Edit
-                </Menu.Item>
-                <Menu.Item
-                  leftSection={<IconTrash size={deleteIconSize} />}
-                  color="red"
-                  onClick={onDelete}
-                >
-                  Delete
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+            <Group gap="xs">
+              <ActionIcon
+                variant="subtle"
+                color="blue"
+                size="sm"
+                style={{ opacity: isHovered ? 1 : 0 }}
+                onClick={() => onStartEdit(contentJson)}
+              >
+                <IconEdit size={editIconSize} />
+              </ActionIcon>
+              <Menu shadow="sm" width={150}>
+                <Menu.Target>
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    size="sm"
+                    style={{ opacity: isHovered ? 1 : 0 }}
+                  >
+                    <IconDots size={16} />
+                  </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Item
+                    leftSection={<IconTrash size={deleteIconSize} />}
+                    color="red"
+                    onClick={onDelete}
+                  >
+                    Delete
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Group>
           </Group>
           {isPost && title && (
             <Title order={1} mb="sm">{title}</Title>
