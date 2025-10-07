@@ -1,6 +1,7 @@
 import StarterKit from '@tiptap/starter-kit';
 import TiptapLink from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import { MarkdownPaste } from '../extensions/MarkdownPaste';
 
 export function getEditorExtensions(placeholderText?: string) {
   const extensions: any[] = [
@@ -8,6 +9,7 @@ export function getEditorExtensions(placeholderText?: string) {
     TiptapLink.configure({
       openOnClick: false,
     }),
+    MarkdownPaste,
   ];
 
   if (placeholderText) {
