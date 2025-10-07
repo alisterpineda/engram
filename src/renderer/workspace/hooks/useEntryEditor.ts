@@ -82,12 +82,10 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
 
     try {
       const contentJson = JSON.stringify(editor.getJSON());
-      const contentHtml = editor.getHTML();
 
       if (mode === 'create') {
         const result = await electronAPI.entry.create(
           contentJson,
-          contentHtml,
           parentId,
           startedAt,
           endedAt
@@ -107,7 +105,6 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
         const result = await electronAPI.entry.update(
           entryId,
           contentJson,
-          contentHtml,
           startedAt,
           endedAt
         );

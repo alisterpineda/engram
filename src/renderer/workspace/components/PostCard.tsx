@@ -69,7 +69,6 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         setStartedAt={setStartedAt}
         setEndedAt={setEndedAt}
         parentId={post.parentId}
-        contentHtml={post.contentHtml}
         contentJson={post.contentJson}
         editor={editor}
         isEditing={isEditing}

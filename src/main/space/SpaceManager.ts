@@ -224,7 +224,6 @@ export class SpaceManager {
   public async createEntry(
     folderPath: string,
     contentJson: string,
-    contentHtml: string,
     parentId?: number | null,
     startedAt?: Date,
     endedAt?: Date | null
@@ -250,7 +249,6 @@ export class SpaceManager {
     const entryRepo = space.dataSource.getRepository(Log);
     const entry = entryRepo.create({
       contentJson,
-      contentHtml,
       parentId: parentId || null,
       startedAt: entryStartedAt,
       endedAt: endedAt || null,
@@ -312,7 +310,6 @@ export class SpaceManager {
     folderPath: string,
     id: number,
     contentJson: string,
-    contentHtml: string,
     startedAt?: Date,
     endedAt?: Date | null
   ): Promise<Log> {
@@ -329,7 +326,6 @@ export class SpaceManager {
     }
 
     entry.contentJson = contentJson;
-    entry.contentHtml = contentHtml;
 
     // Update startedAt if provided
     if (startedAt !== undefined) {

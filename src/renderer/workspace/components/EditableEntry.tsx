@@ -14,7 +14,6 @@ interface EditableEntryProps {
   setStartedAt: (date: Date) => void;
   setEndedAt: (date: Date | null) => void;
   parentId: number | null;
-  contentHtml: string;
   contentJson: string;
   editor: Editor | null;
   isEditing: boolean;
@@ -40,7 +39,6 @@ export function EditableEntry({
   setStartedAt,
   setEndedAt,
   parentId,
-  contentHtml: _contentHtml, // kept for backward compatibility
   contentJson,
   editor,
   isEditing,

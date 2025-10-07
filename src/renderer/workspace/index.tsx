@@ -54,7 +54,6 @@ const theme = createTheme({
 interface Entry {
   id: number;
   contentJson: string;
-  contentHtml: string;
   createdAt: Date;
   updatedAt: Date;
   parentId: number | null;
@@ -73,11 +72,11 @@ interface SpaceElectronAPI {
     onSystemThemeChange: (callback: (theme: 'light' | 'dark') => void) => () => void;
   };
   entry: {
-    create: (contentJson: string, contentHtml: string, parentId?: number | null) => Promise<{ success: boolean; data?: Entry; error?: string }>;
+    create: (contentJson: string, parentId?: number | null) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     getById: (id: number) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     listPosts: (offset?: number, limit?: number) => Promise<{ success: boolean; data?: Entry[]; error?: string }>;
     listComments: (parentId: number, offset?: number, limit?: number) => Promise<{ success: boolean; data?: Entry[]; error?: string }>;
-    update: (id: number, contentJson: string, contentHtml: string) => Promise<{ success: boolean; data?: Entry; error?: string }>;
+    update: (id: number, contentJson: string) => Promise<{ success: boolean; data?: Entry; error?: string }>;
     delete: (id: number) => Promise<{ success: boolean; error?: string }>;
   };
   migration: {

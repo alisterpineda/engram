@@ -9,9 +9,6 @@ export abstract class Note {
   @Column('text')
   contentJson: string;
 
-  @Column('text')
-  contentHtml: string;
-
   @CreateDateColumn()
   createdAt: Date;
 

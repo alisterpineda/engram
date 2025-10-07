@@ -56,7 +56,6 @@ export function CommentItem({ comment, onUpdate, onDelete }: CommentItemProps) {
       setStartedAt={setStartedAt}
       setEndedAt={setEndedAt}
       parentId={comment.parentId}
-      contentHtml={comment.contentHtml}
       contentJson={comment.contentJson}
       editor={editor}
       isEditing={isEditing}
