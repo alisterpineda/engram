@@ -4,7 +4,6 @@ import '../assets/index.css';
 import { createRoot } from 'react-dom/client';
 import {
   MantineProvider,
-  createTheme,
   Stack,
   Title,
   Text,
@@ -18,10 +17,7 @@ import {
 import { IconArrowLeft } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';
 import { MemoryRouter, Routes, Route, useNavigate } from 'react-router-dom';
-
-const theme = createTheme({
-  /** Put your mantine theme override here */
-});
+import { compactTheme } from '../theme';
 
 interface SpaceInfo {
   name: string;
@@ -360,7 +356,7 @@ function LauncherApp() {
   const showSidebar = recentSpaces.length > 0;
 
   return (
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={compactTheme}>
       <MemoryRouter>
         <Box style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
           {showSidebar && (

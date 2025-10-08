@@ -37,7 +37,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 dayjs.extend(localizedFormat);
 
 import { createRoot } from 'react-dom/client';
-import { MantineProvider, createTheme, AppShell, Burger, Group, Text, Button, Stack, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
+import { MantineProvider, AppShell, Burger, Group, Text, Button, Stack, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
@@ -46,10 +46,7 @@ import { FeedView } from './views/FeedView';
 import { PostDetailView } from './views/PostDetailView';
 import { MigrationModal } from './components/MigrationModal';
 import classes from './navbar.module.css';
-
-const theme = createTheme({
-  /** Put your mantine theme override here */
-});
+import { compactTheme } from '../theme';
 
 interface Entry {
   id: number;
@@ -288,7 +285,7 @@ function App() {
   };
 
   return (
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={compactTheme}>
       <HashRouter>
         <AppContent />
         <MigrationModal
