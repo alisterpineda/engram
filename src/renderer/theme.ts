@@ -24,15 +24,16 @@ export const compactTheme = createTheme({
   },
 
   // Headings - compact hierarchy for toolbars, settings, modals
+  // Note: Post titles use size="1.5rem" fw={700} (24px/bold), distinct from content h1 (20px/650)
   headings: {
     fontWeight: '650',
     sizes: {
-      h1: { fontSize: '1.5rem',    lineHeight: '1.3',  fontWeight: '650' }, // 24px
-      h2: { fontSize: '1.25rem',   lineHeight: '1.35', fontWeight: '650' }, // 20px
-      h3: { fontSize: '1.125rem',  lineHeight: '1.4',  fontWeight: '650' }, // 18px
+      h1: { fontSize: '1.25rem',   lineHeight: '1.35', fontWeight: '650' }, // 20px
+      h2: { fontSize: '1.125rem',  lineHeight: '1.4',  fontWeight: '650' }, // 18px
+      h3: { fontSize: '1.0625rem', lineHeight: '1.4',  fontWeight: '650' }, // 17px
       h4: { fontSize: '1rem',      lineHeight: '1.4',  fontWeight: '650' }, // 16px
       h5: { fontSize: '0.9375rem', lineHeight: '1.45', fontWeight: '650' }, // 15px
-      h6: { fontSize: '0.875rem',  lineHeight: '1.5',  fontWeight: '650' }, // 14px
+      h6: { fontSize: '0.9375rem', lineHeight: '1.45', fontWeight: '650' }, // 15px (a tad bigger than md 14px)
     },
   },
 });

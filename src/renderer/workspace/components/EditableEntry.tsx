@@ -232,7 +232,7 @@ export function EditableEntry({
             </Group>
           </Group>
           {isPost && title && (
-            <Title order={1} mb="sm">{title}</Title>
+            <Title size="1.5rem" fw={700} mb="sm">{title}</Title>
           )}
           <div style={{ marginBottom: contentMarginBottom ? `var(--mantine-spacing-${contentMarginBottom})` : undefined }}>
             <Spoiler maxHeight={300} showLabel="Show more" hideLabel="Show less">

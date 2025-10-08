@@ -77,7 +77,7 @@ export function PostDetailView() {
             </Text>
 
             {post.title && (
-              <Title order={1} mb="sm">{post.title}</Title>
+              <Title size="1.5rem" fw={700} mb="sm">{post.title}</Title>
             )}
 
             <ReadOnlyEditor contentJson={post.contentJson} />
