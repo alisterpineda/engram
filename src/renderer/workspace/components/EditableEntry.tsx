@@ -1,5 +1,5 @@
 import { ReactNode, useState, useMemo } from 'react';
-import { Text, Group, ActionIcon, Stack, Menu, TextInput, Title, Spoiler } from '@mantine/core';
+import { Text, Group, ActionIcon, Stack, Menu, TextInput, Title, Spoiler, UnstyledButton } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import dayjs from 'dayjs';
 import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-react';
@@ -32,6 +32,7 @@ interface EditableEntryProps {
   onMouseLeave?: () => void;
   contentMarginBottom?: string;
   hideTimestampInEditMode?: boolean;
+  onTitleClick?: () => void;
 }
 
 export function EditableEntry({
@@ -58,6 +59,7 @@ export function EditableEntry({
   onMouseLeave,
   contentMarginBottom,
   hideTimestampInEditMode = false,
+  onTitleClick,
 }: EditableEntryProps) {
   const [internalIsHovered, setInternalIsHovered] = useState(false);
   const isHovered = externalIsHovered !== undefined ? externalIsHovered : internalIsHovered;
@@ -225,7 +227,22 @@ export function EditableEntry({
             </Group>
           </Group>
           {title && (
-            <Title size="1.5rem" fw={700} mb="sm">{title}</Title>
+            onTitleClick ? (
+              <UnstyledButton onClick={onTitleClick} style={{ textAlign: 'left' }}>
+                <Title
+                  size="1.5rem"
+                  fw={700}
+                  mb="sm"
+                  style={{
+                    cursor: 'pointer',
+                  }}
+                >
+                  {title}
+                </Title>
+              </UnstyledButton>
+            ) : (
+              <Title size="1.5rem" fw={700} mb="sm">{title}</Title>
+            )
           )}
           <div style={{ marginBottom: contentMarginBottom ? `var(--mantine-spacing-${contentMarginBottom})` : undefined }}>
             <Spoiler maxHeight={100} showLabel="Show more" hideLabel="Show less">

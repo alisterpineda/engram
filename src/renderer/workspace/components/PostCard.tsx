@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Card } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
 import { EditableEntry } from './EditableEntry';
 import { Log } from '../types/log';
 import { useEntryEditor } from '../hooks/useEntryEditor';
@@ -14,6 +15,7 @@ const electronAPI = (window as any).electronAPI;
 
 export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
 
   const {
     editor,
@@ -56,6 +58,10 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     }
   };
 
+  const handleTitleClick = () => {
+    navigate(`/post/${post.id}`);
+  };
+
   return (
     <Card
       shadow="sm"
@@ -86,6 +92,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         onMouseLeave={() => setIsHovered(false)}
         contentMarginBottom="md"
         hideTimestampInEditMode={false}
+        onTitleClick={handleTitleClick}
       />
     </Card>
   );
