@@ -235,7 +235,7 @@ export function EditableEntry({
             <Title size="1.5rem" fw={700} mb="sm">{title}</Title>
           )}
           <div style={{ marginBottom: contentMarginBottom ? `var(--mantine-spacing-${contentMarginBottom})` : undefined }}>
-            <Spoiler maxHeight={300} showLabel="Show more" hideLabel="Show less">
+            <Spoiler maxHeight={100} showLabel="Show more" hideLabel="Show less">
               <ReadOnlyEditor contentJson={contentJson} />
             </Spoiler>
           </div>
