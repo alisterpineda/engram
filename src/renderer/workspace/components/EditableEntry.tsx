@@ -187,63 +187,64 @@ export function EditableEntry({
         </>
       ) : (
         <>
-          <Group justify="space-between" align="center">
-            <Text size="xs" c="dimmed">
-              {endedAt
-                ? `${formatRelativeTime(startedAt)} (${formatDuration(startedAt, endedAt)})`
-                : formatRelativeTime(startedAt)}
-            </Text>
-            <Group gap="xs">
-              <ActionIcon
-                variant="subtle"
-                color="blue"
-                size="sm"
-                style={{ opacity: isHovered ? 1 : 0 }}
-                onClick={() => onStartEdit(contentJson)}
-              >
-                <IconEdit size={editIconSize} />
-              </ActionIcon>
-              <Menu shadow="sm" width={150}>
-                <Menu.Target>
-                  <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    size="sm"
-                    style={{ opacity: isHovered ? 1 : 0 }}
-                  >
-                    <IconDots size={16} />
-                  </ActionIcon>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Item
-                    leftSection={<IconTrash size={deleteIconSize} />}
-                    color="red"
-                    onClick={onDelete}
-                  >
-                    Delete
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            </Group>
-          </Group>
-          {title && (
-            onTitleClick ? (
-              <UnstyledButton onClick={onTitleClick} style={{ textAlign: 'left' }}>
-                <Title
-                  size="1.5rem"
-                  fw={700}
-                  mb="sm"
-                  style={{
-                    cursor: 'pointer',
-                  }}
+          <Stack gap="0">
+            <Group justify="space-between" align="center">
+              <Text size="xs" c="dimmed">
+                {endedAt
+                  ? `${formatRelativeTime(startedAt)} (${formatDuration(startedAt, endedAt)})`
+                  : formatRelativeTime(startedAt)}
+              </Text>
+              <Group gap="xs">
+                <ActionIcon
+                  variant="subtle"
+                  color="blue"
+                  size="sm"
+                  style={{ opacity: isHovered ? 1 : 0 }}
+                  onClick={() => onStartEdit(contentJson)}
                 >
-                  {title}
-                </Title>
-              </UnstyledButton>
-            ) : (
-              <Title size="1.5rem" fw={700} mb="sm">{title}</Title>
-            )
-          )}
+                  <IconEdit size={editIconSize} />
+                </ActionIcon>
+                <Menu shadow="sm" width={150}>
+                  <Menu.Target>
+                    <ActionIcon
+                      variant="subtle"
+                      color="gray"
+                      size="sm"
+                      style={{ opacity: isHovered ? 1 : 0 }}
+                    >
+                      <IconDots size={16} />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      leftSection={<IconTrash size={deleteIconSize} />}
+                      color="red"
+                      onClick={onDelete}
+                    >
+                      Delete
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+              </Group>
+            </Group>
+            {title && (
+              onTitleClick ? (
+                <UnstyledButton onClick={onTitleClick} style={{ textAlign: 'left' }}>
+                  <Title
+                    size="1.5rem"
+                    fw={700}
+                    style={{
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {title}
+                  </Title>
+                </UnstyledButton>
+              ) : (
+                <Title size="1.5rem" fw={700}>{title}</Title>
+              )
+            )}
+          </Stack>
           <div style={{ marginBottom: contentMarginBottom ? `var(--mantine-spacing-${contentMarginBottom})` : undefined }}>
             <Spoiler maxHeight={100} showLabel="Show more" hideLabel="Show less">
               <ReadOnlyEditor contentJson={contentJson} />

@@ -5,6 +5,15 @@ import { createTheme } from '@mantine/core';
  * Keeps Mantine's default fonts, but tightens spacing and typography scale.
  */
 export const compactTheme = createTheme({
+  // Spacing - compact scale (reduced ~20-25% from Mantine defaults)
+  spacing: {
+    xs: '0.5rem',     // 8px  (default: 10px)
+    sm: '0.625rem',   // 10px (default: 12px)
+    md: '0.75rem',    // 12px (default: 16px)
+    lg: '1rem',       // 16px (default: 20px)
+    xl: '1.5rem',     // 24px (default: 32px)
+  },
+
   // Body/UI text - compact scale
   fontSizes: {
     xs: '0.6875rem',  // 11px
