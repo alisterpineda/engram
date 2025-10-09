@@ -1,8 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, TableInheritance, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, TableInheritance, OneToMany, Index } from 'typeorm';
 import { NoteReference } from './NoteReference';
 
 @Entity()
 @TableInheritance({ column: { type: "varchar", name: "type" } })
+@Index(['createdAt'])
+@Index(['updatedAt'])
 export abstract class Note {
   @PrimaryGeneratedColumn()
   id: number;

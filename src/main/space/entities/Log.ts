@@ -1,8 +1,10 @@
-import { ChildEntity, Column, Check } from 'typeorm';
+import { ChildEntity, Column, Check, Index } from 'typeorm';
 import { Note } from './Note';
 
 @ChildEntity('log')
 @Check(`"endedAt" IS NULL OR "endedAt" > "startedAt"`)
+@Index(['startedAt'])
+@Index(['endedAt'])
 export class Log extends Note {
   @Column()
   startedAt: Date;

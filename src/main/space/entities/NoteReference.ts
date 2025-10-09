@@ -1,8 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, Check } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, Check, Index } from 'typeorm';
 import { Note } from './Note';
 
 @Entity('note_reference')
 @Check(`"sourceId" != "targetId"`)
+@Index(['sourceId'])
+@Index(['targetId'])
+@Index(['sourceId', 'targetId'], { unique: true })
 export class NoteReference {
   @PrimaryGeneratedColumn()
   id: number;
