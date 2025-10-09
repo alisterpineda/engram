@@ -15,7 +15,7 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
 ### Space Model
 - Multi-space app (Obsidian-like): each space = folder containing `space.sqlite` database file
 - TypeORM with better-sqlite3 driver
-- Entities: `Setting` (key-value config), `Note` (abstract base with STI), `Log` (child entity for posts/comments with self-referential parent/children)
+- Entities: `Setting` (key-value config), `Note` (abstract base with STI, optional title field), `Log` (child entity for posts/comments with self-referential parent/children)
 - State: `~/.../userData/state.json` stores recent spaces, last opened
 - Multiple spaces can be open simultaneously, each in separate window
 - Future-ready: space folders can contain attachments, files, and other resources
@@ -44,11 +44,11 @@ TypeORM migrations in `src/main/space/migrations/` auto-run on space open with p
 
 ### UI Framework
 - **Mantine UI v8** (mantine.dev) - Component library with AppShell, Button, Text, Burger, etc.
-- **Tiptap** (tiptap.dev) - Rich text editor with StarterKit, Link, Placeholder extensions (GFM-compatible only)
+- **Tiptap** (tiptap.dev) - Rich text editor with StarterKit, Link, Placeholder, and custom MarkdownPaste extensions (GFM-compatible)
 - PostCSS: `postcss.config.cjs` with `postcss-preset-mantine` and `postcss-simple-vars`
 - CSS Modules: Supported via webpack config
 - Breakpoints: xs:36em, sm:48em, md:62em, lg:75em, xl:88em
-- Theme: Global light/dark/auto mode with system preference sync
+- Theme: Global light/dark/auto mode with system preference sync, centralized in `src/renderer/theme.ts` with compact spacing/typography
 
 ### Process Model
 - **Main** (`src/main/`): Node.js, lifecycle, windows, system ops. Entry: `src/main/index.ts`
@@ -59,7 +59,7 @@ TypeORM migrations in `src/main/space/migrations/` auto-run on space open with p
   - Launcher: `src/renderer/launcher/index.tsx` - two-column layout, create/open/recent spaces
   - Workspace: `src/renderer/workspace/index.tsx` - AppShell with collapsible navbar, routing (react-router-dom HashRouter)
     - Views: `FeedView` (journal feed, infinite scroll), `PostDetailView` (single post, paginated comments)
-    - Components: `EntryComposer`, `EditableEntry`, `EditorToolbar`, `PostCard`, `CommentSection`, `CommentItem`
+    - Components: `EntryComposer`, `EntryEditor`, `EditableEntry`, `ReadOnlyEditor`, `EditorToolbar`, `PostCard`, `CommentSection`, `CommentItem`, `MigrationModal`
     - Hooks: `useEntryEditor` (consolidates entry create/update logic)
 - **Preload** (`src/preload/`): Bridge between main/renderer
   - `launcher.ts` - space selection APIs
@@ -69,7 +69,8 @@ TypeORM migrations in `src/main/space/migrations/` auto-run on space open with p
 - Electron Forge: `forge.config.ts` with Webpack plugin
 - Webpack: Two renderer entry points (launcher_window, workspace_window)
 - TypeScript: `tsconfig.json` - ES6, CommonJS, React JSX, decorators enabled
-- Makers: Squirrel (Windows), ZIP (macOS), DEB/RPM (Linux)
+- Makers: Squirrel (Windows), DMG (macOS), DEB/RPM (Linux)
+- CI/CD: GitHub Actions workflow (`.github/workflows/build.yml`) for automated multi-platform builds
 
 ### Security
 - ASAR packaging enabled
