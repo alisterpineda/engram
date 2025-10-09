@@ -273,4 +273,234 @@ export function registerWorkspaceHandlers(): void {
       return { success: false, error: (error as Error).message };
     }
   });
+
+  // Page IPC handlers
+  // Create page
+  ipcMain.handle('page:create', async (event, contentJson: string, title: string, referenceIds?: number[]) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const page = await spaceManager.createPage(spacePath, contentJson, title, referenceIds);
+
+      return { success: true, data: page };
+    } catch (error) {
+      console.error('Error creating page:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // List all pages
+  ipcMain.handle('page:list-all', async (event, offset = 0, limit = 20) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const pages = await spaceManager.getAllPages(spacePath, offset, limit);
+
+      return { success: true, data: pages };
+    } catch (error) {
+      console.error('Error listing pages:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Get page by ID
+  ipcMain.handle('page:get-by-id', async (event, id: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const page = await spaceManager.getPageById(spacePath, id);
+
+      if (!page) {
+        return { success: false, error: 'Page not found' };
+      }
+
+      return { success: true, data: page };
+    } catch (error) {
+      console.error('Error getting page by ID:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Update page
+  ipcMain.handle('page:update', async (event, id: number, contentJson: string, title: string) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const page = await spaceManager.updatePage(spacePath, id, contentJson, title);
+
+      return { success: true, data: page };
+    } catch (error) {
+      console.error('Error updating page:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Delete page
+  ipcMain.handle('page:delete', async (event, id: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      await spaceManager.deletePage(spacePath, id);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting page:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Contact IPC handlers
+  // Create contact
+  ipcMain.handle('contact:create', async (event, contentJson: string, title: string, referenceIds?: number[]) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const contact = await spaceManager.createContact(spacePath, contentJson, title, referenceIds);
+
+      return { success: true, data: contact };
+    } catch (error) {
+      console.error('Error creating contact:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // List all contacts
+  ipcMain.handle('contact:list-all', async (event, offset = 0, limit = 20) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const contacts = await spaceManager.getAllContacts(spacePath, offset, limit);
+
+      return { success: true, data: contacts };
+    } catch (error) {
+      console.error('Error listing contacts:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Get contact by ID
+  ipcMain.handle('contact:get-by-id', async (event, id: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const contact = await spaceManager.getContactById(spacePath, id);
+
+      if (!contact) {
+        return { success: false, error: 'Contact not found' };
+      }
+
+      return { success: true, data: contact };
+    } catch (error) {
+      console.error('Error getting contact by ID:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Update contact
+  ipcMain.handle('contact:update', async (event, id: number, contentJson: string, title: string) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const contact = await spaceManager.updateContact(spacePath, id, contentJson, title);
+
+      return { success: true, data: contact };
+    } catch (error) {
+      console.error('Error updating contact:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Delete contact
+  ipcMain.handle('contact:delete', async (event, id: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      await spaceManager.deleteContact(spacePath, id);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting contact:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
 }

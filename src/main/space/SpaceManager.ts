@@ -4,6 +4,8 @@ import * as path from 'path';
 import { createDataSource } from './dataSourceFactory';
 import { Setting } from './entities/Setting';
 import { Log } from './entities/Log';
+import { Page } from './entities/Page';
+import { Contact } from './entities/Contact';
 import { NoteReference } from './entities/NoteReference';
 import { SpaceData } from '../../shared/types';
 
@@ -433,5 +435,257 @@ export class SpaceManager {
     }
 
     await refRepo.remove(ref);
+  }
+
+  // Page CRUD operations
+  public async createPage(
+    folderPath: string,
+    contentJson: string,
+    title: string,
+    referenceIds?: number[]
+  ): Promise<Page> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    // Validate title is required
+    if (!title || !title.trim()) {
+      throw new Error('Page title is required');
+    }
+
+    // Validate: title length
+    if (title.length > 255) {
+      throw new Error('Title must be 255 characters or less');
+    }
+
+    const pageRepo = space.dataSource.getRepository(Page);
+    const page = pageRepo.create({
+      title: title.trim(),
+      contentJson,
+    });
+
+    const savedPage = await pageRepo.save(page);
+
+    // Create references if provided
+    if (referenceIds && referenceIds.length > 0) {
+      const refRepo = space.dataSource.getRepository(NoteReference);
+      for (const targetId of referenceIds) {
+        if (targetId === savedPage.id) {
+          throw new Error('Cannot create a reference to itself');
+        }
+        const ref = refRepo.create({
+          sourceId: savedPage.id,
+          targetId,
+        });
+        await refRepo.save(ref);
+      }
+    }
+
+    return savedPage;
+  }
+
+  public async getAllPages(
+    folderPath: string,
+    offset = 0,
+    limit = 20
+  ): Promise<Page[]> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const pageRepo = space.dataSource.getRepository(Page);
+    return await pageRepo.find({
+      order: { createdAt: 'DESC' },
+      skip: offset,
+      take: limit,
+    });
+  }
+
+  public async getPageById(folderPath: string, id: number): Promise<Page | null> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const pageRepo = space.dataSource.getRepository(Page);
+    return await pageRepo.findOne({ where: { id } });
+  }
+
+  public async updatePage(
+    folderPath: string,
+    id: number,
+    contentJson: string,
+    title: string
+  ): Promise<Page> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    // Validate title is required
+    if (!title || !title.trim()) {
+      throw new Error('Page title is required');
+    }
+
+    // Validate: title length
+    if (title.length > 255) {
+      throw new Error('Title must be 255 characters or less');
+    }
+
+    const pageRepo = space.dataSource.getRepository(Page);
+    const page = await pageRepo.findOne({ where: { id } });
+
+    if (!page) {
+      throw new Error('Page not found');
+    }
+
+    page.contentJson = contentJson;
+    page.title = title.trim();
+
+    return await pageRepo.save(page);
+  }
+
+  public async deletePage(folderPath: string, id: number): Promise<void> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const pageRepo = space.dataSource.getRepository(Page);
+    const page = await pageRepo.findOne({ where: { id } });
+
+    if (!page) {
+      throw new Error('Page not found');
+    }
+
+    await pageRepo.remove(page);
+  }
+
+  // Contact CRUD operations
+  public async createContact(
+    folderPath: string,
+    contentJson: string,
+    title: string,
+    referenceIds?: number[]
+  ): Promise<Contact> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    // Validate title (name) is required
+    if (!title || !title.trim()) {
+      throw new Error('Contact name is required');
+    }
+
+    // Validate: title length
+    if (title.length > 255) {
+      throw new Error('Name must be 255 characters or less');
+    }
+
+    const contactRepo = space.dataSource.getRepository(Contact);
+    const contact = contactRepo.create({
+      title: title.trim(),
+      contentJson,
+    });
+
+    const savedContact = await contactRepo.save(contact);
+
+    // Create references if provided
+    if (referenceIds && referenceIds.length > 0) {
+      const refRepo = space.dataSource.getRepository(NoteReference);
+      for (const targetId of referenceIds) {
+        if (targetId === savedContact.id) {
+          throw new Error('Cannot create a reference to itself');
+        }
+        const ref = refRepo.create({
+          sourceId: savedContact.id,
+          targetId,
+        });
+        await refRepo.save(ref);
+      }
+    }
+
+    return savedContact;
+  }
+
+  public async getAllContacts(
+    folderPath: string,
+    offset = 0,
+    limit = 20
+  ): Promise<Contact[]> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const contactRepo = space.dataSource.getRepository(Contact);
+    return await contactRepo.find({
+      order: { createdAt: 'DESC' },
+      skip: offset,
+      take: limit,
+    });
+  }
+
+  public async getContactById(folderPath: string, id: number): Promise<Contact | null> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const contactRepo = space.dataSource.getRepository(Contact);
+    return await contactRepo.findOne({ where: { id } });
+  }
+
+  public async updateContact(
+    folderPath: string,
+    id: number,
+    contentJson: string,
+    title: string
+  ): Promise<Contact> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    // Validate title (name) is required
+    if (!title || !title.trim()) {
+      throw new Error('Contact name is required');
+    }
+
+    // Validate: title length
+    if (title.length > 255) {
+      throw new Error('Name must be 255 characters or less');
+    }
+
+    const contactRepo = space.dataSource.getRepository(Contact);
+    const contact = await contactRepo.findOne({ where: { id } });
+
+    if (!contact) {
+      throw new Error('Contact not found');
+    }
+
+    contact.contentJson = contentJson;
+    contact.title = title.trim();
+
+    return await contactRepo.save(contact);
+  }
+
+  public async deleteContact(folderPath: string, id: number): Promise<void> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const contactRepo = space.dataSource.getRepository(Contact);
+    const contact = await contactRepo.findOne({ where: { id } });
+
+    if (!contact) {
+      throw new Error('Contact not found');
+    }
+
+    await contactRepo.remove(contact);
   }
 }

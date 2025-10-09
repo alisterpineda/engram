@@ -42,6 +42,30 @@ contextBridge.exposeInMainWorld('electronAPI', {
     delete: (id: number) =>
       ipcRenderer.invoke('entry:delete', id),
   },
+  page: {
+    create: (contentJson: string, title: string, referenceIds?: number[]) =>
+      ipcRenderer.invoke('page:create', contentJson, title, referenceIds),
+    listAll: (offset?: number, limit?: number) =>
+      ipcRenderer.invoke('page:list-all', offset, limit),
+    getById: (id: number) =>
+      ipcRenderer.invoke('page:get-by-id', id),
+    update: (id: number, contentJson: string, title: string) =>
+      ipcRenderer.invoke('page:update', id, contentJson, title),
+    delete: (id: number) =>
+      ipcRenderer.invoke('page:delete', id),
+  },
+  contact: {
+    create: (contentJson: string, title: string, referenceIds?: number[]) =>
+      ipcRenderer.invoke('contact:create', contentJson, title, referenceIds),
+    listAll: (offset?: number, limit?: number) =>
+      ipcRenderer.invoke('contact:list-all', offset, limit),
+    getById: (id: number) =>
+      ipcRenderer.invoke('contact:get-by-id', id),
+    update: (id: number, contentJson: string, title: string) =>
+      ipcRenderer.invoke('contact:update', id, contentJson, title),
+    delete: (id: number) =>
+      ipcRenderer.invoke('contact:delete', id),
+  },
   migration: {
     onStart: (callback: () => void) => {
       const listener = () => callback();

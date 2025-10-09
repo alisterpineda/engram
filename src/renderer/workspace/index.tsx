@@ -41,12 +41,18 @@ import { MantineProvider, AppShell, Burger, Group, Text, Button, Stack, ActionIc
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { IconArrowLeft, IconSun, IconMoon, IconSunMoon, IconHome } from '@tabler/icons-react';
+import { IconArrowLeft, IconSun, IconMoon, IconSunMoon, IconHome, IconBook, IconUsers } from '@tabler/icons-react';
 import { FeedView } from './views/FeedView';
 import { PostDetailView } from './views/PostDetailView';
+import { PagesView } from './views/PagesView';
+import { PageDetailView } from './views/PageDetailView';
+import { ContactsView } from './views/ContactsView';
+import { ContactDetailView } from './views/ContactDetailView';
 import { MigrationModal } from './components/MigrationModal';
 import classes from './navbar.module.css';
 import { compactTheme } from '../theme';
+import { Page } from './types/page';
+import { Contact } from './types/contact';
 
 interface Entry {
   id: number;
@@ -75,6 +81,20 @@ interface SpaceElectronAPI {
     addReference: (sourceId: number, targetId: number) => Promise<{ success: boolean; error?: string }>;
     removeReference: (sourceId: number, targetId: number) => Promise<{ success: boolean; error?: string }>;
     update: (id: number, contentJson: string) => Promise<{ success: boolean; data?: Entry; error?: string }>;
+    delete: (id: number) => Promise<{ success: boolean; error?: string }>;
+  };
+  page: {
+    create: (contentJson: string, title: string, referenceIds?: number[]) => Promise<{ success: boolean; data?: Page; error?: string }>;
+    listAll: (offset?: number, limit?: number) => Promise<{ success: boolean; data?: Page[]; error?: string }>;
+    getById: (id: number) => Promise<{ success: boolean; data?: Page; error?: string }>;
+    update: (id: number, contentJson: string, title: string) => Promise<{ success: boolean; data?: Page; error?: string }>;
+    delete: (id: number) => Promise<{ success: boolean; error?: string }>;
+  };
+  contact: {
+    create: (contentJson: string, title: string, referenceIds?: number[]) => Promise<{ success: boolean; data?: Contact; error?: string }>;
+    listAll: (offset?: number, limit?: number) => Promise<{ success: boolean; data?: Contact[]; error?: string }>;
+    getById: (id: number) => Promise<{ success: boolean; data?: Contact; error?: string }>;
+    update: (id: number, contentJson: string, title: string) => Promise<{ success: boolean; data?: Contact; error?: string }>;
     delete: (id: number) => Promise<{ success: boolean; error?: string }>;
   };
   migration: {
@@ -154,7 +174,10 @@ function AppContent() {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 48em)');
 
-  const isPostDetailView = location.pathname.startsWith('/post/');
+  const isDetailView =
+    location.pathname.startsWith('/post/') ||
+    location.pathname.startsWith('/page/') ||
+    location.pathname.startsWith('/contact/');
 
   useEffect(() => {
     // Load space info on mount
@@ -169,8 +192,10 @@ function AppContent() {
     electronAPI.openLauncher();
   };
 
-  const handleBackToFeed = () => {
-    navigate('/');
+  const handleBack = () => {
+    if (location.pathname.startsWith('/post/')) navigate('/');
+    if (location.pathname.startsWith('/page/')) navigate('/pages');
+    if (location.pathname.startsWith('/contact/')) navigate('/contacts');
   };
 
   return (
@@ -188,12 +213,12 @@ function AppContent() {
           <Group>
             <Burger opened={opened} onClick={toggle} size="sm" />
             <Text size="lg" fw={700}>{spaceName}</Text>
-            {isPostDetailView && (
+            {isDetailView && (
               <Button
                 variant="subtle"
                 size="sm"
                 leftSection={<IconArrowLeft size={16} />}
-                onClick={handleBackToFeed}
+                onClick={handleBack}
               >
                 Back
               </Button>
@@ -217,6 +242,28 @@ function AppContent() {
               <IconHome className={classes.linkIcon} stroke={1.5} />
               <span>Home</span>
             </a>
+            <a
+              className={classes.link}
+              data-active={location.pathname === '/pages' || undefined}
+              onClick={() => {
+                navigate('/pages');
+                if (opened && isMobile) toggle();
+              }}
+            >
+              <IconBook className={classes.linkIcon} stroke={1.5} />
+              <span>Pages</span>
+            </a>
+            <a
+              className={classes.link}
+              data-active={location.pathname === '/contacts' || undefined}
+              onClick={() => {
+                navigate('/contacts');
+                if (opened && isMobile) toggle();
+              }}
+            >
+              <IconUsers className={classes.linkIcon} stroke={1.5} />
+              <span>Contacts</span>
+            </a>
           </div>
           <Button variant="light" onClick={handleOpenLauncher}>
             Open Launcher
@@ -228,6 +275,10 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<FeedView />} />
           <Route path="/post/:postId" element={<PostDetailView />} />
+          <Route path="/pages" element={<PagesView />} />
+          <Route path="/page/:pageId" element={<PageDetailView />} />
+          <Route path="/contacts" element={<ContactsView />} />
+          <Route path="/contact/:contactId" element={<ContactDetailView />} />
         </Routes>
       </AppShell.Main>
     </AppShell>
