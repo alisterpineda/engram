@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Stack, Container, Loader, Center, Divider, Text } from '@mantine/core';
-import { ContactComposer } from '../components/ContactComposer';
+import { Stack, Container, Loader, Center, Text, Paper, Title, Button, Group } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
 import { ContactCard } from '../components/ContactCard';
 import { Contact } from '../types/contact';
 
@@ -13,6 +13,7 @@ export function ContactsView() {
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Load initial contacts
@@ -71,16 +72,6 @@ export function ContactsView() {
     };
   }, [loadMoreContacts]);
 
-  const handleContactCreated = (newContact: Contact) => {
-    setContacts((prev) => [newContact, ...prev]);
-  };
-
-  const handleContactUpdated = (updatedContact: Contact) => {
-    setContacts((prev) =>
-      prev.map((contact) => (contact.id === updatedContact.id ? updatedContact : contact))
-    );
-  };
-
   const handleContactDeleted = (id: number) => {
     setContacts((prev) => prev.filter((contact) => contact.id !== id));
   };
@@ -88,31 +79,38 @@ export function ContactsView() {
   return (
     <Container size="sm" px={0}>
       <Stack gap="lg">
-        <ContactComposer onSuccess={handleContactCreated} />
-        <Divider />
+        <Group justify="space-between" align="center">
+          <Title order={2}>Contacts</Title>
+          <Button onClick={() => navigate('/contacts/new')}>
+            Create Contact
+          </Button>
+        </Group>
 
-        {contacts.length === 0 && !isLoading ? (
-          <Center py="xl">
-            <Text c="dimmed">No contacts yet. Add your first contact above.</Text>
-          </Center>
-        ) : (
-          <>
-            {contacts.map((contact) => (
-              <ContactCard
-                key={contact.id}
-                contact={contact}
-                onUpdate={handleContactUpdated}
-                onDelete={handleContactDeleted}
-              />
-            ))}
-          </>
-        )}
+        <Paper withBorder radius="md">
+          <Stack gap={0}>
+            {contacts.length === 0 && !isLoading ? (
+              <Center py="xl">
+                <Text c="dimmed">No contacts yet. Click &apos;Create Contact&apos; to get started.</Text>
+              </Center>
+            ) : (
+              <>
+                {contacts.map((contact) => (
+                  <ContactCard
+                    key={contact.id}
+                    contact={contact}
+                    onDelete={handleContactDeleted}
+                  />
+                ))}
+              </>
+            )}
 
-        {isLoading && (
-          <Center py="xl">
-            <Loader />
-          </Center>
-        )}
+            {isLoading && (
+              <Center py="xl">
+                <Loader />
+              </Center>
+            )}
+          </Stack>
+        </Paper>
 
         <div ref={observerTarget} style={{ height: 1 }} />
       </Stack>

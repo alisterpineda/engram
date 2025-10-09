@@ -45,8 +45,10 @@ import { IconArrowLeft, IconSun, IconMoon, IconSunMoon, IconHome, IconBook, Icon
 import { FeedView } from './views/FeedView';
 import { PostDetailView } from './views/PostDetailView';
 import { PagesView } from './views/PagesView';
+import { PageCreateView } from './views/PageCreateView';
 import { PageDetailView } from './views/PageDetailView';
 import { ContactsView } from './views/ContactsView';
+import { ContactCreateView } from './views/ContactCreateView';
 import { ContactDetailView } from './views/ContactDetailView';
 import { MigrationModal } from './components/MigrationModal';
 import { compactTheme } from '../theme';
@@ -176,7 +178,9 @@ function AppContent() {
   const isDetailView =
     location.pathname.startsWith('/post/') ||
     location.pathname.startsWith('/page/') ||
-    location.pathname.startsWith('/contact/');
+    location.pathname.startsWith('/contact/') ||
+    location.pathname === '/pages/new' ||
+    location.pathname === '/contacts/new';
 
   useEffect(() => {
     // Load space info on mount
@@ -193,8 +197,8 @@ function AppContent() {
 
   const handleBack = () => {
     if (location.pathname.startsWith('/post/')) navigate('/');
-    if (location.pathname.startsWith('/page/')) navigate('/pages');
-    if (location.pathname.startsWith('/contact/')) navigate('/contacts');
+    if (location.pathname === '/pages/new' || location.pathname.startsWith('/page/')) navigate('/pages');
+    if (location.pathname === '/contacts/new' || location.pathname.startsWith('/contact/')) navigate('/contacts');
   };
 
   return (
@@ -269,8 +273,10 @@ function AppContent() {
           <Route path="/" element={<FeedView />} />
           <Route path="/post/:postId" element={<PostDetailView />} />
           <Route path="/pages" element={<PagesView />} />
+          <Route path="/pages/new" element={<PageCreateView />} />
           <Route path="/page/:pageId" element={<PageDetailView />} />
           <Route path="/contacts" element={<ContactsView />} />
+          <Route path="/contacts/new" element={<ContactCreateView />} />
           <Route path="/contact/:contactId" element={<ContactDetailView />} />
         </Routes>
       </AppShell.Main>

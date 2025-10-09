@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Stack, Container, Loader, Center, Divider, Text } from '@mantine/core';
-import { PageComposer } from '../components/PageComposer';
+import { Stack, Container, Loader, Center, Text, Paper, Title, Button, Group } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
 import { PageCard } from '../components/PageCard';
 import { Page } from '../types/page';
 
@@ -13,6 +13,7 @@ export function PagesView() {
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Load initial pages
@@ -71,16 +72,6 @@ export function PagesView() {
     };
   }, [loadMorePages]);
 
-  const handlePageCreated = (newPage: Page) => {
-    setPages((prev) => [newPage, ...prev]);
-  };
-
-  const handlePageUpdated = (updatedPage: Page) => {
-    setPages((prev) =>
-      prev.map((page) => (page.id === updatedPage.id ? updatedPage : page))
-    );
-  };
-
   const handlePageDeleted = (id: number) => {
     setPages((prev) => prev.filter((page) => page.id !== id));
   };
@@ -88,31 +79,38 @@ export function PagesView() {
   return (
     <Container size="sm" px={0}>
       <Stack gap="lg">
-        <PageComposer onSuccess={handlePageCreated} />
-        <Divider />
+        <Group justify="space-between" align="center">
+          <Title order={2}>Pages</Title>
+          <Button onClick={() => navigate('/pages/new')}>
+            Create Page
+          </Button>
+        </Group>
 
-        {pages.length === 0 && !isLoading ? (
-          <Center py="xl">
-            <Text c="dimmed">No pages yet. Create your first page above.</Text>
-          </Center>
-        ) : (
-          <>
-            {pages.map((page) => (
-              <PageCard
-                key={page.id}
-                page={page}
-                onUpdate={handlePageUpdated}
-                onDelete={handlePageDeleted}
-              />
-            ))}
-          </>
-        )}
+        <Paper withBorder radius="md">
+          <Stack gap={0}>
+            {pages.length === 0 && !isLoading ? (
+              <Center py="xl">
+                <Text c="dimmed">No pages yet. Click &apos;Create Page&apos; to get started.</Text>
+              </Center>
+            ) : (
+              <>
+                {pages.map((page) => (
+                  <PageCard
+                    key={page.id}
+                    page={page}
+                    onDelete={handlePageDeleted}
+                  />
+                ))}
+              </>
+            )}
 
-        {isLoading && (
-          <Center py="xl">
-            <Loader />
-          </Center>
-        )}
+            {isLoading && (
+              <Center py="xl">
+                <Loader />
+              </Center>
+            )}
+          </Stack>
+        </Paper>
 
         <div ref={observerTarget} style={{ height: 1 }} />
       </Stack>
