@@ -13,7 +13,6 @@ interface EditableEntryProps {
   endedAt: Date | null;
   setStartedAt: (date: Date) => void;
   setEndedAt: (date: Date | null) => void;
-  parentId: number | null;
   title: string;
   setTitle: (value: string) => void;
   contentJson: string;
@@ -40,7 +39,6 @@ export function EditableEntry({
   endedAt,
   setStartedAt,
   setEndedAt,
-  parentId,
   title,
   setTitle,
   contentJson,
@@ -63,7 +61,6 @@ export function EditableEntry({
 }: EditableEntryProps) {
   const [internalIsHovered, setInternalIsHovered] = useState(false);
   const isHovered = externalIsHovered !== undefined ? externalIsHovered : internalIsHovered;
-  const isPost = parentId === null;
   const hasEndTimeError = endedAt && endedAt <= startedAt;
 
   const handleMouseEnter = () => {
@@ -126,41 +123,37 @@ export function EditableEntry({
                   }
                 }}
               />
-              {isPost && (
-                <>
-                  <Text size="xs" c="dimmed">-</Text>
-                  <DateTimePicker
-                    value={endedAt}
-                    onChange={(value) => {
-                      if (value === null) {
-                        setEndedAt(null);
-                      } else if (value) {
-                        setEndedAt(typeof value === 'string' ? new Date(value) : value);
-                      }
-                    }}
-                    size="xs"
-                    variant="unstyled"
-                    valueFormat="LLL"
-                    placeholder="Add end time"
-                    clearable
-                    minDate={startedAt}
-                    presets={endTimePresets}
-                    error={hasEndTimeError ? 'End time must be after started time' : undefined}
-                    styles={{
-                      input: {
-                        fontSize: 'var(--mantine-font-size-xs)',
-                        color: hasEndTimeError ? 'var(--mantine-color-red-filled)' : 'var(--mantine-color-dimmed)',
-                        cursor: 'pointer',
-                        padding: 0,
-                        minHeight: 'auto',
-                      }
-                    }}
-                  />
-                </>
-              )}
+              <Text size="xs" c="dimmed">-</Text>
+              <DateTimePicker
+                value={endedAt}
+                onChange={(value) => {
+                  if (value === null) {
+                    setEndedAt(null);
+                  } else if (value) {
+                    setEndedAt(typeof value === 'string' ? new Date(value) : value);
+                  }
+                }}
+                size="xs"
+                variant="unstyled"
+                valueFormat="LLL"
+                placeholder="Add end time"
+                clearable
+                minDate={startedAt}
+                presets={endTimePresets}
+                error={hasEndTimeError ? 'End time must be after started time' : undefined}
+                styles={{
+                  input: {
+                    fontSize: 'var(--mantine-font-size-xs)',
+                    color: hasEndTimeError ? 'var(--mantine-color-red-filled)' : 'var(--mantine-color-dimmed)',
+                    cursor: 'pointer',
+                    padding: 0,
+                    minHeight: 'auto',
+                  }
+                }}
+              />
             </Group>
           )}
-          {!hideTimestampInEditMode && isPost && (
+          {!hideTimestampInEditMode && (
             <TextInput
               placeholder="Title (optional)"
               value={title}
@@ -231,7 +224,7 @@ export function EditableEntry({
               </Menu>
             </Group>
           </Group>
-          {isPost && title && (
+          {title && (
             <Title size="1.5rem" fw={700} mb="sm">{title}</Title>
           )}
           <div style={{ marginBottom: contentMarginBottom ? `var(--mantine-spacing-${contentMarginBottom})` : undefined }}>

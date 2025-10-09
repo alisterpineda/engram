@@ -25,14 +25,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
   },
   entry: {
-    create: (contentJson: string, parentId?: number | null, startedAt?: Date, endedAt?: Date | null, title?: string | null) =>
-      ipcRenderer.invoke('entry:create', contentJson, parentId, startedAt?.toISOString(), endedAt?.toISOString(), title),
+    create: (contentJson: string, referenceIds?: number[], startedAt?: Date, endedAt?: Date | null, title?: string | null) =>
+      ipcRenderer.invoke('entry:create', contentJson, referenceIds, startedAt?.toISOString(), endedAt?.toISOString(), title),
     getById: (id: number) =>
       ipcRenderer.invoke('entry:get-by-id', id),
-    listPosts: (offset?: number, limit?: number) =>
-      ipcRenderer.invoke('entry:list-posts', offset, limit),
-    listComments: (parentId: number, offset?: number, limit?: number) =>
-      ipcRenderer.invoke('entry:list-comments', parentId, offset, limit),
+    listAll: (offset?: number, limit?: number) =>
+      ipcRenderer.invoke('entry:list-all', offset, limit),
+    getReferencedNotes: (id: number) =>
+      ipcRenderer.invoke('entry:get-referenced-notes', id),
+    addReference: (sourceId: number, targetId: number) =>
+      ipcRenderer.invoke('entry:add-reference', sourceId, targetId),
+    removeReference: (sourceId: number, targetId: number) =>
+      ipcRenderer.invoke('entry:remove-reference', sourceId, targetId),
     update: (id: number, contentJson: string, startedAt?: Date, endedAt?: Date | null, title?: string | null) =>
       ipcRenderer.invoke('entry:update', id, contentJson, startedAt?.toISOString(), endedAt?.toISOString(), title),
     delete: (id: number) =>

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, TableInheritance } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, TableInheritance, OneToMany } from 'typeorm';
+import { NoteReference } from './NoteReference';
 
 @Entity()
 @TableInheritance({ column: { type: "varchar", name: "type" } })
@@ -17,4 +18,10 @@ export abstract class Note {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => NoteReference, (ref) => ref.source)
+  outgoingReferences: NoteReference[];
+
+  @OneToMany(() => NoteReference, (ref) => ref.target)
+  incomingReferences: NoteReference[];
 }

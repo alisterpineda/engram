@@ -15,7 +15,8 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
 ### Space Model
 - Multi-space app (Obsidian-like): each space = folder containing `space.sqlite` database file
 - TypeORM with better-sqlite3 driver
-- Entities: `Setting` (key-value config), `Note` (abstract base with STI, optional title field), `Log` (child entity for posts/comments with self-referential parent/children)
+- Entities: `Setting` (key-value config), `Note` (abstract base with STI, optional title field, many-to-many self-references), `Log` (child entity)
+- `NoteReference`: explicit join entity (sourceId/targetId) at Note level for any-to-any references. CASCADE delete, future-ready for custom columns (type, label, metadata)
 - State: `~/.../userData/state.json` stores recent spaces, last opened
 - Multiple spaces can be open simultaneously, each in separate window
 - Future-ready: space folders can contain attachments, files, and other resources
@@ -58,9 +59,10 @@ TypeORM migrations in `src/main/space/migrations/` auto-run on space open with p
 - **Renderer** (`src/renderer/`): Browser, UI with React 19
   - Launcher: `src/renderer/launcher/index.tsx` - two-column layout, create/open/recent spaces
   - Workspace: `src/renderer/workspace/index.tsx` - AppShell with collapsible navbar, routing (react-router-dom HashRouter)
-    - Views: `FeedView` (journal feed, infinite scroll), `PostDetailView` (single post, paginated comments)
-    - Components: `EntryComposer`, `EntryEditor`, `EditableEntry`, `ReadOnlyEditor`, `EditorToolbar`, `PostCard`, `CommentSection`, `CommentItem`, `MigrationModal`
-    - Hooks: `useEntryEditor` (consolidates entry create/update logic)
+    - Views: `FeedView` (all entries chronologically, infinite scroll), `PostDetailView` (single entry view)
+    - Components: `EntryComposer` (accepts `referenceIds[]`), `EntryEditor`, `EditableEntry`, `ReadOnlyEditor`, `EditorToolbar`, `PostCard`, `MigrationModal`
+    - Hooks: `useEntryEditor` (create/update logic, uses `referenceIds` for create mode)
+    - API: `entry.listAll()`, `entry.getReferencedNotes(id)`, `entry.addReference(sourceId, targetId)`, `entry.removeReference(sourceId, targetId)`
 - **Preload** (`src/preload/`): Bridge between main/renderer
   - `launcher.ts` - space selection APIs
   - `main-window.ts` - space operations (rename, settings, etc.)

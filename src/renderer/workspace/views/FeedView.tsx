@@ -24,7 +24,7 @@ export function FeedView() {
     setIsLoading(true);
 
     try {
-      const result = await electronAPI.entry.listPosts(currentOffset, POSTS_PER_PAGE);
+      const result = await electronAPI.entry.listAll(currentOffset, POSTS_PER_PAGE);
 
       if (result.success && result.data) {
         if (currentOffset === 0) {

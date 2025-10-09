@@ -1,9 +1,10 @@
-import { DataSource, IsNull } from 'typeorm';
+import { DataSource } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createDataSource } from './dataSourceFactory';
 import { Setting } from './entities/Setting';
 import { Log } from './entities/Log';
+import { NoteReference } from './entities/NoteReference';
 import { SpaceData } from '../../shared/types';
 
 interface OpenSpace {
@@ -224,7 +225,7 @@ export class SpaceManager {
   public async createEntry(
     folderPath: string,
     contentJson: string,
-    parentId?: number | null,
+    referenceIds?: number[],
     startedAt?: Date,
     endedAt?: Date | null,
     title?: string | null
@@ -236,11 +237,6 @@ export class SpaceManager {
 
     // Set startedAt to current time if not provided
     const entryStartedAt = startedAt || new Date();
-
-    // Validate: if parentId is not null (comment), endedAt must be null
-    if (parentId && endedAt) {
-      throw new Error('Comments cannot have an end time');
-    }
 
     // Validate: if endedAt is provided, it must be greater than startedAt
     if (endedAt && endedAt <= entryStartedAt) {
@@ -259,15 +255,31 @@ export class SpaceManager {
     const entry = entryRepo.create({
       title: normalizedTitle,
       contentJson,
-      parentId: parentId || null,
       startedAt: entryStartedAt,
       endedAt: endedAt || null,
     });
 
-    return await entryRepo.save(entry);
+    const savedEntry = await entryRepo.save(entry);
+
+    // Create references if provided
+    if (referenceIds && referenceIds.length > 0) {
+      const refRepo = space.dataSource.getRepository(NoteReference);
+      for (const targetId of referenceIds) {
+        if (targetId === savedEntry.id) {
+          throw new Error('Cannot create a reference to itself');
+        }
+        const ref = refRepo.create({
+          sourceId: savedEntry.id,
+          targetId,
+        });
+        await refRepo.save(ref);
+      }
+    }
+
+    return savedEntry;
   }
 
-  public async getTopLevelEntries(
+  public async getAllEntries(
     folderPath: string,
     offset = 0,
     limit = 20
@@ -279,7 +291,6 @@ export class SpaceManager {
 
     const entryRepo = space.dataSource.getRepository(Log);
     return await entryRepo.find({
-      where: { parentId: IsNull() },
       order: { startedAt: 'DESC' },
       skip: offset,
       take: limit,
@@ -294,26 +305,6 @@ export class SpaceManager {
 
     const entryRepo = space.dataSource.getRepository(Log);
     return await entryRepo.findOne({ where: { id } });
-  }
-
-  public async getChildEntries(
-    folderPath: string,
-    parentId: number,
-    offset?: number,
-    limit?: number
-  ): Promise<Log[]> {
-    const space = this.openSpaces.get(folderPath);
-    if (!space) {
-      throw new Error('Space is not open');
-    }
-
-    const entryRepo = space.dataSource.getRepository(Log);
-    return await entryRepo.find({
-      where: { parentId },
-      order: { createdAt: 'ASC' },
-      skip: offset,
-      take: limit,
-    });
   }
 
   public async updateEntry(
@@ -356,11 +347,6 @@ export class SpaceManager {
 
     // Update endedAt if provided
     if (endedAt !== undefined) {
-      // Validate: if parentId is not null (comment), endedAt must be null
-      if (entry.parentId && endedAt) {
-        throw new Error('Comments cannot have an end time');
-      }
-
       // Validate: if endedAt is provided, it must be greater than startedAt
       if (endedAt && endedAt <= entry.startedAt) {
         throw new Error('End time must be greater than started time');
@@ -386,5 +372,66 @@ export class SpaceManager {
     }
 
     await entryRepo.remove(entry);
+  }
+
+  public async getReferencedNotes(folderPath: string, id: number): Promise<Log[]> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const refRepo = space.dataSource.getRepository(NoteReference);
+    const references = await refRepo.find({
+      where: { sourceId: id },
+      relations: ['target'],
+    });
+
+    return references.map((ref) => ref.target) as Log[];
+  }
+
+  public async addReference(
+    folderPath: string,
+    sourceId: number,
+    targetId: number
+  ): Promise<void> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    // Validate sourceId != targetId
+    if (sourceId === targetId) {
+      throw new Error('Cannot create a reference to itself');
+    }
+
+    const refRepo = space.dataSource.getRepository(NoteReference);
+    const ref = refRepo.create({
+      sourceId,
+      targetId,
+    });
+
+    await refRepo.save(ref);
+  }
+
+  public async removeReference(
+    folderPath: string,
+    sourceId: number,
+    targetId: number
+  ): Promise<void> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const refRepo = space.dataSource.getRepository(NoteReference);
+    const ref = await refRepo.findOne({
+      where: { sourceId, targetId },
+    });
+
+    if (!ref) {
+      throw new Error('Reference not found');
+    }
+
+    await refRepo.remove(ref);
   }
 }

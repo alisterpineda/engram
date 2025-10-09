@@ -86,8 +86,8 @@ export function registerWorkspaceHandlers(): void {
     }
   });
 
-  // Create entry (post or comment)
-  ipcMain.handle('entry:create', async (event, contentJson: string, parentId?: number | null, startedAt?: string, endedAt?: string | null, title?: string | null) => {
+  // Create entry
+  ipcMain.handle('entry:create', async (event, contentJson: string, referenceIds?: number[], startedAt?: string, endedAt?: string | null, title?: string | null) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -103,7 +103,7 @@ export function registerWorkspaceHandlers(): void {
       const startedAtDate = startedAt ? new Date(startedAt) : undefined;
       const endedAtDate = endedAt ? new Date(endedAt) : undefined;
 
-      const entry = await spaceManager.createEntry(spacePath, contentJson, parentId, startedAtDate, endedAtDate, title);
+      const entry = await spaceManager.createEntry(spacePath, contentJson, referenceIds, startedAtDate, endedAtDate, title);
 
       return { success: true, data: entry };
     } catch (error) {
@@ -112,8 +112,8 @@ export function registerWorkspaceHandlers(): void {
     }
   });
 
-  // List top-level entries (posts)
-  ipcMain.handle('entry:list-posts', async (event, offset = 0, limit = 20) => {
+  // List all entries
+  ipcMain.handle('entry:list-all', async (event, offset = 0, limit = 20) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -125,11 +125,11 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Space path not found');
       }
 
-      const entries = await spaceManager.getTopLevelEntries(spacePath, offset, limit);
+      const entries = await spaceManager.getAllEntries(spacePath, offset, limit);
 
       return { success: true, data: entries };
     } catch (error) {
-      console.error('Error listing posts:', error);
+      console.error('Error listing entries:', error);
       return { success: false, error: (error as Error).message };
     }
   });
@@ -160,8 +160,8 @@ export function registerWorkspaceHandlers(): void {
     }
   });
 
-  // List comments for a post
-  ipcMain.handle('entry:list-comments', async (event, parentId: number, offset?: number, limit?: number) => {
+  // Get referenced notes
+  ipcMain.handle('entry:get-referenced-notes', async (event, id: number) => {
     try {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (!window) {
@@ -173,11 +173,55 @@ export function registerWorkspaceHandlers(): void {
         throw new Error('Space path not found');
       }
 
-      const entries = await spaceManager.getChildEntries(spacePath, parentId, offset, limit);
+      const entries = await spaceManager.getReferencedNotes(spacePath, id);
 
       return { success: true, data: entries };
     } catch (error) {
-      console.error('Error listing comments:', error);
+      console.error('Error getting referenced notes:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Add reference
+  ipcMain.handle('entry:add-reference', async (event, sourceId: number, targetId: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      await spaceManager.addReference(spacePath, sourceId, targetId);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding reference:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Remove reference
+  ipcMain.handle('entry:remove-reference', async (event, sourceId: number, targetId: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      await spaceManager.removeReference(spacePath, sourceId, targetId);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error removing reference:', error);
       return { success: false, error: (error as Error).message };
     }
   });

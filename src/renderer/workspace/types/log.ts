@@ -6,5 +6,5 @@ export interface Log {
   updatedAt: Date;
   startedAt: Date;
   endedAt: Date | null;
-  parentId: number | null;
+  references?: Log[];
 }

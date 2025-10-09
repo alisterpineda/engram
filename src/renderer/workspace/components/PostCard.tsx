@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Card, Box } from '@mantine/core';
-import { CommentSection } from './CommentSection';
+import { Card } from '@mantine/core';
 import { EditableEntry } from './EditableEntry';
 import { Log } from '../types/log';
 import { useEntryEditor } from '../hooks/useEntryEditor';
@@ -40,7 +39,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   });
 
   const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this post? All comments will also be deleted.')) {
+    if (!confirm('Are you sure you want to delete this post?')) {
       return;
     }
 
@@ -71,7 +70,6 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         endedAt={endedAt}
         setStartedAt={setStartedAt}
         setEndedAt={setEndedAt}
-        parentId={post.parentId}
         title={title}
         setTitle={setTitle}
         contentJson={post.contentJson}
@@ -88,14 +86,7 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         onMouseLeave={() => setIsHovered(false)}
         contentMarginBottom="md"
         hideTimestampInEditMode={false}
-      >
-        <Box
-          onMouseEnter={() => setIsHovered(false)}
-          onMouseLeave={() => setIsHovered(true)}
-        >
-          <CommentSection postId={post.id} previewMode={true} />
-        </Box>
-      </EditableEntry>
+      />
     </Card>
   );
 }

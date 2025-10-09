@@ -8,7 +8,7 @@ const electronAPI = (window as any).electronAPI;
 interface UseEntryEditorOptions {
   mode: 'create' | 'update';
   placeholderText?: string;
-  parentId?: number | null;
+  referenceIds?: number[];
   entryId?: number;
   initialContent?: string;
   initialStartedAt?: Date;
@@ -42,7 +42,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
   const {
     mode,
     placeholderText,
-    parentId = null,
+    referenceIds = [],
     entryId,
     initialContent,
     initialStartedAt,
@@ -92,7 +92,7 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
       if (mode === 'create') {
         const result = await electronAPI.entry.create(
           contentJson,
-          parentId,
+          referenceIds,
           startedAt,
           endedAt,
           titleToSend

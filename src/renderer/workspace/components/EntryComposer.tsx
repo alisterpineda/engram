@@ -7,7 +7,7 @@ import { Log } from '../types/log';
 import { useEntryEditor } from '../hooks/useEntryEditor';
 
 interface EntryComposerProps {
-  parentId?: number | null;
+  referenceIds?: number[];
   onSuccess?: (entry: Log) => void;
   buttonText?: string;
   onCancel?: () => void;
@@ -16,7 +16,7 @@ interface EntryComposerProps {
   autoFocus?: boolean;
 }
 
-export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post', onCancel, initialContent, composerMode = 'full', autoFocus = false }: EntryComposerProps) {
+export function EntryComposer({ referenceIds = [], onSuccess, buttonText = 'Post', onCancel, initialContent, composerMode = 'full', autoFocus = false }: EntryComposerProps) {
   const {
     editor,
     isSubmitting,
@@ -33,15 +33,14 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
     handleCancelEdit
   } = useEntryEditor({
     mode: 'create',
-    placeholderText: parentId === null ? "What's on your mind?" : "Write a comment...",
-    parentId,
+    placeholderText: "What's on your mind?",
+    referenceIds,
     initialContent,
     onSuccess,
     onCancel,
     composerMode,
   });
 
-  const isPost = parentId === null;
   const hasEndTimeError = endedAt && endedAt <= startedAt;
 
   // Visibility logic based on composer mode
@@ -94,42 +93,38 @@ export function EntryComposer({ parentId = null, onSuccess, buttonText = 'Post',
               }
             }}
           />
-          {isPost && (
-            <>
-              <Text size="xs" c="dimmed">-</Text>
-              <DateTimePicker
-                value={endedAt}
-                onChange={(value) => {
-                  if (value === null) {
-                    setEndedAt(null);
-                  } else if (value) {
-                    setEndedAt(typeof value === 'string' ? new Date(value) : value);
-                  }
-                }}
-                size="xs"
-                variant="unstyled"
-                valueFormat="LLL"
-                placeholder="Add end time"
-                clearable
-                minDate={startedAt}
-                presets={endTimePresets}
-                error={hasEndTimeError ? 'End time must be after started time' : undefined}
-                styles={{
-                  input: {
-                    fontSize: 'var(--mantine-font-size-xs)',
-                    color: hasEndTimeError ? 'var(--mantine-color-red-filled)' : 'var(--mantine-color-dimmed)',
-                    cursor: 'pointer',
-                    padding: 0,
-                    paddingRight: '20px',
-                    minHeight: 'auto',
-                  }
-                }}
-              />
-            </>
-          )}
+          <Text size="xs" c="dimmed">-</Text>
+          <DateTimePicker
+            value={endedAt}
+            onChange={(value) => {
+              if (value === null) {
+                setEndedAt(null);
+              } else if (value) {
+                setEndedAt(typeof value === 'string' ? new Date(value) : value);
+              }
+            }}
+            size="xs"
+            variant="unstyled"
+            valueFormat="LLL"
+            placeholder="Add end time"
+            clearable
+            minDate={startedAt}
+            presets={endTimePresets}
+            error={hasEndTimeError ? 'End time must be after started time' : undefined}
+            styles={{
+              input: {
+                fontSize: 'var(--mantine-font-size-xs)',
+                color: hasEndTimeError ? 'var(--mantine-color-red-filled)' : 'var(--mantine-color-dimmed)',
+                cursor: 'pointer',
+                padding: 0,
+                paddingRight: '20px',
+                minHeight: 'auto',
+              }
+            }}
+          />
         </Group>
       )}
-      {showDateFields && isPost && (
+      {showDateFields && (
         <TextInput
           placeholder="Title (optional)"
           value={title}
