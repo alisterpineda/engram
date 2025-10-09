@@ -37,7 +37,7 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 dayjs.extend(localizedFormat);
 
 import { createRoot } from 'react-dom/client';
-import { MantineProvider, AppShell, Burger, Group, Text, Button, Stack, ActionIcon, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
+import { MantineProvider, AppShell, Burger, Group, Text, Button, Stack, ActionIcon, useMantineColorScheme, useComputedColorScheme, NavLink } from '@mantine/core';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
@@ -49,7 +49,6 @@ import { PageDetailView } from './views/PageDetailView';
 import { ContactsView } from './views/ContactsView';
 import { ContactDetailView } from './views/ContactDetailView';
 import { MigrationModal } from './components/MigrationModal';
-import classes from './navbar.module.css';
 import { compactTheme } from '../theme';
 import { Page } from './types/page';
 import { Contact } from './types/contact';
@@ -231,39 +230,33 @@ function AppContent() {
       <AppShell.Navbar p="md">
         <Stack justify="space-between" h="100%">
           <div>
-            <a
-              className={classes.link}
-              data-active={location.pathname === '/' || undefined}
+            <NavLink
+              label="Home"
+              leftSection={<IconHome size={20} stroke={1.5} />}
+              active={location.pathname === '/'}
               onClick={() => {
                 navigate('/');
                 if (opened && isMobile) toggle();
               }}
-            >
-              <IconHome className={classes.linkIcon} stroke={1.5} />
-              <span>Home</span>
-            </a>
-            <a
-              className={classes.link}
-              data-active={location.pathname === '/pages' || undefined}
+            />
+            <NavLink
+              label="Pages"
+              leftSection={<IconBook size={20} stroke={1.5} />}
+              active={location.pathname === '/pages'}
               onClick={() => {
                 navigate('/pages');
                 if (opened && isMobile) toggle();
               }}
-            >
-              <IconBook className={classes.linkIcon} stroke={1.5} />
-              <span>Pages</span>
-            </a>
-            <a
-              className={classes.link}
-              data-active={location.pathname === '/contacts' || undefined}
+            />
+            <NavLink
+              label="Contacts"
+              leftSection={<IconUsers size={20} stroke={1.5} />}
+              active={location.pathname === '/contacts'}
               onClick={() => {
                 navigate('/contacts');
                 if (opened && isMobile) toggle();
               }}
-            >
-              <IconUsers className={classes.linkIcon} stroke={1.5} />
-              <span>Contacts</span>
-            </a>
+            />
           </div>
           <Button variant="light" onClick={handleOpenLauncher}>
             Open Launcher
