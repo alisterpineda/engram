@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Stack, Container, Loader, Center, Text, Paper, Title, Button, Group } from '@mantine/core';
+import { Stack, Container, Loader, Center, Text, Table, Title, Button, Group, Avatar, Paper } from '@mantine/core';
+import { IconUser } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { ContactCard } from '../components/ContactCard';
 import { Contact } from '../types/contact';
 
 const electronAPI = (window as any).electronAPI;
@@ -72,10 +72,6 @@ export function ContactsView() {
     };
   }, [loadMoreContacts]);
 
-  const handleContactDeleted = (id: number) => {
-    setContacts((prev) => prev.filter((contact) => contact.id !== id));
-  };
-
   return (
     <Container size="sm" px={0}>
       <Stack gap="lg">
@@ -86,31 +82,44 @@ export function ContactsView() {
           </Button>
         </Group>
 
-        <Paper withBorder radius="md">
-          <Stack gap={0}>
-            {contacts.length === 0 && !isLoading ? (
-              <Center py="xl">
-                <Text c="dimmed">No contacts yet. Click &apos;Create Contact&apos; to get started.</Text>
-              </Center>
-            ) : (
-              <>
+        {contacts.length === 0 && !isLoading ? (
+          <Center py="xl">
+            <Text c="dimmed">No contacts yet. Click &apos;Create Contact&apos; to get started.</Text>
+          </Center>
+        ) : (
+          <Paper withBorder radius="md" p="md">
+            <Table highlightOnHover verticalSpacing="sm">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th w={60}></Table.Th>
+                  <Table.Th>Name</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
                 {contacts.map((contact) => (
-                  <ContactCard
+                  <Table.Tr
                     key={contact.id}
-                    contact={contact}
-                    onDelete={handleContactDeleted}
-                  />
+                    onClick={() => navigate(`/contact/${contact.id}`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <Table.Td>
+                      <Avatar color="blue" radius="xl" size="sm">
+                        <IconUser size={18} />
+                      </Avatar>
+                    </Table.Td>
+                    <Table.Td>{contact.title}</Table.Td>
+                  </Table.Tr>
                 ))}
-              </>
-            )}
+              </Table.Tbody>
+            </Table>
+          </Paper>
+        )}
 
-            {isLoading && (
-              <Center py="xl">
-                <Loader />
-              </Center>
-            )}
-          </Stack>
-        </Paper>
+        {isLoading && (
+          <Center py="xl">
+            <Loader />
+          </Center>
+        )}
 
         <div ref={observerTarget} style={{ height: 1 }} />
       </Stack>

@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { Stack, Container, Loader, Center, Text, Paper, Title, Button, Group } from '@mantine/core';
+import { Stack, Container, Loader, Center, Text, Table, Title, Button, Group, Paper } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { PageCard } from '../components/PageCard';
 import { Page } from '../types/page';
 
 const electronAPI = (window as any).electronAPI;
@@ -72,10 +71,6 @@ export function PagesView() {
     };
   }, [loadMorePages]);
 
-  const handlePageDeleted = (id: number) => {
-    setPages((prev) => prev.filter((page) => page.id !== id));
-  };
-
   return (
     <Container size="sm" px={0}>
       <Stack gap="lg">
@@ -86,31 +81,38 @@ export function PagesView() {
           </Button>
         </Group>
 
-        <Paper withBorder radius="md">
-          <Stack gap={0}>
-            {pages.length === 0 && !isLoading ? (
-              <Center py="xl">
-                <Text c="dimmed">No pages yet. Click &apos;Create Page&apos; to get started.</Text>
-              </Center>
-            ) : (
-              <>
+        {pages.length === 0 && !isLoading ? (
+          <Center py="xl">
+            <Text c="dimmed">No pages yet. Click &apos;Create Page&apos; to get started.</Text>
+          </Center>
+        ) : (
+          <Paper withBorder radius="md" p="md">
+            <Table highlightOnHover verticalSpacing="sm">
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Title</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
                 {pages.map((page) => (
-                  <PageCard
+                  <Table.Tr
                     key={page.id}
-                    page={page}
-                    onDelete={handlePageDeleted}
-                  />
+                    onClick={() => navigate(`/page/${page.id}`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <Table.Td>{page.title}</Table.Td>
+                  </Table.Tr>
                 ))}
-              </>
-            )}
+              </Table.Tbody>
+            </Table>
+          </Paper>
+        )}
 
-            {isLoading && (
-              <Center py="xl">
-                <Loader />
-              </Center>
-            )}
-          </Stack>
-        </Paper>
+        {isLoading && (
+          <Center py="xl">
+            <Loader />
+          </Center>
+        )}
 
         <div ref={observerTarget} style={{ height: 1 }} />
       </Stack>

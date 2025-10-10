@@ -45,4 +45,19 @@ export const compactTheme = createTheme({
       h6: { fontSize: '0.9375rem', lineHeight: '1.45', fontWeight: '650' }, // 15px (a tad bigger than md 14px)
     },
   },
+
+  // Component overrides
+  components: {
+    Table: {
+      styles: {
+        th: {
+          fontSize: 'var(--mantine-font-size-md)',
+          fontWeight: 600,
+        },
+        td: {
+          fontSize: 'var(--mantine-font-size-md)',
+        },
+      },
+    },
+  },
 });
