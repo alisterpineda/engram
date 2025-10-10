@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { createDataSource } from './dataSourceFactory';
 import { Setting } from './entities/Setting';
+import { Note } from './entities/Note';
 import { Log } from './entities/Log';
 import { Page } from './entities/Page';
 import { Contact } from './entities/Contact';
@@ -389,6 +390,35 @@ export class SpaceManager {
     });
 
     return references.map((ref) => ref.target) as Log[];
+  }
+
+  public async getNoteReferences(
+    folderPath: string,
+    noteId: number
+  ): Promise<{ incoming: Note[]; outgoing: Note[] }> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const refRepo = space.dataSource.getRepository(NoteReference);
+
+    // Get incoming references (where this note is the target)
+    const incomingRefs = await refRepo.find({
+      where: { targetId: noteId },
+      relations: ['source'],
+    });
+
+    // Get outgoing references (where this note is the source)
+    const outgoingRefs = await refRepo.find({
+      where: { sourceId: noteId },
+      relations: ['target'],
+    });
+
+    return {
+      incoming: incomingRefs.map((ref) => ref.source),
+      outgoing: outgoingRefs.map((ref) => ref.target),
+    };
   }
 
   public async addReference(
