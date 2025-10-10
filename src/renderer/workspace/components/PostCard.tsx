@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Card } from '@mantine/core';
+import { Card, Button, Group, Box } from '@mantine/core';
+import { IconMessageReply } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { EditableEntry } from './EditableEntry';
+import { EntryComposer } from './EntryComposer';
 import { Log } from '../types/log';
 import { useEntryEditor } from '../hooks/useEntryEditor';
 
@@ -9,12 +11,14 @@ interface PostCardProps {
   post: Log;
   onUpdate: (updatedPost: Log) => void;
   onDelete: (id: number) => void;
+  onFollowUpCreated?: (newPost: Log) => void;
 }
 
 const electronAPI = (window as any).electronAPI;
 
-export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
+export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated }: PostCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [showFollowUp, setShowFollowUp] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -62,6 +66,13 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     navigate(`/post/${post.id}`);
   };
 
+  const handleFollowUpCreated = (newPost: Log) => {
+    setShowFollowUp(false);
+    if (onFollowUpCreated) {
+      onFollowUpCreated(newPost);
+    }
+  };
+
   return (
     <Card
       shadow="sm"
@@ -93,7 +104,35 @@ export function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         contentMarginBottom="md"
         hideTimestampInEditMode={false}
         onTitleClick={handleTitleClick}
-      />
+      >
+        {!isEditing && (
+          <Box>
+            {!showFollowUp ? (
+              <Group justify="flex-end">
+                <Button
+                  variant="subtle"
+                  size="xs"
+                  onClick={() => setShowFollowUp(true)}
+                  leftSection={<IconMessageReply size={16} />}
+                >
+                  Follow Up
+                </Button>
+              </Group>
+            ) : (
+              <Box mt="md" p="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)', borderRadius: 'var(--mantine-radius-md)' }}>
+                <EntryComposer
+                  referenceIds={[post.id]}
+                  onSuccess={handleFollowUpCreated}
+                  onCancel={() => setShowFollowUp(false)}
+                  buttonText="Create Follow Up"
+                  composerMode="minimal"
+                  autoFocus={true}
+                />
+              </Box>
+            )}
+          </Box>
+        )}
+      </EditableEntry>
     </Card>
   );
 }

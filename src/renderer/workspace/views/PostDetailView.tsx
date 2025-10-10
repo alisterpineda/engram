@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Container, Stack, Card, Text, Loader, Center, Alert, Title } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Container, Stack, Card, Text, Loader, Center, Alert, Title, Button, Group, Box } from '@mantine/core';
+import { IconAlertCircle, IconMessageReply } from '@tabler/icons-react';
 import { ReadOnlyEditor } from '../components/ReadOnlyEditor';
 import { ReferencesSection } from '../components/ReferencesSection';
+import { EntryComposer } from '../components/EntryComposer';
 import { Log } from '../types/log';
 import { formatRelativeTime, formatDuration } from '../utils/date';
 
@@ -11,9 +12,11 @@ const electronAPI = (window as any).electronAPI;
 
 export function PostDetailView() {
   const { postId } = useParams<{ postId: string }>();
+  const navigate = useNavigate();
   const [post, setPost] = useState<Log | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showFollowUp, setShowFollowUp] = useState(false);
 
   useEffect(() => {
     const loadPost = async () => {
@@ -44,6 +47,11 @@ export function PostDetailView() {
 
     loadPost();
   }, [postId]);
+
+  const handleFollowUpCreated = (newPost: Log) => {
+    setShowFollowUp(false);
+    navigate(`/post/${newPost.id}`);
+  };
 
   if (isLoading) {
     return (
@@ -81,6 +89,30 @@ export function PostDetailView() {
             )}
 
             <ReadOnlyEditor contentJson={post.contentJson} />
+
+            {!showFollowUp ? (
+              <Group justify="flex-end" mt="md">
+                <Button
+                  variant="subtle"
+                  size="sm"
+                  onClick={() => setShowFollowUp(true)}
+                  leftSection={<IconMessageReply size={16} />}
+                >
+                  Follow Up
+                </Button>
+              </Group>
+            ) : (
+              <Box mt="md" p="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)', borderRadius: 'var(--mantine-radius-md)' }}>
+                <EntryComposer
+                  referenceIds={[post.id]}
+                  onSuccess={handleFollowUpCreated}
+                  onCancel={() => setShowFollowUp(false)}
+                  buttonText="Create Follow Up"
+                  composerMode="minimal"
+                  autoFocus={true}
+                />
+              </Box>
+            )}
           </Stack>
         </Card>
 
