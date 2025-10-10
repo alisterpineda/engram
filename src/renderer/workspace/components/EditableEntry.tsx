@@ -1,8 +1,8 @@
 import { ReactNode, useState, useMemo } from 'react';
-import { Text, Group, ActionIcon, Stack, Menu, TextInput, Title, Spoiler, UnstyledButton } from '@mantine/core';
+import { Text, Group, ActionIcon, Stack, Menu, TextInput, Title, Spoiler } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import dayjs from 'dayjs';
-import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-react';
+import { IconEdit, IconTrash, IconCheck, IconX, IconDots, IconEye } from '@tabler/icons-react';
 import { Editor } from '@tiptap/react';
 import { EntryEditor } from './EntryEditor';
 import { ReadOnlyEditor } from './ReadOnlyEditor';
@@ -32,7 +32,7 @@ interface EditableEntryProps {
   onMouseLeave?: () => void;
   contentMarginBottom?: string;
   hideTimestampInEditMode?: boolean;
-  onTitleClick?: () => void;
+  onViewDetails?: () => void;
 }
 
 export function EditableEntry({
@@ -59,7 +59,7 @@ export function EditableEntry({
   onMouseLeave,
   contentMarginBottom,
   hideTimestampInEditMode = false,
-  onTitleClick,
+  onViewDetails,
 }: EditableEntryProps) {
   const [internalIsHovered, setInternalIsHovered] = useState(false);
   const isHovered = externalIsHovered !== undefined ? externalIsHovered : internalIsHovered;
@@ -195,9 +195,20 @@ export function EditableEntry({
                   : formatRelativeTime(startedAt)}
               </Text>
               <Group gap="xs">
+                {onViewDetails && (
+                  <ActionIcon
+                    variant="subtle"
+                    color="gray"
+                    size="sm"
+                    style={{ opacity: isHovered ? 1 : 0 }}
+                    onClick={onViewDetails}
+                  >
+                    <IconEye size={editIconSize} />
+                  </ActionIcon>
+                )}
                 <ActionIcon
                   variant="subtle"
-                  color="blue"
+                  color="gray"
                   size="sm"
                   style={{ opacity: isHovered ? 1 : 0 }}
                   onClick={() => onStartEdit(contentJson)}
@@ -228,21 +239,7 @@ export function EditableEntry({
               </Group>
             </Group>
             {title && (
-              onTitleClick ? (
-                <UnstyledButton onClick={onTitleClick} style={{ textAlign: 'left' }}>
-                  <Title
-                    size="1.5rem"
-                    fw={700}
-                    style={{
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {title}
-                  </Title>
-                </UnstyledButton>
-              ) : (
-                <Title size="1.5rem" fw={700}>{title}</Title>
-              )
+              <Title size="1.5rem" fw={700}>{title}</Title>
             )}
           </Stack>
           <div style={{ marginBottom: contentMarginBottom ? `var(--mantine-spacing-${contentMarginBottom})` : undefined }}>

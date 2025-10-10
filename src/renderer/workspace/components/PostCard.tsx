@@ -62,7 +62,7 @@ export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated }: PostCa
     }
   };
 
-  const handleTitleClick = () => {
+  const handleViewDetails = () => {
     navigate(`/post/${post.id}`);
   };
 
@@ -103,7 +103,7 @@ export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated }: PostCa
         onMouseLeave={() => setIsHovered(false)}
         contentMarginBottom="md"
         hideTimestampInEditMode={false}
-        onTitleClick={handleTitleClick}
+        onViewDetails={handleViewDetails}
       >
         {!isEditing && (
           <Box>
