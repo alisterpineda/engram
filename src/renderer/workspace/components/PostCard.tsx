@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Card, Button, Group, Box } from '@mantine/core';
-import { IconMessageReply } from '@tabler/icons-react';
+import { IconMessageReply, IconMessage } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { EditableLog } from './EditableLog';
 import { EntryComposer } from './EntryComposer';
+import { CommentComposer } from './CommentComposer';
 import { Log } from '../types/log';
 import { useEntryEditor } from '../hooks/useEntryEditor';
 
@@ -19,6 +20,7 @@ const electronAPI = (window as any).electronAPI;
 export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated }: PostCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [showFollowUp, setShowFollowUp] = useState(false);
+  const [showComment, setShowComment] = useState(false);
   const navigate = useNavigate();
 
   const {
@@ -73,6 +75,10 @@ export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated }: PostCa
     }
   };
 
+  const handleCommentCreated = () => {
+    setShowComment(false);
+  };
+
   return (
     <Card
       shadow="sm"
@@ -107,18 +113,45 @@ export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated }: PostCa
       >
         {!isEditing && (
           <Box>
-            {!showFollowUp ? (
+            {!showFollowUp && !showComment ? (
               <Group justify="flex-end">
                 <Button
                   variant="subtle"
                   size="xs"
-                  onClick={() => setShowFollowUp(true)}
+                  onClick={() => {
+                    setShowComment(true);
+                    setShowFollowUp(false);
+                  }}
+                  leftSection={<IconMessage size={16} />}
+                >
+                  Comment
+                </Button>
+                <Button
+                  variant="subtle"
+                  size="xs"
+                  onClick={() => {
+                    setShowFollowUp(true);
+                    setShowComment(false);
+                  }}
                   leftSection={<IconMessageReply size={16} />}
                 >
                   Follow Up
                 </Button>
               </Group>
-            ) : (
+            ) : null}
+
+            {showComment && (
+              <Box mt="md" p="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)', borderRadius: 'var(--mantine-radius-md)' }}>
+                <CommentComposer
+                  parentId={post.id}
+                  onSuccess={handleCommentCreated}
+                  onCancel={() => setShowComment(false)}
+                  autoFocus={true}
+                />
+              </Box>
+            )}
+
+            {showFollowUp && (
               <Box mt="md" p="md" style={{ backgroundColor: 'var(--mantine-color-gray-0)', borderRadius: 'var(--mantine-radius-md)' }}>
                 <EntryComposer
                   referenceIds={[post.id]}
