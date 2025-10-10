@@ -39,16 +39,15 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
   }, [noteId]);
 
   const getNotePath = (note: NoteReference): string => {
-    switch (note.type) {
-      case 'log':
-        return `/post/${note.id}`;
-      case 'page':
-        return `/page/${note.id}`;
-      case 'contact':
-        return `/contact/${note.id}`;
-      default:
-        return `/post/${note.id}`;
+    if (note.type === 'contact') {
+      return `/contact/${note.id}`;
     }
+
+    if (note.type === 'page') {
+      return `/page/${note.id}`;
+    }
+
+    return `/post/${note.id}`;
   };
 
   const getNoteLabel = (note: NoteReference): string => {
