@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { Stack, Container, Loader, Center, Box, Text, Card } from '@mantine/core';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { Stack, Container, Loader, Center, Box, Text, Card, Title } from '@mantine/core';
 import { EntryComposer } from '../components/EntryComposer';
 import { PostCard } from '../components/PostCard';
 import { Log } from '../types/log';
+import { groupPostsByDay } from '../utils/date';
 
 const electronAPI = (window as any).electronAPI;
 const POSTS_PER_PAGE = 20;
@@ -87,6 +88,8 @@ export function FeedView() {
     setPosts((prev) => prev.filter((post) => post.id !== id));
   };
 
+  const groupedPosts = useMemo(() => groupPostsByDay(posts), [posts]);
+
   return (
     <Container size="sm" px={0}>
       <Stack gap="lg">
@@ -122,14 +125,23 @@ export function FeedView() {
           </Center>
         ) : (
           <>
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                onUpdate={handlePostUpdated}
-                onDelete={handlePostDeleted}
-                onFollowUpCreated={handlePostCreated}
-              />
+            {groupedPosts.map((group) => (
+              <Box key={group.day}>
+                <Title order={3} mb="md" mt="md">
+                  {group.day}
+                </Title>
+                <Stack gap="lg">
+                  {group.posts.map((post) => (
+                    <PostCard
+                      key={post.id}
+                      post={post}
+                      onUpdate={handlePostUpdated}
+                      onDelete={handlePostDeleted}
+                      onFollowUpCreated={handlePostCreated}
+                    />
+                  ))}
+                </Stack>
+              </Box>
             ))}
 
             {hasMore && (

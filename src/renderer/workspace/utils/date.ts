@@ -31,3 +31,59 @@ export function formatDuration(startedAt: Date, endedAt: Date): string {
 
   return `${hours}h ${mins}m`;
 }
+
+export function isSameDay(date1: Date, date2: Date): boolean {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
+}
+
+export function formatDayHeader(date: Date): string {
+  const now = new Date();
+  const targetDate = new Date(date);
+
+  // Check if it's today
+  if (isSameDay(targetDate, now)) {
+    return 'Today';
+  }
+
+  // Check if it's yesterday
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (isSameDay(targetDate, yesterday)) {
+    return 'Yesterday';
+  }
+
+  // Format as "Month Day, Year"
+  return targetDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
+export function groupPostsByDay<T extends { startedAt: Date | string }>(
+  posts: T[]
+): Array<{ day: string; posts: T[] }> {
+  const groups: Array<{ day: string; posts: T[] }> = [];
+
+  for (const post of posts) {
+    const postDate = new Date(post.startedAt);
+    const dayHeader = formatDayHeader(postDate);
+
+    // Find existing group for this day
+    const existingGroup = groups.find(g => g.day === dayHeader);
+
+    if (existingGroup) {
+      existingGroup.posts.push(post);
+    } else {
+      groups.push({ day: dayHeader, posts: [post] });
+    }
+  }
+
+  return groups;
+}
