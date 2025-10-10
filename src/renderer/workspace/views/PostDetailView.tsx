@@ -8,7 +8,7 @@ import { CommentsSection } from '../components/CommentsSection';
 import { EntryComposer } from '../components/EntryComposer';
 import { CommentComposer } from '../components/CommentComposer';
 import { Log } from '../types/log';
-import { formatRelativeTime, formatDuration } from '../utils/date';
+import { formatAbsoluteDateTime, formatDuration } from '../utils/date';
 
 const electronAPI = (window as any).electronAPI;
 
@@ -87,8 +87,8 @@ export function PostDetailView() {
           <Stack gap="xs">
             <Text size="xs" c="dimmed">
               {post.endedAt
-                ? `${formatRelativeTime(post.startedAt)} (${formatDuration(post.startedAt, post.endedAt)})`
-                : formatRelativeTime(post.startedAt)}
+                ? `${formatAbsoluteDateTime(post.startedAt)} (${formatDuration(post.startedAt, post.endedAt)})`
+                : formatAbsoluteDateTime(post.startedAt)}
             </Text>
 
             {post.title && (

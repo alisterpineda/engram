@@ -7,7 +7,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import { EntryEditor } from './EntryEditor';
 import { ReadOnlyEditor } from './ReadOnlyEditor';
-import { formatRelativeTime } from '../utils/date';
+import { formatAbsoluteDateTime } from '../utils/date';
 import { Comment } from '../types/comment';
 
 const electronAPI = (window as any).electronAPI;
@@ -166,7 +166,7 @@ export function EditableComment({ comment, onUpdate, onDelete }: EditableComment
           <Stack gap="0">
             <Group justify="space-between" align="center">
               <Text size="xs" c="dimmed">
-                {formatRelativeTime(new Date(comment.commentedAt))}
+                {formatAbsoluteDateTime(new Date(comment.commentedAt))}
               </Text>
               <Group gap="xs">
                 <ActionIcon

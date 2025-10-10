@@ -14,6 +14,27 @@ export function formatRelativeTime(date: Date): string {
   return new Date(date).toLocaleDateString();
 }
 
+export function formatAbsoluteTime(date: Date): string {
+  return new Date(date).toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+}
+
+export function formatAbsoluteDateTime(date: Date): string {
+  const dateObj = new Date(date);
+  const datePart = dateObj.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  const timePart = dateObj.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+  return `${datePart} at ${timePart}`;
+}
+
 export function formatDuration(startedAt: Date, endedAt: Date): string {
   const durationMs = new Date(endedAt).getTime() - new Date(startedAt).getTime();
   const durationMins = Math.floor(durationMs / 1000 / 60);

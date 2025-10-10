@@ -6,7 +6,7 @@ import { IconEdit, IconTrash, IconCheck, IconX, IconDots, IconEye } from '@table
 import { Editor } from '@tiptap/react';
 import { EntryEditor } from './EntryEditor';
 import { ReadOnlyEditor } from './ReadOnlyEditor';
-import { formatRelativeTime, formatDuration } from '../utils/date';
+import { formatAbsoluteTime, formatDuration } from '../utils/date';
 
 interface EditableLogProps {
   startedAt: Date;
@@ -191,8 +191,8 @@ export function EditableLog({
             <Group justify="space-between" align="center">
               <Text size="xs" c="dimmed">
                 {endedAt
-                  ? `${formatRelativeTime(startedAt)} (${formatDuration(startedAt, endedAt)})`
-                  : formatRelativeTime(startedAt)}
+                  ? `${formatAbsoluteTime(startedAt)} (${formatDuration(startedAt, endedAt)})`
+                  : formatAbsoluteTime(startedAt)}
               </Text>
               <Group gap="xs">
                 {onViewDetails && (
