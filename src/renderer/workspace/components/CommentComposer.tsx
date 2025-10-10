@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Stack, Group, TextInput } from '@mantine/core';
+import { Button, Stack, Group } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -20,7 +20,7 @@ interface CommentComposerProps {
 export function CommentComposer({ parentId, onSuccess, onCancel, autoFocus = false }: CommentComposerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [commentedAt, setCommentedAt] = useState<Date>(new Date());
-  const [title, setTitle] = useState<string>('');
+  const [isEmpty, setIsEmpty] = useState(true);
 
   const editor = useEditor({
     extensions: [
@@ -37,14 +37,15 @@ export function CommentComposer({ parentId, onSuccess, onCancel, autoFocus = fal
     ],
     content: '',
     autofocus: autoFocus,
+    onUpdate: ({ editor }) => {
+      setIsEmpty(editor.isEmpty);
+    },
     editorProps: {
       attributes: {
         class: 'tiptap-editor',
       },
     },
   });
-
-  const isEmpty = !editor || editor.isEmpty;
 
   const handleSubmit = async () => {
     if (!editor || isEmpty) return;
@@ -57,12 +58,12 @@ export function CommentComposer({ parentId, onSuccess, onCancel, autoFocus = fal
         parentId,
         contentJson,
         commentedAt,
-        title.trim() || null
+        null
       );
 
       if (result.success && result.data) {
         editor.commands.clearContent();
-        setTitle('');
+        setIsEmpty(true);
         setCommentedAt(new Date());
 
         if (onSuccess) {
@@ -80,7 +81,7 @@ export function CommentComposer({ parentId, onSuccess, onCancel, autoFocus = fal
 
   const handleCancel = () => {
     editor?.commands.clearContent();
-    setTitle('');
+    setIsEmpty(true);
     setCommentedAt(new Date());
     if (onCancel) {
       onCancel();
@@ -111,13 +112,6 @@ export function CommentComposer({ parentId, onSuccess, onCancel, autoFocus = fal
           }}
         />
       </Group>
-      <TextInput
-        placeholder="Title (optional)"
-        value={title}
-        onChange={(e) => setTitle(e.currentTarget.value)}
-        maxLength={255}
-        size="sm"
-      />
       <EntryEditor editor={editor} showToolbar={true} />
       <Group justify="flex-end">
         {onCancel && (

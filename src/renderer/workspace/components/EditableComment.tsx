@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Text, Group, ActionIcon, Stack, Menu, TextInput, Title, Spoiler } from '@mantine/core';
+import { useState } from 'react';
+import { Text, Group, ActionIcon, Stack, Menu, Spoiler } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-react';
 import { useEditor } from '@tiptap/react';
@@ -22,8 +22,8 @@ export function EditableComment({ comment, onUpdate, onDelete }: EditableComment
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [editTitle, setEditTitle] = useState(comment.title || '');
   const [commentedAt, setCommentedAt] = useState<Date>(new Date(comment.commentedAt));
+  const [isEmpty, setIsEmpty] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -37,17 +37,18 @@ export function EditableComment({ comment, onUpdate, onDelete }: EditableComment
     ],
     content: '',
     editable: isEditing,
+    onUpdate: ({ editor }) => {
+      setIsEmpty(editor.isEmpty);
+    },
   });
-
-  const isEmpty = !editor || editor.isEmpty;
 
   const handleStartEdit = () => {
     setIsEditing(true);
-    setEditTitle(comment.title || '');
     setCommentedAt(new Date(comment.commentedAt));
     if (editor) {
       editor.setEditable(true);
       editor.commands.setContent(comment.contentJson ? JSON.parse(comment.contentJson) : '');
+      setIsEmpty(editor.isEmpty);
     }
   };
 
@@ -56,6 +57,7 @@ export function EditableComment({ comment, onUpdate, onDelete }: EditableComment
     if (editor) {
       editor.setEditable(false);
       editor.commands.setContent(comment.contentJson ? JSON.parse(comment.contentJson) : '');
+      setIsEmpty(editor.isEmpty);
     }
   };
 
@@ -69,7 +71,7 @@ export function EditableComment({ comment, onUpdate, onDelete }: EditableComment
         comment.id,
         contentJson,
         commentedAt,
-        editTitle.trim() || null
+        null
       );
 
       if (result.success && result.data) {
@@ -138,13 +140,6 @@ export function EditableComment({ comment, onUpdate, onDelete }: EditableComment
               }}
             />
           </Group>
-          <TextInput
-            placeholder="Title (optional)"
-            value={editTitle}
-            onChange={(e) => setEditTitle(e.currentTarget.value)}
-            maxLength={255}
-            size="sm"
-          />
           <EntryEditor editor={editor} showToolbar={true} />
           <Group justify="flex-end" gap="xs">
             <ActionIcon
@@ -206,9 +201,6 @@ export function EditableComment({ comment, onUpdate, onDelete }: EditableComment
                 </Menu>
               </Group>
             </Group>
-            {comment.title && (
-              <Title size="1rem" fw={600}>{comment.title}</Title>
-            )}
           </Stack>
           <Spoiler maxHeight={100} showLabel="Show more" hideLabel="Show less">
             <ReadOnlyEditor contentJson={comment.contentJson} />
