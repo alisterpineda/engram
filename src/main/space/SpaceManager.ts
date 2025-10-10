@@ -392,10 +392,48 @@ export class SpaceManager {
     return references.map((ref) => ref.target) as Log[];
   }
 
+  private serializeNoteForReference(note: Note) {
+    if (note instanceof Log) {
+      return {
+        id: note.id,
+        title: note.title,
+        contentJson: note.contentJson,
+        createdAt: note.createdAt,
+        updatedAt: note.updatedAt,
+        startedAt: note.startedAt,
+        endedAt: note.endedAt,
+        type: 'log' as const,
+      };
+    }
+
+    if (note instanceof Contact) {
+      return {
+        id: note.id,
+        title: note.title,
+        contentJson: note.contentJson,
+        createdAt: note.createdAt,
+        updatedAt: note.updatedAt,
+        type: 'contact' as const,
+      };
+    }
+
+    return {
+      id: note.id,
+      title: note.title,
+      contentJson: note.contentJson,
+      createdAt: note.createdAt,
+      updatedAt: note.updatedAt,
+      type: 'page' as const,
+    };
+  }
+
   public async getNoteReferences(
     folderPath: string,
     noteId: number
-  ): Promise<{ incoming: Note[]; outgoing: Note[] }> {
+  ): Promise<{
+    incoming: ReturnType<SpaceManager['serializeNoteForReference']>[];
+    outgoing: ReturnType<SpaceManager['serializeNoteForReference']>[];
+  }> {
     const space = this.openSpaces.get(folderPath);
     if (!space) {
       throw new Error('Space is not open');
@@ -416,8 +454,8 @@ export class SpaceManager {
     });
 
     return {
-      incoming: incomingRefs.map((ref) => ref.source),
-      outgoing: outgoingRefs.map((ref) => ref.target),
+      incoming: incomingRefs.map((ref) => this.serializeNoteForReference(ref.source)),
+      outgoing: outgoingRefs.map((ref) => this.serializeNoteForReference(ref.target)),
     };
   }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, Stack, Text, Box, Loader } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { ReferencesData, NoteReference } from '../types/reference';
+import { ReferencesData, NoteReference, NoteReferenceType } from '../types/reference';
 import { getTextPreview } from '../utils/content';
 
 const electronAPI = (window as any).electronAPI;
@@ -38,22 +38,8 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
     loadReferences();
   }, [noteId]);
 
-  const getNoteType = (note: NoteReference): 'log' | 'page' | 'contact' => {
-    // TypeORM STI uses 'type' field to discriminate
-    const anyNote = note as any;
-    if (anyNote.type) {
-      return anyNote.type;
-    }
-    // Fallback: check for specific fields
-    if ('startedAt' in note) return 'log';
-    // Both page and contact have title required, so we'll default to page
-    // This shouldn't happen in practice since TypeORM includes the type field
-    return 'page';
-  };
-
   const getNotePath = (note: NoteReference): string => {
-    const type = getNoteType(note);
-    switch (type) {
+    switch (note.type) {
       case 'log':
         return `/post/${note.id}`;
       case 'page':
@@ -86,16 +72,17 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
     }
 
     // Group by type
-    const grouped = notes.reduce((acc, note) => {
-      const type = getNoteType(note);
-      if (!acc[type]) {
-        acc[type] = [];
-      }
-      acc[type].push(note);
-      return acc;
-    }, {} as Record<string, NoteReference[]>);
+    const grouped: Record<NoteReferenceType, NoteReference[]> = {
+      log: [],
+      page: [],
+      contact: [],
+    };
 
-    const typeLabels: Record<string, string> = {
+    notes.forEach((note) => {
+      grouped[note.type].push(note);
+    });
+
+    const typeLabels: Record<NoteReferenceType, string> = {
       log: 'Posts',
       page: 'Pages',
       contact: 'Contacts',
@@ -103,35 +90,37 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
 
     return (
       <Stack gap="xs">
-        {Object.entries(grouped).map(([type, typeNotes]) => (
-          <Box key={type}>
-            <Text size="xs" c="dimmed" mb="xs">
-              {typeLabels[type] || type}
-            </Text>
-            <Stack gap="xs">
-              {typeNotes.map((note) => (
-                <Box
-                  key={note.id}
-                  onClick={() => handleNoteClick(note)}
-                  style={{
-                    cursor: 'pointer',
-                    padding: '0.5rem',
-                    borderRadius: '0.25rem',
-                    transition: 'background-color 0.1s',
-                  }}
-                  onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                    e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-1)';
-                  }}
-                  onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                  }}
-                >
-                  <Text size="sm">{getNoteLabel(note)}</Text>
-                </Box>
-              ))}
-            </Stack>
-          </Box>
-        ))}
+        {Object.entries(grouped)
+          .filter(([, typeNotes]) => typeNotes.length > 0)
+          .map(([type, typeNotes]) => (
+            <Box key={type}>
+              <Text size="xs" c="dimmed" mb="xs">
+                {typeLabels[type as NoteReferenceType] || type}
+              </Text>
+              <Stack gap="xs">
+                {typeNotes.map((note) => (
+                  <Box
+                    key={note.id}
+                    onClick={() => handleNoteClick(note)}
+                    style={{
+                      cursor: 'pointer',
+                      padding: '0.5rem',
+                      borderRadius: '0.25rem',
+                      transition: 'background-color 0.1s',
+                    }}
+                    onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                      e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-1)';
+                    }}
+                    onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                  >
+                    <Text size="sm">{getNoteLabel(note)}</Text>
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
+          ))}
       </Stack>
     );
   };
