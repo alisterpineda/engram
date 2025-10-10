@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, Button, Group, Box } from '@mantine/core';
 import { IconMessageReply } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { EditableEntry } from './EditableEntry';
+import { EditableLog } from './EditableLog';
 import { EntryComposer } from './EntryComposer';
 import { Log } from '../types/log';
 import { useEntryEditor } from '../hooks/useEntryEditor';
@@ -82,7 +82,7 @@ export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated }: PostCa
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <EditableEntry
+      <EditableLog
         startedAt={startedAt}
         endedAt={endedAt}
         setStartedAt={setStartedAt}
@@ -132,7 +132,7 @@ export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated }: PostCa
             )}
           </Box>
         )}
-      </EditableEntry>
+      </EditableLog>
     </Card>
   );
 }

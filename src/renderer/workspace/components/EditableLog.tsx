@@ -8,7 +8,7 @@ import { EntryEditor } from './EntryEditor';
 import { ReadOnlyEditor } from './ReadOnlyEditor';
 import { formatRelativeTime, formatDuration } from '../utils/date';
 
-interface EditableEntryProps {
+interface EditableLogProps {
   startedAt: Date;
   endedAt: Date | null;
   setStartedAt: (date: Date) => void;
@@ -35,7 +35,7 @@ interface EditableEntryProps {
   onViewDetails?: () => void;
 }
 
-export function EditableEntry({
+export function EditableLog({
   startedAt,
   endedAt,
   setStartedAt,
@@ -60,7 +60,7 @@ export function EditableEntry({
   contentMarginBottom,
   hideTimestampInEditMode = false,
   onViewDetails,
-}: EditableEntryProps) {
+}: EditableLogProps) {
   const [internalIsHovered, setInternalIsHovered] = useState(false);
   const isHovered = externalIsHovered !== undefined ? externalIsHovered : internalIsHovered;
   const hasEndTimeError = endedAt && endedAt <= startedAt;
