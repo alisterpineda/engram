@@ -128,6 +128,7 @@ export function FeedView() {
                 post={post}
                 onUpdate={handlePostUpdated}
                 onDelete={handlePostDeleted}
+                onFollowUpCreated={handlePostCreated}
               />
             ))}
 

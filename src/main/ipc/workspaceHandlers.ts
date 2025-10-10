@@ -226,6 +226,28 @@ export function registerWorkspaceHandlers(): void {
     }
   });
 
+  // Get note references (works for all note types)
+  ipcMain.handle('note:get-references', async (event, noteId: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const references = await spaceManager.getNoteReferences(spacePath, noteId);
+
+      return { success: true, data: references };
+    } catch (error) {
+      console.error('Error getting note references:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
   // Update entry
   ipcMain.handle('entry:update', async (event, id: number, contentJson: string, startedAt?: string, endedAt?: string | null, title?: string | null) => {
     try {

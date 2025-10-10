@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { createDataSource } from './dataSourceFactory';
 import { Setting } from './entities/Setting';
+import { Note } from './entities/Note';
 import { Log } from './entities/Log';
 import { Page } from './entities/Page';
 import { Contact } from './entities/Contact';
@@ -389,6 +390,73 @@ export class SpaceManager {
     });
 
     return references.map((ref) => ref.target) as Log[];
+  }
+
+  private serializeNoteForReference(note: Note) {
+    if (note instanceof Log) {
+      return {
+        id: note.id,
+        title: note.title,
+        contentJson: note.contentJson,
+        createdAt: note.createdAt,
+        updatedAt: note.updatedAt,
+        startedAt: note.startedAt,
+        endedAt: note.endedAt,
+        type: 'log' as const,
+      };
+    }
+
+    if (note instanceof Contact) {
+      return {
+        id: note.id,
+        title: note.title,
+        contentJson: note.contentJson,
+        createdAt: note.createdAt,
+        updatedAt: note.updatedAt,
+        type: 'contact' as const,
+      };
+    }
+
+    return {
+      id: note.id,
+      title: note.title,
+      contentJson: note.contentJson,
+      createdAt: note.createdAt,
+      updatedAt: note.updatedAt,
+      type: 'page' as const,
+    };
+  }
+
+  public async getNoteReferences(
+    folderPath: string,
+    noteId: number
+  ): Promise<{
+    incoming: ReturnType<SpaceManager['serializeNoteForReference']>[];
+    outgoing: ReturnType<SpaceManager['serializeNoteForReference']>[];
+  }> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const refRepo = space.dataSource.getRepository(NoteReference);
+
+    // Get incoming references (where this note is the target)
+    const incomingRefs = await refRepo.find({
+      where: { targetId: noteId },
+      relations: ['source'],
+    });
+
+    // Get outgoing references (where this note is the source)
+    const outgoingRefs = await refRepo.find({
+      where: { sourceId: noteId },
+      relations: ['target'],
+    });
+
+    return {
+      incoming: incomingRefs.map((ref) => this.serializeNoteForReference(ref.source)),
+      outgoing: outgoingRefs.map((ref) => this.serializeNoteForReference(ref.target)),
+    };
   }
 
   public async addReference(

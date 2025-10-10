@@ -7,6 +7,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import { ReadOnlyEditor } from '../components/ReadOnlyEditor';
 import { EntryEditor } from '../components/EntryEditor';
+import { ReferencesSection } from '../components/ReferencesSection';
 import { Page } from '../types/page';
 
 const electronAPI = (window as any).electronAPI;
@@ -154,52 +155,56 @@ export function PageDetailView() {
 
   return (
     <Container size="sm" px={0}>
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <Stack gap="md">
-          {isEditing ? (
-            <TextInput
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              placeholder="Page title"
-              required
-              maxLength={255}
-            />
-          ) : (
-            <Group justify="space-between" align="center">
-              <Title size="1.5rem" fw={700}>{page.title}</Title>
-              <Group gap="xs">
-                <ActionIcon variant="subtle" onClick={handleStartEdit}>
-                  <IconEdit size={18} />
-                </ActionIcon>
-                <ActionIcon variant="subtle" color="red" onClick={handleDelete}>
-                  <IconTrash size={18} />
-                </ActionIcon>
+      <Stack gap="md">
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Stack gap="md">
+            {isEditing ? (
+              <TextInput
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder="Page title"
+                required
+                maxLength={255}
+              />
+            ) : (
+              <Group justify="space-between" align="center">
+                <Title size="1.5rem" fw={700}>{page.title}</Title>
+                <Group gap="xs">
+                  <ActionIcon variant="subtle" onClick={handleStartEdit}>
+                    <IconEdit size={18} />
+                  </ActionIcon>
+                  <ActionIcon variant="subtle" color="red" onClick={handleDelete}>
+                    <IconTrash size={18} />
+                  </ActionIcon>
+                </Group>
               </Group>
-            </Group>
-          )}
+            )}
 
-          {isEditing ? (
-            <EntryEditor editor={editor} showToolbar={true} />
-          ) : (
-            <ReadOnlyEditor contentJson={page.contentJson} />
-          )}
+            {isEditing ? (
+              <EntryEditor editor={editor} showToolbar={true} />
+            ) : (
+              <ReadOnlyEditor contentJson={page.contentJson} />
+            )}
 
-          {isEditing && (
-            <Group justify="flex-end">
-              <Button variant="subtle" onClick={handleCancelEdit} disabled={isSubmitting}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={editTitle.trim() === '' || !editor || editor.isEmpty || isSubmitting}
-                loading={isSubmitting}
-              >
-                Save
-              </Button>
-            </Group>
-          )}
-        </Stack>
-      </Card>
+            {isEditing && (
+              <Group justify="flex-end">
+                <Button variant="subtle" onClick={handleCancelEdit} disabled={isSubmitting}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={editTitle.trim() === '' || !editor || editor.isEmpty || isSubmitting}
+                  loading={isSubmitting}
+                >
+                  Save
+                </Button>
+              </Group>
+            )}
+          </Stack>
+        </Card>
+
+        <ReferencesSection noteId={page.id} />
+      </Stack>
     </Container>
   );
 }

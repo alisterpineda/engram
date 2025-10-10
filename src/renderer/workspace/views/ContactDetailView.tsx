@@ -7,6 +7,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import { ReadOnlyEditor } from '../components/ReadOnlyEditor';
 import { EntryEditor } from '../components/EntryEditor';
+import { ReferencesSection } from '../components/ReferencesSection';
 import { Contact } from '../types/contact';
 
 const electronAPI = (window as any).electronAPI;
@@ -154,60 +155,64 @@ export function ContactDetailView() {
 
   return (
     <Container size="sm" px={0}>
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
-        <Stack gap="md">
-          <Group gap="md">
-            <Avatar color="blue" radius="xl" size="lg">
-              <IconUser size={32} />
-            </Avatar>
+      <Stack gap="md">
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <Stack gap="md">
+            <Group gap="md">
+              <Avatar color="blue" radius="xl" size="lg">
+                <IconUser size={32} />
+              </Avatar>
 
-            <Stack gap={0} style={{ flex: 1 }}>
-              {isEditing ? (
-                <TextInput
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Contact name"
-                  required
-                  maxLength={255}
-                />
-              ) : (
-                <Group justify="space-between" align="center">
-                  <Title size="1.5rem" fw={700}>{contact.title}</Title>
-                  <Group gap="xs">
-                    <ActionIcon variant="subtle" onClick={handleStartEdit}>
-                      <IconEdit size={18} />
-                    </ActionIcon>
-                    <ActionIcon variant="subtle" color="red" onClick={handleDelete}>
-                      <IconTrash size={18} />
-                    </ActionIcon>
+              <Stack gap={0} style={{ flex: 1 }}>
+                {isEditing ? (
+                  <TextInput
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder="Contact name"
+                    required
+                    maxLength={255}
+                  />
+                ) : (
+                  <Group justify="space-between" align="center">
+                    <Title size="1.5rem" fw={700}>{contact.title}</Title>
+                    <Group gap="xs">
+                      <ActionIcon variant="subtle" onClick={handleStartEdit}>
+                        <IconEdit size={18} />
+                      </ActionIcon>
+                      <ActionIcon variant="subtle" color="red" onClick={handleDelete}>
+                        <IconTrash size={18} />
+                      </ActionIcon>
+                    </Group>
                   </Group>
-                </Group>
-              )}
-            </Stack>
-          </Group>
-
-          {isEditing ? (
-            <EntryEditor editor={editor} showToolbar={true} />
-          ) : (
-            <ReadOnlyEditor contentJson={contact.contentJson} />
-          )}
-
-          {isEditing && (
-            <Group justify="flex-end">
-              <Button variant="subtle" onClick={handleCancelEdit} disabled={isSubmitting}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={editName.trim() === '' || isSubmitting}
-                loading={isSubmitting}
-              >
-                Save
-              </Button>
+                )}
+              </Stack>
             </Group>
-          )}
-        </Stack>
-      </Card>
+
+            {isEditing ? (
+              <EntryEditor editor={editor} showToolbar={true} />
+            ) : (
+              <ReadOnlyEditor contentJson={contact.contentJson} />
+            )}
+
+            {isEditing && (
+              <Group justify="flex-end">
+                <Button variant="subtle" onClick={handleCancelEdit} disabled={isSubmitting}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={editName.trim() === '' || isSubmitting}
+                  loading={isSubmitting}
+                >
+                  Save
+                </Button>
+              </Group>
+            )}
+          </Stack>
+        </Card>
+
+        <ReferencesSection noteId={contact.id} />
+      </Stack>
     </Container>
   );
 }

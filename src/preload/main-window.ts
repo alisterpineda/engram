@@ -24,6 +24,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return () => ipcRenderer.removeListener('system-theme-changed', listener);
     },
   },
+  note: {
+    getReferences: (id: number) =>
+      ipcRenderer.invoke('note:get-references', id),
+  },
   entry: {
     create: (contentJson: string, referenceIds?: number[], startedAt?: Date, endedAt?: Date | null, title?: string | null) =>
       ipcRenderer.invoke('entry:create', contentJson, referenceIds, startedAt?.toISOString(), endedAt?.toISOString(), title),
