@@ -525,4 +525,125 @@ export function registerWorkspaceHandlers(): void {
       return { success: false, error: (error as Error).message };
     }
   });
+
+  // Comment IPC handlers
+  // Create comment
+  ipcMain.handle('comment:create', async (event, parentId: number, contentJson: string, commentedAt?: string, title?: string | null) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      // Parse date string to Date object
+      const commentedAtDate = commentedAt ? new Date(commentedAt) : undefined;
+
+      const comment = await spaceManager.createComment(spacePath, parentId, contentJson, commentedAtDate, title);
+
+      return { success: true, data: comment };
+    } catch (error) {
+      console.error('Error creating comment:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // List comments by parent
+  ipcMain.handle('comment:list-by-parent', async (event, parentId: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const comments = await spaceManager.getCommentsByParent(spacePath, parentId);
+
+      return { success: true, data: comments };
+    } catch (error) {
+      console.error('Error listing comments:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Get comment by ID
+  ipcMain.handle('comment:get-by-id', async (event, id: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const comment = await spaceManager.getCommentById(spacePath, id);
+
+      if (!comment) {
+        return { success: false, error: 'Comment not found' };
+      }
+
+      return { success: true, data: comment };
+    } catch (error) {
+      console.error('Error getting comment by ID:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Update comment
+  ipcMain.handle('comment:update', async (event, id: number, contentJson: string, commentedAt?: string, title?: string | null) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      // Parse date string to Date object
+      const commentedAtDate = commentedAt ? new Date(commentedAt) : undefined;
+
+      const comment = await spaceManager.updateComment(spacePath, id, contentJson, commentedAtDate, title);
+
+      return { success: true, data: comment };
+    } catch (error) {
+      console.error('Error updating comment:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Delete comment
+  ipcMain.handle('comment:delete', async (event, id: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      await spaceManager.deleteComment(spacePath, id);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
 }

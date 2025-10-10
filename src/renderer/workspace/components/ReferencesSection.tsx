@@ -47,6 +47,11 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
       return `/page/${note.id}`;
     }
 
+    if (note.type === 'comment') {
+      // Navigate to the parent note instead (comments don't have their own detail view)
+      return `/post/${note.parentId}`;
+    }
+
     return `/post/${note.id}`;
   };
 
@@ -62,7 +67,10 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
   };
 
   const renderReferenceList = (notes: NoteReference[], emptyMessage: string) => {
-    if (notes.length === 0) {
+    // Filter out comments - they have their own section
+    const filteredNotes = notes.filter((note) => note.type !== 'comment');
+
+    if (filteredNotes.length === 0) {
       return (
         <Text size="sm" c="dimmed">
           {emptyMessage}
@@ -75,9 +83,10 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
       log: [],
       page: [],
       contact: [],
+      comment: [],
     };
 
-    notes.forEach((note) => {
+    filteredNotes.forEach((note) => {
       grouped[note.type].push(note);
     });
 
@@ -85,6 +94,7 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
       log: 'Posts',
       page: 'Pages',
       contact: 'Contacts',
+      comment: 'Comments',
     };
 
     return (

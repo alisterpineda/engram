@@ -8,6 +8,7 @@ import Link from '@tiptap/extension-link';
 import { ReadOnlyEditor } from '../components/ReadOnlyEditor';
 import { EntryEditor } from '../components/EntryEditor';
 import { ReferencesSection } from '../components/ReferencesSection';
+import { CommentsSection } from '../components/CommentsSection';
 import { Page } from '../types/page';
 
 const electronAPI = (window as any).electronAPI;
@@ -200,6 +201,8 @@ export function PageDetailView() {
                 </Button>
               </Group>
             )}
+
+            {!isEditing && <CommentsSection parentId={page.id} parentType="page" />}
           </Stack>
         </Card>
 

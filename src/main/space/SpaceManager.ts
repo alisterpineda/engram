@@ -7,6 +7,7 @@ import { Note } from './entities/Note';
 import { Log } from './entities/Log';
 import { Page } from './entities/Page';
 import { Contact } from './entities/Contact';
+import { Comment } from './entities/Comment';
 import { NoteReference } from './entities/NoteReference';
 import { SpaceData } from '../../shared/types';
 
@@ -417,6 +418,19 @@ export class SpaceManager {
       };
     }
 
+    if (note instanceof Comment) {
+      return {
+        id: note.id,
+        parentId: note.parentId,
+        title: note.title,
+        contentJson: note.contentJson,
+        commentedAt: note.commentedAt,
+        createdAt: note.createdAt,
+        updatedAt: note.updatedAt,
+        type: 'comment' as const,
+      };
+    }
+
     return {
       id: note.id,
       title: note.title,
@@ -755,5 +769,135 @@ export class SpaceManager {
     }
 
     await contactRepo.remove(contact);
+  }
+
+  // Comment CRUD operations
+  public async createComment(
+    folderPath: string,
+    parentId: number,
+    contentJson: string,
+    commentedAt?: Date,
+    title?: string | null
+  ): Promise<Comment> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    // Validate parent exists
+    const noteRepo = space.dataSource.getRepository(Note);
+    const parent = await noteRepo.findOne({ where: { id: parentId } });
+
+    if (!parent) {
+      throw new Error('Parent note not found');
+    }
+
+    // Validate parent is not a comment
+    if (parent instanceof Comment) {
+      throw new Error('Cannot create a comment on another comment');
+    }
+
+    // Set commentedAt to current time if not provided
+    const commentCommentedAt = commentedAt || new Date();
+
+    // Validate: title length if provided
+    if (title && title.length > 255) {
+      throw new Error('Title must be 255 characters or less');
+    }
+
+    // Normalize empty/whitespace-only titles to null
+    const normalizedTitle = title && title.trim() ? title.trim() : null;
+
+    const commentRepo = space.dataSource.getRepository(Comment);
+    const comment = commentRepo.create({
+      parentId,
+      title: normalizedTitle,
+      contentJson,
+      commentedAt: commentCommentedAt,
+    });
+
+    return await commentRepo.save(comment);
+  }
+
+  public async getCommentsByParent(
+    folderPath: string,
+    parentId: number
+  ): Promise<Comment[]> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const commentRepo = space.dataSource.getRepository(Comment);
+    return await commentRepo.find({
+      where: { parentId },
+      order: { commentedAt: 'ASC' },
+    });
+  }
+
+  public async getCommentById(folderPath: string, id: number): Promise<Comment | null> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const commentRepo = space.dataSource.getRepository(Comment);
+    return await commentRepo.findOne({ where: { id } });
+  }
+
+  public async updateComment(
+    folderPath: string,
+    id: number,
+    contentJson: string,
+    commentedAt?: Date,
+    title?: string | null
+  ): Promise<Comment> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const commentRepo = space.dataSource.getRepository(Comment);
+    const comment = await commentRepo.findOne({ where: { id } });
+
+    if (!comment) {
+      throw new Error('Comment not found');
+    }
+
+    comment.contentJson = contentJson;
+
+    // Update title if provided
+    if (title !== undefined) {
+      // Validate: title length if provided
+      if (title && title.length > 255) {
+        throw new Error('Title must be 255 characters or less');
+      }
+
+      // Normalize empty/whitespace-only titles to null
+      comment.title = title && title.trim() ? title.trim() : null;
+    }
+
+    // Update commentedAt if provided
+    if (commentedAt !== undefined) {
+      comment.commentedAt = commentedAt;
+    }
+
+    return await commentRepo.save(comment);
+  }
+
+  public async deleteComment(folderPath: string, id: number): Promise<void> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const commentRepo = space.dataSource.getRepository(Comment);
+    const comment = await commentRepo.findOne({ where: { id } });
+
+    if (!comment) {
+      throw new Error('Comment not found');
+    }
+
+    await commentRepo.remove(comment);
   }
 }

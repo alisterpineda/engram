@@ -4,6 +4,7 @@ import { Container, Stack, Card, Text, Loader, Center, Alert, Title, Button, Gro
 import { IconAlertCircle, IconMessageReply } from '@tabler/icons-react';
 import { ReadOnlyEditor } from '../components/ReadOnlyEditor';
 import { ReferencesSection } from '../components/ReferencesSection';
+import { CommentsSection } from '../components/CommentsSection';
 import { EntryComposer } from '../components/EntryComposer';
 import { Log } from '../types/log';
 import { formatRelativeTime, formatDuration } from '../utils/date';
@@ -113,6 +114,8 @@ export function PostDetailView() {
                 />
               </Box>
             )}
+
+            <CommentsSection parentId={post.id} parentType="log" />
           </Stack>
         </Card>
 

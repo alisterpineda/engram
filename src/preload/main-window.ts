@@ -70,6 +70,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
     delete: (id: number) =>
       ipcRenderer.invoke('contact:delete', id),
   },
+  comment: {
+    create: (parentId: number, contentJson: string, commentedAt?: Date, title?: string | null) =>
+      ipcRenderer.invoke('comment:create', parentId, contentJson, commentedAt?.toISOString(), title),
+    listByParent: (parentId: number) =>
+      ipcRenderer.invoke('comment:list-by-parent', parentId),
+    getById: (id: number) =>
+      ipcRenderer.invoke('comment:get-by-id', id),
+    update: (id: number, contentJson: string, commentedAt?: Date, title?: string | null) =>
+      ipcRenderer.invoke('comment:update', id, contentJson, commentedAt?.toISOString(), title),
+    delete: (id: number) =>
+      ipcRenderer.invoke('comment:delete', id),
+  },
   migration: {
     onStart: (callback: () => void) => {
       const listener = () => callback();
