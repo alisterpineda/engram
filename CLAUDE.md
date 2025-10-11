@@ -15,7 +15,8 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
 ### Space Model
 - Multi-space app (Obsidian-like): each space = folder containing `space.sqlite` database file
 - TypeORM with better-sqlite3 driver
-- Entities: `Setting` (key-value config), `Note` (abstract base with STI, optional title field, many-to-many self-references), `Log` (child entity, time-based), `Page` (child entity, required title), `Contact` (child entity, required title/name), `Comment` (child entity, parentId FK, no nesting)
+- Entities: `Setting` (key-value config), `Note` (abstract base with STI, optional title + contentText fields, many-to-many self-references), `Log` (child entity, time-based), `Page` (child entity, required title), `Contact` (child entity, required title/name), `Comment` (child entity, parentId FK, no nesting)
+- `contentText`: plain text version of `contentJson`, auto-generated via Tiptap's `generateText` on create/update. Used for effective titles and future full-text search
 - `NoteReference`: explicit join entity (sourceId/targetId) at Note level for any-to-any references. CASCADE delete, future-ready for custom columns (type, label, metadata)
 - State: `~/.../userData/state.json` stores recent spaces, last opened
 - Multiple spaces can be open simultaneously, each in separate window
@@ -56,6 +57,7 @@ TypeORM migrations in `src/main/space/migrations/` auto-run on space open with p
   - Windows: `LauncherWindow.ts`, `SpaceWindow.ts`
   - IPC: `launcherHandlers.ts`, `workspaceHandlers.ts`, `themeHandlers.ts`
   - State: `AppState.ts` (JSON persistence, theme), `SpaceManager.ts` (TypeORM connections)
+  - Utils: `textGeneration.ts` (converts Tiptap JSON to plain text using `generateText`)
 - **Renderer** (`src/renderer/`): Browser, UI with React 19
   - Launcher: `src/renderer/launcher/index.tsx` - two-column layout, create/open/recent spaces
   - Workspace: `src/renderer/workspace/index.tsx` - AppShell with collapsible navbar, routing (react-router-dom HashRouter)

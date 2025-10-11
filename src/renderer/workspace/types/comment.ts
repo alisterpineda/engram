@@ -3,6 +3,7 @@ export interface Comment {
   parentId: number;
   title: string | null;
   contentJson: string;
+  contentText: string | null;
   commentedAt: Date;
   createdAt: Date;
   updatedAt: Date;

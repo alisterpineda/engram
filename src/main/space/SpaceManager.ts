@@ -10,6 +10,7 @@ import { Contact } from './entities/Contact';
 import { Comment } from './entities/Comment';
 import { NoteReference } from './entities/NoteReference';
 import { SpaceData } from '../../shared/types';
+import { generateTextFromContentJson } from '../utils/textGeneration';
 
 interface OpenSpace {
   dataSource: DataSource;
@@ -255,10 +256,14 @@ export class SpaceManager {
     // Normalize empty/whitespace-only titles to null
     const normalizedTitle = title && title.trim() ? title.trim() : null;
 
+    // Generate plain text from contentJson
+    const contentText = generateTextFromContentJson(contentJson);
+
     const entryRepo = space.dataSource.getRepository(Log);
     const entry = entryRepo.create({
       title: normalizedTitle,
       contentJson,
+      contentText,
       startedAt: entryStartedAt,
       endedAt: endedAt || null,
     });
@@ -332,6 +337,7 @@ export class SpaceManager {
     }
 
     entry.contentJson = contentJson;
+    entry.contentText = generateTextFromContentJson(contentJson);
 
     // Update title if provided
     if (title !== undefined) {
@@ -399,6 +405,7 @@ export class SpaceManager {
         id: note.id,
         title: note.title,
         contentJson: note.contentJson,
+        contentText: note.contentText,
         createdAt: note.createdAt,
         updatedAt: note.updatedAt,
         startedAt: note.startedAt,
@@ -412,6 +419,7 @@ export class SpaceManager {
         id: note.id,
         title: note.title,
         contentJson: note.contentJson,
+        contentText: note.contentText,
         createdAt: note.createdAt,
         updatedAt: note.updatedAt,
         type: 'contact' as const,
@@ -424,6 +432,7 @@ export class SpaceManager {
         parentId: note.parentId,
         title: note.title,
         contentJson: note.contentJson,
+        contentText: note.contentText,
         commentedAt: note.commentedAt,
         createdAt: note.createdAt,
         updatedAt: note.updatedAt,
@@ -435,6 +444,7 @@ export class SpaceManager {
       id: note.id,
       title: note.title,
       contentJson: note.contentJson,
+      contentText: note.contentText,
       createdAt: note.createdAt,
       updatedAt: note.updatedAt,
       type: 'page' as const,
@@ -541,10 +551,14 @@ export class SpaceManager {
       throw new Error('Title must be 255 characters or less');
     }
 
+    // Generate plain text from contentJson
+    const contentText = generateTextFromContentJson(contentJson);
+
     const pageRepo = space.dataSource.getRepository(Page);
     const page = pageRepo.create({
       title: title.trim(),
       contentJson,
+      contentText,
     });
 
     const savedPage = await pageRepo.save(page);
@@ -624,6 +638,7 @@ export class SpaceManager {
     }
 
     page.contentJson = contentJson;
+    page.contentText = generateTextFromContentJson(contentJson);
     page.title = title.trim();
 
     return await pageRepo.save(page);
@@ -667,10 +682,14 @@ export class SpaceManager {
       throw new Error('Name must be 255 characters or less');
     }
 
+    // Generate plain text from contentJson
+    const contentText = generateTextFromContentJson(contentJson);
+
     const contactRepo = space.dataSource.getRepository(Contact);
     const contact = contactRepo.create({
       title: title.trim(),
       contentJson,
+      contentText,
     });
 
     const savedContact = await contactRepo.save(contact);
@@ -750,6 +769,7 @@ export class SpaceManager {
     }
 
     contact.contentJson = contentJson;
+    contact.contentText = generateTextFromContentJson(contentJson);
     contact.title = title.trim();
 
     return await contactRepo.save(contact);
@@ -808,11 +828,15 @@ export class SpaceManager {
     // Normalize empty/whitespace-only titles to null
     const normalizedTitle = title && title.trim() ? title.trim() : null;
 
+    // Generate plain text from contentJson
+    const contentText = generateTextFromContentJson(contentJson);
+
     const commentRepo = space.dataSource.getRepository(Comment);
     const comment = commentRepo.create({
       parentId,
       title: normalizedTitle,
       contentJson,
+      contentText,
       commentedAt: commentCommentedAt,
     });
 
@@ -865,6 +889,7 @@ export class SpaceManager {
     }
 
     comment.contentJson = contentJson;
+    comment.contentText = generateTextFromContentJson(contentJson);
 
     // Update title if provided
     if (title !== undefined) {

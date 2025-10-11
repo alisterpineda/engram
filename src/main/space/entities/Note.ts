@@ -15,6 +15,9 @@ export abstract class Note {
   @Column('text')
   contentJson: string;
 
+  @Column('text', { nullable: true })
+  contentText: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

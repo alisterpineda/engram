@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Card, Stack, Text, Box, Loader } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { ReferencesData, NoteReference, NoteReferenceType } from '../types/reference';
-import { getTextPreview } from '../utils/content';
 
 const electronAPI = (window as any).electronAPI;
 
@@ -59,7 +58,8 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
     if (note.title) {
       return note.title;
     }
-    return getTextPreview(note.contentJson, 50);
+    // Use contentText (full plain text) and truncate to 50 chars
+    return note.contentText?.substring(0, 50).trim() || '';
   };
 
   const handleNoteClick = (note: NoteReference) => {
