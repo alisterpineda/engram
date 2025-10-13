@@ -211,7 +211,7 @@ export function PageDetailView() {
           </Stack>
         </Card>
 
-        <ReferencesSection noteId={page.id} />
+        <ReferencesSection noteId={page.id} contentJson={page.contentJson} />
       </Stack>
     </Container>
   );

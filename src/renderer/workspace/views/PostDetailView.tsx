@@ -152,7 +152,7 @@ export function PostDetailView() {
           </Stack>
         </Card>
 
-        <ReferencesSection noteId={post.id} />
+        <ReferencesSection noteId={post.id} contentJson={post.contentJson} />
       </Stack>
     </Container>
   );
