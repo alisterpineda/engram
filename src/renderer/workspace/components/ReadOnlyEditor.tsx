@@ -1,6 +1,7 @@
 import { useEditor } from '@tiptap/react';
 import { RichTextEditor } from '@mantine/tiptap';
 import { getEditorExtensions } from '../config/editor';
+import { useMentionNavigation } from '../hooks/useMentionNavigation';
 import classes from './ReadOnlyEditor.module.css';
 
 interface ReadOnlyEditorProps {
@@ -13,6 +14,9 @@ export function ReadOnlyEditor({ contentJson }: ReadOnlyEditorProps) {
     content: contentJson ? JSON.parse(contentJson) : '',
     editable: false,
   });
+
+  // Enable click navigation for mentions
+  useMentionNavigation(editor);
 
   return (
     <RichTextEditor

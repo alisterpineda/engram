@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Stack, Card, Loader, Center, Alert, Title, Button, Group, TextInput, ActionIcon } from '@mantine/core';
 import { IconAlertCircle, IconEdit, IconTrash } from '@tabler/icons-react';
 import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
+import { getEditorExtensions } from '../config/editor';
+import { extractMentionIds } from '../utils/mentions';
 import { ReadOnlyEditor } from '../components/ReadOnlyEditor';
 import { EntryEditor } from '../components/EntryEditor';
 import { ReferencesSection } from '../components/ReferencesSection';
@@ -24,12 +24,7 @@ export function PageDetailView() {
   const [editTitle, setEditTitle] = useState('');
 
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Link.configure({
-        openOnClick: false,
-      }),
-    ],
+    extensions: getEditorExtensions(),
     content: '',
     editable: isEditing,
   });
@@ -101,6 +96,16 @@ export function PageDetailView() {
       const result = await electronAPI.page.update(page.id, contentJson, editTitle);
 
       if (result.success && result.data) {
+        // Extract mentions and create references
+        const mentionIds = extractMentionIds(contentJson);
+        for (const mentionedPageId of mentionIds) {
+          try {
+            await electronAPI.entry.addReferenceIfNotExists(page.id, mentionedPageId);
+          } catch (error) {
+            console.error(`Failed to create reference to page ${mentionedPageId}:`, error);
+          }
+        }
+
         setPage(result.data);
         setIsEditing(false);
         if (editor) {

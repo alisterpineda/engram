@@ -39,6 +39,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.invoke('entry:get-referenced-notes', id),
     addReference: (sourceId: number, targetId: number) =>
       ipcRenderer.invoke('entry:add-reference', sourceId, targetId),
+    addReferenceIfNotExists: (sourceId: number, targetId: number) =>
+      ipcRenderer.invoke('entry:add-reference-if-not-exists', sourceId, targetId),
     removeReference: (sourceId: number, targetId: number) =>
       ipcRenderer.invoke('entry:remove-reference', sourceId, targetId),
     update: (id: number, contentJson: string, startedAt?: Date, endedAt?: Date | null, title?: string | null) =>
@@ -57,6 +59,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.invoke('page:update', id, contentJson, title),
     delete: (id: number) =>
       ipcRenderer.invoke('page:delete', id),
+    searchByTitle: (query: string) =>
+      ipcRenderer.invoke('page:search-by-title', query),
   },
   comment: {
     create: (parentId: number, contentJson: string, commentedAt?: Date, title?: string | null) =>

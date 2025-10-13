@@ -411,6 +411,50 @@ export function registerWorkspaceHandlers(): void {
     }
   });
 
+  // Search pages by title
+  ipcMain.handle('page:search-by-title', async (event, query: string) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const pages = await spaceManager.searchPagesByTitle(spacePath, query);
+
+      return { success: true, data: pages };
+    } catch (error) {
+      console.error('Error searching pages by title:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // Add reference if not exists
+  ipcMain.handle('entry:add-reference-if-not-exists', async (event, sourceId: number, targetId: number) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      await spaceManager.addReferenceIfNotExists(spacePath, sourceId, targetId);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error adding reference:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
   // Comment IPC handlers
   // Create comment
   ipcMain.handle('comment:create', async (event, parentId: number, contentJson: string, commentedAt?: string, title?: string | null) => {

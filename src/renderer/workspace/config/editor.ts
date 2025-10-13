@@ -2,6 +2,7 @@ import StarterKit from '@tiptap/starter-kit';
 import TiptapLink from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import { MarkdownPaste } from '../extensions/MarkdownPaste';
+import { PageMention } from '../extensions/PageMention';
 
 export function getEditorExtensions(placeholderText?: string) {
   const extensions: any[] = [
@@ -10,6 +11,7 @@ export function getEditorExtensions(placeholderText?: string) {
       openOnClick: false,
     }),
     MarkdownPaste,
+    PageMention,
   ];
 
   if (placeholderText) {

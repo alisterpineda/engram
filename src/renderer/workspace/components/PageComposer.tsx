@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Button, Stack, Group, TextInput } from '@mantine/core';
 import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
-import Placeholder from '@tiptap/extension-placeholder';
+import { getEditorExtensions } from '../config/editor';
 import { EntryEditor } from './EntryEditor';
 import { Page } from '../types/page';
+import { extractMentionIds } from '../utils/mentions';
 
 const electronAPI = (window as any).electronAPI;
 
@@ -19,15 +18,7 @@ export function PageComposer({ referenceIds = [], onSuccess }: PageComposerProps
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Link.configure({
-        openOnClick: false,
-      }),
-      Placeholder.configure({
-        placeholder: 'Write your page content...',
-      }),
-    ],
+    extensions: getEditorExtensions('Write your page content...'),
     content: '',
   });
 
@@ -42,6 +33,16 @@ export function PageComposer({ referenceIds = [], onSuccess }: PageComposerProps
       const result = await electronAPI.page.create(contentJson, title, referenceIds);
 
       if (result.success && result.data) {
+        // Extract mentions and create references
+        const mentionIds = extractMentionIds(contentJson);
+        for (const mentionedPageId of mentionIds) {
+          try {
+            await electronAPI.entry.addReferenceIfNotExists(result.data.id, mentionedPageId);
+          } catch (error) {
+            console.error(`Failed to create reference to page ${mentionedPageId}:`, error);
+          }
+        }
+
         // Clear form
         setTitle('');
         editor.commands.setContent('');

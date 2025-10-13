@@ -2,11 +2,10 @@ import { useState } from 'react';
 import { Button, Stack, Group } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
-import Placeholder from '@tiptap/extension-placeholder';
+import { getEditorExtensions } from '../config/editor';
 import { EntryEditor } from './EntryEditor';
 import { Comment } from '../types/comment';
+import { extractMentionIds } from '../utils/mentions';
 
 const electronAPI = (window as any).electronAPI;
 
@@ -23,18 +22,7 @@ export function CommentComposer({ parentId, onSuccess, onCancel, autoFocus = fal
   const [isEmpty, setIsEmpty] = useState(true);
 
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: 'tiptap-link',
-        },
-      }),
-      Placeholder.configure({
-        placeholder: 'Add a comment...',
-      }),
-    ],
+    extensions: getEditorExtensions('Add a comment...'),
     content: '',
     autofocus: autoFocus,
     onUpdate: ({ editor }) => {
@@ -62,6 +50,16 @@ export function CommentComposer({ parentId, onSuccess, onCancel, autoFocus = fal
       );
 
       if (result.success && result.data) {
+        // Extract mentions and create references
+        const mentionIds = extractMentionIds(contentJson);
+        for (const mentionedPageId of mentionIds) {
+          try {
+            await electronAPI.entry.addReferenceIfNotExists(result.data.id, mentionedPageId);
+          } catch (error) {
+            console.error(`Failed to create reference to page ${mentionedPageId}:`, error);
+          }
+        }
+
         editor.commands.clearContent();
         setIsEmpty(true);
         setCommentedAt(new Date());

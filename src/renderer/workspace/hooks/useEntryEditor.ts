@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useEditor, Editor } from '@tiptap/react';
 import { getEditorExtensions } from '../config/editor';
 import { Log } from '../types/log';
+import { extractMentionIds } from '../utils/mentions';
 
 const electronAPI = (window as any).electronAPI;
 
@@ -99,6 +100,16 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
         );
 
         if (result.success) {
+          // Extract mentions and create references
+          const mentionIds = extractMentionIds(contentJson);
+          for (const mentionedPageId of mentionIds) {
+            try {
+              await electronAPI.entry.addReferenceIfNotExists(result.data.id, mentionedPageId);
+            } catch (error) {
+              console.error(`Failed to create reference to page ${mentionedPageId}:`, error);
+            }
+          }
+
           editor.commands.clearContent();
           setStartedAt(new Date());
           setEndedAt(null);
@@ -119,6 +130,16 @@ export function useEntryEditor(options: UseEntryEditorOptions): UseEntryEditorRe
         );
 
         if (result.success) {
+          // Extract mentions and create references
+          const mentionIds = extractMentionIds(contentJson);
+          for (const mentionedPageId of mentionIds) {
+            try {
+              await electronAPI.entry.addReferenceIfNotExists(entryId, mentionedPageId);
+            } catch (error) {
+              console.error(`Failed to create reference to page ${mentionedPageId}:`, error);
+            }
+          }
+
           if (onSuccess) {
             onSuccess(result.data);
           }

@@ -3,8 +3,8 @@ import { Text, Group, ActionIcon, Stack, Menu, Spoiler } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { IconEdit, IconTrash, IconCheck, IconX, IconDots } from '@tabler/icons-react';
 import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
+import { getEditorExtensions } from '../config/editor';
+import { extractMentionIds } from '../utils/mentions';
 import { EntryEditor } from './EntryEditor';
 import { ReadOnlyEditor } from './ReadOnlyEditor';
 import { formatAbsoluteDateTime } from '../utils/date';
@@ -26,15 +26,7 @@ export function EditableComment({ comment, onUpdate, onDelete }: EditableComment
   const [isEmpty, setIsEmpty] = useState(false);
 
   const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: 'tiptap-link',
-        },
-      }),
-    ],
+    extensions: getEditorExtensions(),
     content: '',
     editable: isEditing,
     onUpdate: ({ editor }) => {
@@ -75,6 +67,16 @@ export function EditableComment({ comment, onUpdate, onDelete }: EditableComment
       );
 
       if (result.success && result.data) {
+        // Extract mentions and create references
+        const mentionIds = extractMentionIds(contentJson);
+        for (const mentionedPageId of mentionIds) {
+          try {
+            await electronAPI.entry.addReferenceIfNotExists(comment.id, mentionedPageId);
+          } catch (error) {
+            console.error(`Failed to create reference to page ${mentionedPageId}:`, error);
+          }
+        }
+
         onUpdate(result.data);
         setIsEditing(false);
         if (editor) {

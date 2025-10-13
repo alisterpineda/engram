@@ -46,7 +46,7 @@ TypeORM migrations in `src/main/space/migrations/` auto-run on space open with p
 
 ### UI Framework
 - **Mantine UI v8** (mantine.dev) - Component library with AppShell, Button, Text, Burger, etc.
-- **Tiptap** (tiptap.dev) - Rich text editor with StarterKit, Link, Placeholder, and custom MarkdownPaste extensions (GFM-compatible)
+- **Tiptap** (tiptap.dev) - Rich text editor with StarterKit, Link, Placeholder, Mention, and custom MarkdownPaste extensions (GFM-compatible)
 - PostCSS: `postcss.config.cjs` with `postcss-preset-mantine` and `postcss-simple-vars`
 - CSS Modules: Supported via webpack config
 - Breakpoints: xs:36em, sm:48em, md:62em, lg:75em, xl:88em
@@ -62,9 +62,9 @@ TypeORM migrations in `src/main/space/migrations/` auto-run on space open with p
   - Launcher: `src/renderer/launcher/index.tsx` - two-column layout, create/open/recent spaces
   - Workspace: `src/renderer/workspace/index.tsx` - AppShell with collapsible navbar, routing (react-router-dom HashRouter)
     - Views: `FeedView` (logs chronologically), `PostDetailView`, `PagesView`, `PageDetailView` (all with infinite scroll)
-    - Components: `EntryComposer`, `PageComposer`, `CommentComposer`, `EntryEditor`, `EditableLog`, `EditableComment`, `ReadOnlyEditor`, `EditorToolbar`, `PostCard`, `CommentsSection`, `ReferencesSection`, `MigrationModal`
-    - Hooks: `useEntryEditor` (create/update logic, uses `referenceIds` for create mode)
-    - API: `entry.*`, `page.*`, `comment.*` methods (create, listByParent, getById, update, delete), `entry.getReferencedNotes(id)`, `entry.addReference(sourceId, targetId)`, `entry.removeReference(sourceId, targetId)`
+    - Components: `EntryComposer`, `PageComposer`, `CommentComposer`, `EntryEditor`, `EditableLog`, `EditableComment`, `ReadOnlyEditor`, `EditorToolbar`, `MentionSuggestion`, `PostCard`, `CommentsSection`, `ReferencesSection`, `MigrationModal`
+    - Hooks: `useEntryEditor` (create/update logic, uses `referenceIds` for create mode), `useMentionNavigation` (click navigation for @mentions)
+    - API: `entry.*`, `page.*`, `comment.*` methods (create, listByParent, getById, update, delete), `entry.getReferencedNotes(id)`, `entry.addReference(sourceId, targetId)`, `entry.addReferenceIfNotExists(sourceId, targetId)`, `entry.removeReference(sourceId, targetId)`, `page.searchByTitle(query)`
 - **Preload** (`src/preload/`): Bridge between main/renderer
   - `launcher.ts` - space selection APIs
   - `main-window.ts` - space operations (rename, settings, etc.)

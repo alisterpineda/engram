@@ -647,6 +647,72 @@ export class SpaceManager {
     await pageRepo.remove(page);
   }
 
+  public async searchPagesByTitle(
+    folderPath: string,
+    query: string
+  ): Promise<Page[]> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    const pageRepo = space.dataSource.getRepository(Page);
+
+    // If query is empty, return 5 most recent pages
+    if (!query || query.trim() === '') {
+      return await pageRepo.find({
+        order: { createdAt: 'DESC' },
+        take: 5,
+      });
+    }
+
+    // Search for pages where title contains the query (case-insensitive)
+    const pages = await pageRepo
+      .createQueryBuilder('page')
+      .where('LOWER(page.title) LIKE LOWER(:query)', { query: `%${query}%` })
+      .orderBy('page.title', 'ASC')
+      .limit(5)
+      .getMany();
+
+    return pages;
+  }
+
+  public async addReferenceIfNotExists(
+    folderPath: string,
+    sourceId: number,
+    targetId: number
+  ): Promise<void> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    // Validate sourceId != targetId
+    if (sourceId === targetId) {
+      throw new Error('Cannot create a reference to itself');
+    }
+
+    const refRepo = space.dataSource.getRepository(NoteReference);
+
+    // Check if reference already exists
+    const existing = await refRepo.findOne({
+      where: { sourceId, targetId },
+    });
+
+    if (existing) {
+      // Reference already exists, do nothing
+      return;
+    }
+
+    // Create new reference
+    const ref = refRepo.create({
+      sourceId,
+      targetId,
+    });
+
+    await refRepo.save(ref);
+  }
+
   // Comment CRUD operations
   public async createComment(
     folderPath: string,
