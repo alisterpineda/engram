@@ -58,18 +58,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     delete: (id: number) =>
       ipcRenderer.invoke('page:delete', id),
   },
-  contact: {
-    create: (contentJson: string, title: string, referenceIds?: number[]) =>
-      ipcRenderer.invoke('contact:create', contentJson, title, referenceIds),
-    listAll: (offset?: number, limit?: number) =>
-      ipcRenderer.invoke('contact:list-all', offset, limit),
-    getById: (id: number) =>
-      ipcRenderer.invoke('contact:get-by-id', id),
-    update: (id: number, contentJson: string, title: string) =>
-      ipcRenderer.invoke('contact:update', id, contentJson, title),
-    delete: (id: number) =>
-      ipcRenderer.invoke('contact:delete', id),
-  },
   comment: {
     create: (parentId: number, contentJson: string, commentedAt?: Date, title?: string | null) =>
       ipcRenderer.invoke('comment:create', parentId, contentJson, commentedAt?.toISOString(), title),

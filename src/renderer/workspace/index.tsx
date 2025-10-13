@@ -41,19 +41,15 @@ import { MantineProvider, AppShell, Burger, Group, Text, Button, Stack, ActionIc
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import { IconArrowLeft, IconSun, IconMoon, IconSunMoon, IconHome, IconBook, IconUsers } from '@tabler/icons-react';
+import { IconArrowLeft, IconSun, IconMoon, IconSunMoon, IconHome, IconBook } from '@tabler/icons-react';
 import { FeedView } from './views/FeedView';
 import { PostDetailView } from './views/PostDetailView';
 import { PagesView } from './views/PagesView';
 import { PageCreateView } from './views/PageCreateView';
 import { PageDetailView } from './views/PageDetailView';
-import { ContactsView } from './views/ContactsView';
-import { ContactCreateView } from './views/ContactCreateView';
-import { ContactDetailView } from './views/ContactDetailView';
 import { MigrationModal } from './components/MigrationModal';
 import { compactTheme } from '../theme';
 import { Page } from './types/page';
-import { Contact } from './types/contact';
 
 interface Entry {
   id: number;
@@ -89,13 +85,6 @@ interface SpaceElectronAPI {
     listAll: (offset?: number, limit?: number) => Promise<{ success: boolean; data?: Page[]; error?: string }>;
     getById: (id: number) => Promise<{ success: boolean; data?: Page; error?: string }>;
     update: (id: number, contentJson: string, title: string) => Promise<{ success: boolean; data?: Page; error?: string }>;
-    delete: (id: number) => Promise<{ success: boolean; error?: string }>;
-  };
-  contact: {
-    create: (contentJson: string, title: string, referenceIds?: number[]) => Promise<{ success: boolean; data?: Contact; error?: string }>;
-    listAll: (offset?: number, limit?: number) => Promise<{ success: boolean; data?: Contact[]; error?: string }>;
-    getById: (id: number) => Promise<{ success: boolean; data?: Contact; error?: string }>;
-    update: (id: number, contentJson: string, title: string) => Promise<{ success: boolean; data?: Contact; error?: string }>;
     delete: (id: number) => Promise<{ success: boolean; error?: string }>;
   };
   migration: {
@@ -178,9 +167,7 @@ function AppContent() {
   const isDetailView =
     location.pathname.startsWith('/post/') ||
     location.pathname.startsWith('/page/') ||
-    location.pathname.startsWith('/contact/') ||
-    location.pathname === '/pages/new' ||
-    location.pathname === '/contacts/new';
+    location.pathname === '/pages/new';
 
   useEffect(() => {
     // Load space info on mount
@@ -198,7 +185,6 @@ function AppContent() {
   const handleBack = () => {
     if (location.pathname.startsWith('/post/')) navigate('/');
     if (location.pathname === '/pages/new' || location.pathname.startsWith('/page/')) navigate('/pages');
-    if (location.pathname === '/contacts/new' || location.pathname.startsWith('/contact/')) navigate('/contacts');
   };
 
   return (
@@ -252,15 +238,6 @@ function AppContent() {
                 if (opened && isMobile) toggle();
               }}
             />
-            <NavLink
-              label="Contacts"
-              leftSection={<IconUsers size={20} stroke={1.5} />}
-              active={location.pathname === '/contacts'}
-              onClick={() => {
-                navigate('/contacts');
-                if (opened && isMobile) toggle();
-              }}
-            />
           </div>
           <Button variant="light" onClick={handleOpenLauncher}>
             Open Launcher
@@ -275,9 +252,6 @@ function AppContent() {
           <Route path="/pages" element={<PagesView />} />
           <Route path="/pages/new" element={<PageCreateView />} />
           <Route path="/page/:pageId" element={<PageDetailView />} />
-          <Route path="/contacts" element={<ContactsView />} />
-          <Route path="/contacts/new" element={<ContactCreateView />} />
-          <Route path="/contact/:contactId" element={<ContactDetailView />} />
         </Routes>
       </AppShell.Main>
     </AppShell>

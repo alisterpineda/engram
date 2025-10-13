@@ -5,6 +5,7 @@ import { M1760025141052_AddPerformanceIndexes } from './1760025141052-AddPerform
 import { M1760027357781_AddPageAndContact } from './1760027357781-AddPageAndContact';
 import { M1760106987831_AddCommentType } from './1760106987831-AddCommentType';
 import { M1760141375206_AddContentTextToNote } from './1760141375206-AddContentTextToNote';
+import { M1760172000000_RemoveContactType } from './1760172000000-RemoveContactType';
 
 export const allMigrations = [
   M1759802989576_BaselineSchema,
@@ -14,4 +15,5 @@ export const allMigrations = [
   M1760027357781_AddPageAndContact,
   M1760106987831_AddCommentType,
   M1760141375206_AddContentTextToNote,
+  M1760172000000_RemoveContactType,
 ];

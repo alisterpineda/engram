@@ -33,7 +33,7 @@ export function MigrationModal({ opened, current, total, error, onClose }: Migra
   return (
     <Modal
       opened={opened}
-      onClose={() => {}}
+      onClose={() => { /* Intentionally no-op - modal cannot be closed during migration */ }}
       title="Loading space..."
       closeOnClickOutside={false}
       closeOnEscape={false}

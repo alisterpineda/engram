@@ -38,10 +38,6 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
   }, [noteId]);
 
   const getNotePath = (note: NoteReference): string => {
-    if (note.type === 'contact') {
-      return `/contact/${note.id}`;
-    }
-
     if (note.type === 'page') {
       return `/page/${note.id}`;
     }
@@ -82,7 +78,6 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
     const grouped: Record<NoteReferenceType, NoteReference[]> = {
       log: [],
       page: [],
-      contact: [],
       comment: [],
     };
 
@@ -93,7 +88,6 @@ export function ReferencesSection({ noteId }: ReferencesSectionProps) {
     const typeLabels: Record<NoteReferenceType, string> = {
       log: 'Posts',
       page: 'Pages',
-      contact: 'Contacts',
       comment: 'Comments',
     };
 

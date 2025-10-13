@@ -6,7 +6,6 @@ import { Setting } from './entities/Setting';
 import { Note } from './entities/Note';
 import { Log } from './entities/Log';
 import { Page } from './entities/Page';
-import { Contact } from './entities/Contact';
 import { Comment } from './entities/Comment';
 import { NoteReference } from './entities/NoteReference';
 import { SpaceData } from '../../shared/types';
@@ -414,18 +413,6 @@ export class SpaceManager {
       };
     }
 
-    if (note instanceof Contact) {
-      return {
-        id: note.id,
-        title: note.title,
-        contentJson: note.contentJson,
-        contentText: note.contentText,
-        createdAt: note.createdAt,
-        updatedAt: note.updatedAt,
-        type: 'contact' as const,
-      };
-    }
-
     if (note instanceof Comment) {
       return {
         id: note.id,
@@ -658,137 +645,6 @@ export class SpaceManager {
     }
 
     await pageRepo.remove(page);
-  }
-
-  // Contact CRUD operations
-  public async createContact(
-    folderPath: string,
-    contentJson: string,
-    title: string,
-    referenceIds?: number[]
-  ): Promise<Contact> {
-    const space = this.openSpaces.get(folderPath);
-    if (!space) {
-      throw new Error('Space is not open');
-    }
-
-    // Validate title (name) is required
-    if (!title || !title.trim()) {
-      throw new Error('Contact name is required');
-    }
-
-    // Validate: title length
-    if (title.length > 255) {
-      throw new Error('Name must be 255 characters or less');
-    }
-
-    // Generate plain text from contentJson
-    const contentText = generateTextFromContentJson(contentJson);
-
-    const contactRepo = space.dataSource.getRepository(Contact);
-    const contact = contactRepo.create({
-      title: title.trim(),
-      contentJson,
-      contentText,
-    });
-
-    const savedContact = await contactRepo.save(contact);
-
-    // Create references if provided
-    if (referenceIds && referenceIds.length > 0) {
-      const refRepo = space.dataSource.getRepository(NoteReference);
-      for (const targetId of referenceIds) {
-        if (targetId === savedContact.id) {
-          throw new Error('Cannot create a reference to itself');
-        }
-        const ref = refRepo.create({
-          sourceId: savedContact.id,
-          targetId,
-        });
-        await refRepo.save(ref);
-      }
-    }
-
-    return savedContact;
-  }
-
-  public async getAllContacts(
-    folderPath: string,
-    offset = 0,
-    limit = 20
-  ): Promise<Contact[]> {
-    const space = this.openSpaces.get(folderPath);
-    if (!space) {
-      throw new Error('Space is not open');
-    }
-
-    const contactRepo = space.dataSource.getRepository(Contact);
-    return await contactRepo.find({
-      order: { createdAt: 'DESC' },
-      skip: offset,
-      take: limit,
-    });
-  }
-
-  public async getContactById(folderPath: string, id: number): Promise<Contact | null> {
-    const space = this.openSpaces.get(folderPath);
-    if (!space) {
-      throw new Error('Space is not open');
-    }
-
-    const contactRepo = space.dataSource.getRepository(Contact);
-    return await contactRepo.findOne({ where: { id } });
-  }
-
-  public async updateContact(
-    folderPath: string,
-    id: number,
-    contentJson: string,
-    title: string
-  ): Promise<Contact> {
-    const space = this.openSpaces.get(folderPath);
-    if (!space) {
-      throw new Error('Space is not open');
-    }
-
-    // Validate title (name) is required
-    if (!title || !title.trim()) {
-      throw new Error('Contact name is required');
-    }
-
-    // Validate: title length
-    if (title.length > 255) {
-      throw new Error('Name must be 255 characters or less');
-    }
-
-    const contactRepo = space.dataSource.getRepository(Contact);
-    const contact = await contactRepo.findOne({ where: { id } });
-
-    if (!contact) {
-      throw new Error('Contact not found');
-    }
-
-    contact.contentJson = contentJson;
-    contact.contentText = generateTextFromContentJson(contentJson);
-    contact.title = title.trim();
-
-    return await contactRepo.save(contact);
-  }
-
-  public async deleteContact(folderPath: string, id: number): Promise<void> {
-    const space = this.openSpaces.get(folderPath);
-    if (!space) {
-      throw new Error('Space is not open');
-    }
-
-    const contactRepo = space.dataSource.getRepository(Contact);
-    const contact = await contactRepo.findOne({ where: { id } });
-
-    if (!contact) {
-      throw new Error('Contact not found');
-    }
-
-    await contactRepo.remove(contact);
   }
 
   // Comment CRUD operations
