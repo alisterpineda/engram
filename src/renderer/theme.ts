@@ -33,7 +33,7 @@ export const compactTheme = createTheme({
   },
 
   // Headings - compact hierarchy for toolbars, settings, modals
-  // Note: Post titles use size="1.5rem" fw={700} (24px/bold), distinct from content h1 (20px/650)
+  // Note: Post titles use size="1.3125rem" fw={665} (21px/semi-bold), distinct from content h1 (20px/650)
   headings: {
     fontWeight: '650',
     sizes: {

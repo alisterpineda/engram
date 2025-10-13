@@ -239,7 +239,7 @@ export function EditableLog({
               </Group>
             </Group>
             {title && (
-              <Title size="1.5rem" fw={700}>{title}</Title>
+              <Title size="1.3125rem" fw={665}>{title}</Title>
             )}
           </Stack>
           <div style={{ marginBottom: contentMarginBottom ? `var(--mantine-spacing-${contentMarginBottom})` : undefined }}>
