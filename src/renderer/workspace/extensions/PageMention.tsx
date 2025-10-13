@@ -25,7 +25,7 @@ export const PageMention = Mention.configure({
             const result = await electronAPI.page.searchByTitle(query);
             if (result.success && result.data) {
               // Transform pages to have 'label' instead of 'title'
-              const items = result.data.map(page => ({
+              const items = result.data.map((page: { id: number; title: string }) => ({
                 id: page.id,
                 label: page.title,
               }));
