@@ -25,8 +25,8 @@ export default defineConfig({
     // Base timeout for each test
     actionTimeout: 30000,
 
-    // Screenshot on failure
-    screenshot: 'only-on-failure',
+    // Capture screenshot when the first failure occurs
+    screenshot: 'on-first-failure',
 
     // Collect trace on failure
     trace: 'on-first-retry',

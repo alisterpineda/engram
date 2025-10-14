@@ -44,5 +44,9 @@ test.describe('Electron App', () => {
     // Verify the window has loaded content (body element exists)
     const body = await testContext.window.locator('body');
     await expect(body).toBeAttached();
+
+    // Wait for the feed view to render by checking for the composer prompt
+    const feedViewPrompt = testContext.window.getByText("What's on your mind?");
+    await expect(feedViewPrompt).toBeVisible();
   });
 });
