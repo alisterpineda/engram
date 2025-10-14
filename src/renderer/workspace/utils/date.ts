@@ -108,3 +108,97 @@ export function groupPostsByDay<T extends { startedAt: Date | string }>(
 
   return groups;
 }
+
+export function groupFeedItemsByDay<
+  TPost extends { id: number; startedAt: Date | string },
+  TComment extends { parentId: number; commentedAt: Date | string }
+>(
+  posts: TPost[],
+  comments: TComment[]
+): Array<{ day: string; items: Array<{ type: 'full-post' | 'minimized-post'; post: TPost; commentsForDay: TComment[] }> }> {
+  // Map to store groups by day
+  const groupsMap = new Map<string, Array<{ type: 'full-post' | 'minimized-post'; post: TPost; commentsForDay: TComment[] }>>();
+
+  // First pass: Add all posts as 'full-post' to their original day
+  for (const post of posts) {
+    const postDate = new Date(post.startedAt);
+    const dayHeader = formatDayHeader(postDate);
+
+    // Get comments for this post on this specific day
+    const commentsForDay = comments.filter(
+      c => c.parentId === post.id && isSameDay(new Date(c.commentedAt), postDate)
+    );
+
+    if (!groupsMap.has(dayHeader)) {
+      groupsMap.set(dayHeader, []);
+    }
+
+    groupsMap.get(dayHeader)!.push({
+      type: 'full-post',
+      post,
+      commentsForDay,
+    });
+  }
+
+  // Second pass: For each comment, add minimized post to comment's day if different from post day
+  for (const comment of comments) {
+    const commentDate = new Date(comment.commentedAt);
+    const commentDayHeader = formatDayHeader(commentDate);
+
+    // Find the parent post
+    const parentPost = posts.find(p => p.id === comment.parentId);
+    if (!parentPost) continue;
+
+    const postDate = new Date(parentPost.startedAt);
+    const postDayHeader = formatDayHeader(postDate);
+
+    // Only add minimized post if comment is on a different day than the post
+    if (commentDayHeader !== postDayHeader) {
+      if (!groupsMap.has(commentDayHeader)) {
+        groupsMap.set(commentDayHeader, []);
+      }
+
+      const dayItems = groupsMap.get(commentDayHeader)!;
+
+      // Check if we already added this post as minimized for this day
+      const existingMinimizedItem = dayItems.find(
+        item => item.type === 'minimized-post' && item.post.id === parentPost.id
+      );
+
+      if (!existingMinimizedItem) {
+        // Get all comments for this post on this specific day
+        const commentsForDay = comments.filter(
+          c => c.parentId === parentPost.id && isSameDay(new Date(c.commentedAt), commentDate)
+        );
+
+        dayItems.push({
+          type: 'minimized-post',
+          post: parentPost,
+          commentsForDay,
+        });
+      }
+    }
+  }
+
+  // Convert map to array and sort by date (most recent first)
+  const groups = Array.from(groupsMap.entries())
+    .map(([day, items]) => ({ day, items }))
+    .sort((a, b) => {
+      // Parse dates for sorting - handle Today, Yesterday, and full dates
+      const getDateValue = (dayStr: string): number => {
+        if (dayStr === 'Today') {
+          return new Date().setHours(0, 0, 0, 0);
+        } else if (dayStr === 'Yesterday') {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          return yesterday.setHours(0, 0, 0, 0);
+        } else {
+          return new Date(dayStr).getTime();
+        }
+      };
+
+      return getDateValue(b.day) - getDateValue(a.day);
+    });
+
+  return groups;
+}

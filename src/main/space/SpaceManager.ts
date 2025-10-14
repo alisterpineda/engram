@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, In } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createDataSource } from './dataSourceFactory';
@@ -846,5 +846,25 @@ export class SpaceManager {
     }
 
     await commentRepo.remove(comment);
+  }
+
+  public async getCommentsByPostIds(
+    folderPath: string,
+    postIds: number[]
+  ): Promise<Comment[]> {
+    const space = this.openSpaces.get(folderPath);
+    if (!space) {
+      throw new Error('Space is not open');
+    }
+
+    if (!postIds || postIds.length === 0) {
+      return [];
+    }
+
+    const commentRepo = space.dataSource.getRepository(Comment);
+    return await commentRepo.find({
+      where: { parentId: In(postIds) },
+      order: { commentedAt: 'ASC' },
+    });
   }
 }

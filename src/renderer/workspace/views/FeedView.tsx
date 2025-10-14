@@ -2,14 +2,17 @@ import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { Stack, Container, Loader, Center, Box, Text, Card, Title } from '@mantine/core';
 import { EntryComposer } from '../components/EntryComposer';
 import { PostCard } from '../components/PostCard';
+import { MinimizedPostCard } from '../components/MinimizedPostCard';
 import { Log } from '../types/log';
-import { groupPostsByDay } from '../utils/date';
+import { Comment } from '../types/comment';
+import { groupFeedItemsByDay } from '../utils/date';
 
 const electronAPI = (window as any).electronAPI;
 const POSTS_PER_PAGE = 20;
 
 export function FeedView() {
   const [posts, setPosts] = useState<Log[]>([]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const [offset, setOffset] = useState(0);
@@ -28,14 +31,26 @@ export function FeedView() {
       const result = await electronAPI.entry.listAll(currentOffset, POSTS_PER_PAGE);
 
       if (result.success && result.data) {
-        if (currentOffset === 0) {
-          setPosts(result.data);
-        } else {
-          setPosts((prev) => [...prev, ...result.data]);
+        const newPosts = result.data;
+        const allPosts = currentOffset === 0 ? newPosts : [...posts, ...newPosts];
+
+        // Load comments for the new posts
+        if (newPosts.length > 0) {
+          const postIds = newPosts.map((p: Log) => p.id);
+          const commentsResult = await electronAPI.comment.listForPosts(postIds);
+
+          if (commentsResult.success && commentsResult.data) {
+            const newComments = commentsResult.data;
+            const allComments = currentOffset === 0 ? newComments : [...comments, ...newComments];
+            setComments(allComments);
+          }
+        } else if (currentOffset === 0) {
+          setComments([]);
         }
 
-        setHasMore(result.data.length === POSTS_PER_PAGE);
-        setOffset(currentOffset + result.data.length);
+        setPosts(allPosts);
+        setHasMore(newPosts.length === POSTS_PER_PAGE);
+        setOffset(currentOffset + newPosts.length);
       } else {
         console.error('Failed to load posts:', result.error);
       }
@@ -88,7 +103,19 @@ export function FeedView() {
     setPosts((prev) => prev.filter((post) => post.id !== id));
   };
 
-  const groupedPosts = useMemo(() => groupPostsByDay(posts), [posts]);
+  const handleCommentsRefresh = () => {
+    // Reload all comments for current posts
+    const postIds = posts.map(p => p.id);
+    if (postIds.length > 0) {
+      electronAPI.comment.listForPosts(postIds).then((result: any) => {
+        if (result.success && result.data) {
+          setComments(result.data);
+        }
+      });
+    }
+  };
+
+  const groupedFeedItems = useMemo(() => groupFeedItemsByDay(posts, comments), [posts, comments]);
 
   return (
     <Container size="sm" px={0}>
@@ -125,21 +152,37 @@ export function FeedView() {
           </Center>
         ) : (
           <>
-            {groupedPosts.map((group) => (
+            {groupedFeedItems.map((group) => (
               <Box key={group.day}>
                 <Title order={3} mb="md" mt="md">
                   {group.day}
                 </Title>
                 <Stack gap="lg">
-                  {group.posts.map((post) => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      onUpdate={handlePostUpdated}
-                      onDelete={handlePostDeleted}
-                      onFollowUpCreated={handlePostCreated}
-                    />
-                  ))}
+                  {group.items.map((item) => {
+                    if (item.type === 'full-post') {
+                      return (
+                        <PostCard
+                          key={`full-${item.post.id}`}
+                          post={item.post}
+                          onUpdate={handlePostUpdated}
+                          onDelete={handlePostDeleted}
+                          onFollowUpCreated={handlePostCreated}
+                          commentsForDay={item.commentsForDay}
+                          onCommentsRefresh={handleCommentsRefresh}
+                        />
+                      );
+                    } else {
+                      return (
+                        <MinimizedPostCard
+                          key={`minimized-${item.post.id}-${group.day}`}
+                          post={item.post}
+                          day={group.day}
+                          comments={item.commentsForDay}
+                          onCommentCreated={handleCommentsRefresh}
+                        />
+                      );
+                    }
+                  })}
                 </Stack>
               </Box>
             ))}

@@ -575,4 +575,26 @@ export function registerWorkspaceHandlers(): void {
       return { success: false, error: (error as Error).message };
     }
   });
+
+  // List comments for multiple posts
+  ipcMain.handle('comment:list-for-posts', async (event, postIds: number[]) => {
+    try {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) {
+        throw new Error('Window not found');
+      }
+
+      const spacePath = SpaceWindow.getSpacePath(window);
+      if (!spacePath) {
+        throw new Error('Space path not found');
+      }
+
+      const comments = await spaceManager.getCommentsByPostIds(spacePath, postIds);
+
+      return { success: true, data: comments };
+    } catch (error) {
+      console.error('Error listing comments for posts:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
 }

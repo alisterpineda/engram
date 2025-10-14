@@ -65,10 +65,11 @@ TypeORM migrations in `src/main/space/migrations/` auto-run on space open with p
 - **Renderer** (`src/renderer/`): Browser, UI with React 19
   - Launcher: `src/renderer/launcher/index.tsx` - two-column layout, create/open/recent spaces
   - Workspace: `src/renderer/workspace/index.tsx` - AppShell with collapsible navbar, routing (react-router-dom HashRouter)
-    - Views: `FeedView` (logs chronologically), `PostDetailView`, `PagesView`, `PageDetailView` (all with infinite scroll)
-    - Components: `EntryComposer`, `PageComposer`, `CommentComposer`, `EntryEditor`, `EditableLog`, `EditableComment`, `ReadOnlyEditor`, `EditorToolbar`, `MentionSuggestion`, `PostCard`, `CommentsSection`, `ReferencesSection`, `MigrationModal`
+    - Views: `FeedView` (logs with day-grouped comments), `PostDetailView`, `PagesView`, `PageDetailView` (all with infinite scroll)
+    - Components: `EntryComposer`, `PageComposer`, `CommentComposer`, `EntryEditor`, `EditableLog`, `EditableComment`, `ReadOnlyEditor`, `EditorToolbar`, `MentionSuggestion`, `PostCard`, `MinimizedPostCard`, `CommentsSection`, `DayFilteredCommentsSection`, `ReferencesSection`, `MigrationModal`
     - Hooks: `useEntryEditor` (create/update logic, uses `referenceIds` for create mode), `useMentionNavigation` (click navigation for @mentions)
-    - API: `entry.*`, `page.*`, `comment.*` methods (create, listByParent, getById, update, delete), `entry.getReferencedNotes(id)`, `entry.addReference(sourceId, targetId)`, `entry.addReferenceIfNotExists(sourceId, targetId)`, `entry.removeReference(sourceId, targetId)`, `page.searchByTitle(query)`
+    - API: `entry.*`, `page.*`, `comment.*` methods (create, listByParent, listForPosts, getById, update, delete), `entry.getReferencedNotes(id)`, `entry.addReference(sourceId, targetId)`, `entry.addReferenceIfNotExists(sourceId, targetId)`, `entry.removeReference(sourceId, targetId)`, `page.searchByTitle(query)`
+    - **Feed grouping**: Posts appear fully in their original day; posts also appear minimized (quote icon + title) in days where comments exist. Comments filtered by day. Utils: `groupFeedItemsByDay()` in `date.ts`
 - **Preload** (`src/preload/`): Bridge between main/renderer
   - `launcher.ts` - space selection APIs
   - `main-window.ts` - space operations (rename, settings, etc.)

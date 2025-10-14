@@ -5,7 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { EditableLog } from './EditableLog';
 import { EntryComposer } from './EntryComposer';
 import { CommentComposer } from './CommentComposer';
+import { DayFilteredCommentsSection } from './DayFilteredCommentsSection';
 import { Log } from '../types/log';
+import { Comment } from '../types/comment';
 import { useEntryEditor } from '../hooks/useEntryEditor';
 
 interface PostCardProps {
@@ -13,11 +15,13 @@ interface PostCardProps {
   onUpdate: (updatedPost: Log) => void;
   onDelete: (id: number) => void;
   onFollowUpCreated?: (newPost: Log) => void;
+  commentsForDay?: Comment[];
+  onCommentsRefresh?: () => void;
 }
 
 const electronAPI = (window as any).electronAPI;
 
-export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated }: PostCardProps) {
+export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated, commentsForDay, onCommentsRefresh }: PostCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [showFollowUp, setShowFollowUp] = useState(false);
   const [showComment, setShowComment] = useState(false);
@@ -163,6 +167,17 @@ export function PostCard({ post, onUpdate, onDelete, onFollowUpCreated }: PostCa
                 />
               </Box>
             )}
+          </Box>
+        )}
+
+        {!isEditing && commentsForDay && commentsForDay.length > 0 && onCommentsRefresh && (
+          <Box mt="md">
+            <DayFilteredCommentsSection
+              postId={post.id}
+              day=""
+              comments={commentsForDay}
+              onCommentCreated={onCommentsRefresh}
+            />
           </Box>
         )}
       </EditableLog>

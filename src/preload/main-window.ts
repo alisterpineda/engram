@@ -67,6 +67,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.invoke('comment:create', parentId, contentJson, commentedAt?.toISOString(), title),
     listByParent: (parentId: number) =>
       ipcRenderer.invoke('comment:list-by-parent', parentId),
+    listForPosts: (postIds: number[]) =>
+      ipcRenderer.invoke('comment:list-for-posts', postIds),
     getById: (id: number) =>
       ipcRenderer.invoke('comment:get-by-id', id),
     update: (id: number, contentJson: string, commentedAt?: Date, title?: string | null) =>
