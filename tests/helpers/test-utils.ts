@@ -104,6 +104,20 @@ export async function launchElectronApp(
     ],
     // Set to true for debugging
     // executablePath: '/path/to/electron',
+    // Capture main process console output
+    env: {
+      ...process.env,
+      ELECTRON_ENABLE_LOGGING: '1',
+    },
+  });
+
+  // Log main process console output
+  electronApp.process().stdout?.on('data', (data) => {
+    console.log(`[Main Process] ${data.toString().trim()}`);
+  });
+
+  electronApp.process().stderr?.on('data', (data) => {
+    console.error(`[Main Process Error] ${data.toString().trim()}`);
   });
 
   // Wait for the first window

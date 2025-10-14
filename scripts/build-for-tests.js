@@ -4,14 +4,10 @@ const { execSync } = require('child_process');
 
 const arch = process.arch;
 const packageBuildPath = path.join(__dirname, `../.webpack/${arch}/main/index.js`);
-const devBuildPath = path.join(__dirname, '../.webpack/main/index.js');
 
-// Check for dev build first (created by npm start)
+// Tests require a package build (dev build expects webpack dev server)
 let webpackBuildPath;
-if (fs.existsSync(devBuildPath)) {
-  webpackBuildPath = devBuildPath;
-  console.log('✓ Using dev build from npm start');
-} else if (fs.existsSync(packageBuildPath)) {
+if (fs.existsSync(packageBuildPath)) {
   webpackBuildPath = packageBuildPath;
 } else {
   console.log('No test build found. Running electron-forge package...');
