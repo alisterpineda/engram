@@ -15,7 +15,11 @@
     "migration:generate-safe": "node scripts/generate-migration-safe.js",
     "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/main/space/typeorm-cli.config.ts",
-    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/main/space/typeorm-cli.config.ts"
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/main/space/typeorm-cli.config.ts",
+    "test": "playwright test",
+    "test:headed": "HEADED=1 playwright test",
+    "test:debug": "PWDEBUG=1 playwright test",
+    "test:create-snapshot": "ts-node scripts/create-test-snapshot.ts"
   },
   "keywords": [],
   "author": {
@@ -35,6 +39,7 @@
     "@electron-forge/plugin-webpack": "^7.9.0",
     "@electron/fuses": "^1.8.0",
     "@electron/rebuild": "^4.0.1",
+    "@playwright/test": "^1.56.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/marked": "^5.0.2",
     "@types/node": "^24.6.1",

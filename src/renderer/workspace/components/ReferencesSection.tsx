@@ -157,7 +157,7 @@ export function ReferencesSection({ noteId, contentJson }: ReferencesSectionProp
                           variant="subtle"
                           color="gray"
                           size="sm"
-                          onClick={(e) => {
+                          onClick={(e: React.MouseEvent) => {
                             e.stopPropagation();
                             handleDeleteReference(note.id);
                           }}

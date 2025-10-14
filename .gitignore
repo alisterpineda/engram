@@ -93,3 +93,8 @@ out/
 
 # Dev database for migrations
 .dev/
+
+# Test artifacts
+test-results/
+playwright-report/
+tests/fixtures/snapshot-space/
