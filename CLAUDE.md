@@ -9,9 +9,10 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
 - `npm run make` - Create installers
 - `npm run lint` - ESLint (.ts, .tsx)
 - `npm run publish` - Publish
-- `npm test` - Run E2E tests (headless, auto-builds if needed)
+- `npm test` - Run E2E tests (headless, list reporter, auto-builds if needed)
 - `npm run test:headed` - Run tests with visible window
 - `npm run test:debug` - Run tests with Playwright inspector
+- `npm run test:report` - Run tests with HTML report server
 - `npm run test:create-snapshot` - Generate pre-migrated test snapshot Space
 - `npm run build:test` - Smart build for tests (only rebuilds if source files changed)
 
@@ -89,7 +90,7 @@ TypeORM migrations in `src/main/space/migrations/` auto-run on space open with p
 - **Snapshot system**: Pre-migrated test Space in `tests/fixtures/snapshot-space/` (generated via `test:create-snapshot`). Each test copies snapshot to temp dir for isolation
 - Utilities: `tests/helpers/test-utils.ts` (setupTestSpace, cleanupTestSpace, launchElectronApp)
 - Automatic cleanup: Test spaces deleted after each test (pass or fail)
-- Config: `playwright.config.ts` - headed for debug, headless for CI
+- Config: `playwright.config.ts` - headed for debug, headless for CI, list reporter by default (HTML with `PW_HTML_REPORT=1`)
 
 ### Security
 - ASAR packaging enabled

@@ -18,7 +18,8 @@ export default defineConfig({
   retries: 0,
 
   // Reporter to use
-  reporter: 'html',
+  // Use HTML reporter only when explicitly viewing results, otherwise use list reporter
+  reporter: process.env.PW_HTML_REPORT ? 'html' : 'list',
 
   // Shared settings for all the projects below
   use: {

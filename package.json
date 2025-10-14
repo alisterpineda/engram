@@ -20,6 +20,7 @@
     "test": "npm run build:test && playwright test",
     "test:headed": "npm run build:test && HEADED=1 playwright test",
     "test:debug": "npm run build:test && PWDEBUG=1 playwright test",
+    "test:report": "PW_HTML_REPORT=1 playwright test && playwright show-report",
     "test:create-snapshot": "ts-node scripts/create-test-snapshot.ts"
   },
   "keywords": [],
