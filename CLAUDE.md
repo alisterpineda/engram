@@ -9,10 +9,11 @@ Electron desktop app with React 19, TypeScript, Webpack, Electron Forge, and Man
 - `npm run make` - Create installers
 - `npm run lint` - ESLint (.ts, .tsx)
 - `npm run publish` - Publish
-- `npm test` - Run E2E tests (headless)
+- `npm test` - Run E2E tests (headless, auto-builds if needed)
 - `npm run test:headed` - Run tests with visible window
 - `npm run test:debug` - Run tests with Playwright inspector
 - `npm run test:create-snapshot` - Generate pre-migrated test snapshot Space
+- `npm run build:test` - Smart build for tests (only rebuilds if source files changed)
 
 ## Architecture
 
@@ -84,6 +85,7 @@ TypeORM migrations in `src/main/space/migrations/` auto-run on space open with p
 ### Testing
 - **Playwright** for E2E tests in `tests/`
 - Test mode: `--test-space-path` and `--user-data-dir` CLI args skip Launcher, open Space directly
+- **Smart build system**: `scripts/build-for-tests.js` checks if webpack build exists and if source files changed. Only rebuilds when necessary, making test runs fast
 - **Snapshot system**: Pre-migrated test Space in `tests/fixtures/snapshot-space/` (generated via `test:create-snapshot`). Each test copies snapshot to temp dir for isolation
 - Utilities: `tests/helpers/test-utils.ts` (setupTestSpace, cleanupTestSpace, launchElectronApp)
 - Automatic cleanup: Test spaces deleted after each test (pass or fail)

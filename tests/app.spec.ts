@@ -49,4 +49,101 @@ test.describe('Electron App', () => {
     const feedViewPrompt = testContext.window.getByText("What's on your mind?");
     await expect(feedViewPrompt).toBeVisible();
   });
+
+  test('should create a new log entry', async () => {
+    // Wait for the feed view to load
+    const composerPrompt = testContext.window.getByText("What's on your mind?");
+    await expect(composerPrompt).toBeVisible();
+
+    // Click to expand the composer
+    await composerPrompt.click();
+
+    // Wait for the composer to expand and show the editor
+    const editor = testContext.window.locator('.tiptap.ProseMirror');
+    await expect(editor).toBeVisible();
+
+    // Type content into the editor
+    const testContent = 'This is a test log entry created by Playwright';
+    await editor.click();
+    await editor.fill(testContent);
+
+    // Find and click the Post button
+    const postButton = testContext.window.getByRole('button', { name: 'Post' });
+    await expect(postButton).toBeEnabled();
+    await postButton.click();
+
+    // Wait for the post to appear in the feed
+    // The content should be visible in a PostCard
+    await expect(testContext.window.getByText(testContent)).toBeVisible();
+
+    // Verify the composer has collapsed back to the prompt
+    await expect(composerPrompt).toBeVisible();
+  });
+
+  test('should create a log entry with a title', async () => {
+    // Wait for the feed view to load
+    const composerPrompt = testContext.window.getByText("What's on your mind?");
+    await expect(composerPrompt).toBeVisible();
+
+    // Click to expand the composer
+    await composerPrompt.click();
+
+    // Wait for the composer to expand
+    const editor = testContext.window.locator('.tiptap.ProseMirror');
+    await expect(editor).toBeVisible();
+
+    // Fill in the title field
+    const testTitle = 'Test Log with Title';
+    const titleInput = testContext.window.getByPlaceholder('Title (optional)');
+    await expect(titleInput).toBeVisible();
+    await titleInput.fill(testTitle);
+
+    // Type content into the editor
+    const testContent = 'This log entry has both a title and content';
+    await editor.click();
+    await editor.fill(testContent);
+
+    // Click the Post button
+    const postButton = testContext.window.getByRole('button', { name: 'Post' });
+    await expect(postButton).toBeEnabled();
+    await postButton.click();
+
+    // Wait for the post to appear in the feed with the title
+    await expect(testContext.window.getByText(testTitle)).toBeVisible();
+    await expect(testContext.window.getByText(testContent)).toBeVisible();
+
+    // Verify the composer has collapsed back to the prompt
+    await expect(composerPrompt).toBeVisible();
+  });
+
+  test('should require content to post a log', async () => {
+    // Wait for the feed view to load
+    const composerPrompt = testContext.window.getByText("What's on your mind?");
+    await expect(composerPrompt).toBeVisible();
+
+    // Click to expand the composer
+    await composerPrompt.click();
+
+    // Wait for the composer to expand
+    const editor = testContext.window.locator('.tiptap.ProseMirror');
+    await expect(editor).toBeVisible();
+
+    // The Post button should be disabled when content is empty
+    const postButton = testContext.window.getByRole('button', { name: 'Post' });
+    await expect(postButton).toBeDisabled();
+
+    // Add a title but no content - Post button should still be disabled
+    const titleInput = testContext.window.getByPlaceholder('Title (optional)');
+    await titleInput.fill('Title without content');
+    await expect(postButton).toBeDisabled();
+
+    // Now add content - Post button should become enabled
+    await editor.click();
+    await editor.fill('Now there is content');
+    await expect(postButton).toBeEnabled();
+
+    // Clear the content - Post button should be disabled again
+    await editor.clear();
+    await expect(postButton).toBeDisabled();
+  });
 });

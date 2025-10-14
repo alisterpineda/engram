@@ -28,9 +28,6 @@ jobs:
       - name: Rebuild native modules
         run: npx electron-rebuild
 
-      - name: Build Electron bundle
-        run: npm run package
-
       - name: Run tests
         run: npm test
 

@@ -16,9 +16,10 @@
     "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/main/space/typeorm-cli.config.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/main/space/typeorm-cli.config.ts",
-    "test": "playwright test",
-    "test:headed": "HEADED=1 playwright test",
-    "test:debug": "PWDEBUG=1 playwright test",
+    "build:test": "node scripts/build-for-tests.js",
+    "test": "npm run build:test && playwright test",
+    "test:headed": "npm run build:test && HEADED=1 playwright test",
+    "test:debug": "npm run build:test && PWDEBUG=1 playwright test",
     "test:create-snapshot": "ts-node scripts/create-test-snapshot.ts"
   },
   "keywords": [],
