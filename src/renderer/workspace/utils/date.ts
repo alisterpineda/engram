@@ -180,9 +180,36 @@ export function groupFeedItemsByDay<
     }
   }
 
-  // Convert map to array and sort by date (most recent first)
+  // Helper function to get latest activity timestamp for a post
+  const getLatestActivity = (postId: number): number => {
+    const post = posts.find(p => p.id === postId);
+    if (!post) return 0;
+
+    const postComments = comments.filter(c => c.parentId === postId);
+    const postTimestamp = new Date(post.startedAt).getTime();
+
+    if (postComments.length === 0) {
+      return postTimestamp;
+    }
+
+    const latestCommentTimestamp = Math.max(
+      ...postComments.map(c => new Date(c.commentedAt).getTime())
+    );
+
+    return Math.max(postTimestamp, latestCommentTimestamp);
+  };
+
+  // Convert map to array, sort items within each day, then sort days
   const groups = Array.from(groupsMap.entries())
-    .map(([day, items]) => ({ day, items }))
+    .map(([day, items]) => ({
+      day,
+      items: items.sort((a, b) => {
+        // Sort items within each day by latest activity
+        const aLatest = getLatestActivity(a.post.id);
+        const bLatest = getLatestActivity(b.post.id);
+        return bLatest - aLatest;
+      }),
+    }))
     .sort((a, b) => {
       // Parse dates for sorting - handle Today, Yesterday, and full dates
       const getDateValue = (dayStr: string): number => {

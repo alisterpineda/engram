@@ -115,7 +115,35 @@ export function FeedView() {
     }
   };
 
-  const groupedFeedItems = useMemo(() => groupFeedItemsByDay(posts, comments), [posts, comments]);
+  const groupedFeedItems = useMemo(() => {
+    // Sort posts by latest activity (most recent comment or post date)
+    const sortedPosts = [...posts].sort((a, b) => {
+      // Find latest comment for each post
+      const aComments = comments.filter(c => c.parentId === a.id);
+      const bComments = comments.filter(c => c.parentId === b.id);
+
+      // Get latest timestamp for post a (post date or latest comment)
+      const aLatest = aComments.length > 0
+        ? Math.max(
+            new Date(a.startedAt).getTime(),
+            ...aComments.map(c => new Date(c.commentedAt).getTime())
+          )
+        : new Date(a.startedAt).getTime();
+
+      // Get latest timestamp for post b (post date or latest comment)
+      const bLatest = bComments.length > 0
+        ? Math.max(
+            new Date(b.startedAt).getTime(),
+            ...bComments.map(c => new Date(c.commentedAt).getTime())
+          )
+        : new Date(b.startedAt).getTime();
+
+      // Sort by latest activity descending
+      return bLatest - aLatest;
+    });
+
+    return groupFeedItemsByDay(sortedPosts, comments);
+  }, [posts, comments]);
 
   return (
     <Container size="sm" px={0}>
