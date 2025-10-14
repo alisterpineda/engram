@@ -80,13 +80,18 @@ export async function launchElectronApp(
   const arch = process.arch; // 'arm64', 'x64', etc.
   const platform = process.platform; // 'darwin', 'win32', 'linux'
 
-  // Electron Forge creates platform-specific webpack builds
-  const appPath = path.join(__dirname, `../../.webpack/${arch}/main/index.js`);
+  // Check for dev build first (created by npm start), then fallback to package build
+  const devBuildPath = path.join(__dirname, '../../.webpack/main/index.js');
+  const packageBuildPath = path.join(__dirname, `../../.webpack/${arch}/main/index.js`);
 
-  // Verify the build exists
-  if (!fs.existsSync(appPath)) {
+  let appPath: string;
+  if (fs.existsSync(devBuildPath)) {
+    appPath = devBuildPath;
+  } else if (fs.existsSync(packageBuildPath)) {
+    appPath = packageBuildPath;
+  } else {
     throw new Error(
-      `Webpack build not found at ${appPath}. Run "npm run package" first to build the app.`
+      `Webpack build not found. Run "npm test" (auto-builds) or "npm start" first.`
     );
   }
 
